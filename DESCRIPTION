@@ -1,0 +1,9 @@
+Name: image-acquisition
+Version: 0.0.0
+Date: 2013-12-16
+Author: Andreas Weber <andy.weber.aw@gmail.com>
+Maintainer: Andreas Weber <andy.weber.aw@gmail.com>
+Title: Image Acquisition
+Description: 
+Depends: octave (>= 3.8.0)
+License: GPLv3+
