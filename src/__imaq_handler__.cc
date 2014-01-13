@@ -84,6 +84,15 @@ imaq_handler::imaq_handler(const imaq_handler& m)
 imaq_handler::~imaq_handler()
 {
   octave_stdout << "imaq_handler D'Tor " << endl;
+
+  // delete preview_window if active
+  if (preview_window)
+    {
+      delete preview_window;
+      preview_window = 0;
+    }
+
+  // stop streaming, unmap & free buffers, close v4l2 device
   close();
 }
 
@@ -131,6 +140,7 @@ int imaq_handler::open(string d)
 
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-querycap.html
+ * v4l2-ctl -D
  * \return octave_scalar_map with device capabilities
  */
 octave_value imaq_handler::querycap()
@@ -169,7 +179,7 @@ int imaq_handler::g_input()
  */
 void imaq_handler::s_input(int index)
 {
-  xioctl (fd, VIDIOC_G_INPUT, &index);
+  xioctl (fd, VIDIOC_S_INPUT, &index);
 }
 
 /*!
@@ -305,6 +315,7 @@ octave_scalar_map imaq_handler::get_osm (struct v4l2_queryctrl queryctrl)
 {
   octave_scalar_map ctrl;
   ctrl.assign ("id", int(queryctrl.id));
+  ctrl.assign ("value", g_ctrl(queryctrl.id));
   ctrl.assign ("min", int(queryctrl.minimum));
   ctrl.assign ("max", int(queryctrl.maximum));
   if (queryctrl.type == V4L2_CTRL_TYPE_INTEGER)
@@ -358,7 +369,23 @@ octave_value imaq_handler::queryctrl()
     {
       if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
         continue;
-      ctrls.assign (std::string((const char*)queryctrl.name), get_osm(queryctrl));
+      // convert name to lower, replace spaces with _ and remove others
+      std::string field;
+      const char* n= (const char*)queryctrl.name;
+      int len = strlen(n);
+      for (int i=0; i<len; ++i)
+        {
+          char c = tolower(n[i]);
+          if(!islower(c))
+            {
+              if (c !=' ')
+                continue;
+              else
+                c = '_';
+            }
+          field.append(1, c);
+        }
+      ctrls.assign (field, get_osm(queryctrl));
       queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
     }
   return ctrls;
@@ -366,6 +393,20 @@ octave_value imaq_handler::queryctrl()
 
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/control.html
+ * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-ctrl.html
+ */
+int imaq_handler::g_ctrl(int id)
+{
+  struct v4l2_control control;
+  CLEAR(control);
+  control.id = id;
+  xioctl(fd, VIDIOC_G_CTRL, &control);
+  return control.value;
+}
+
+/*!
+ * http://www.linuxtv.org/downloads/v4l-dvb-apis/control.html
+ * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-ctrl.html
  */
 void imaq_handler::s_ctrl(int id, int value)
 {

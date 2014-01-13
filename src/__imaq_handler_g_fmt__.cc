@@ -25,7 +25,7 @@ Get format.\n\
   octave_value_list retval;
   int nargin = args.length ();
 
-  if (nargin != 1 || nargout != 1)
+  if (nargin != 1)
     {
       print_usage();
       return retval;

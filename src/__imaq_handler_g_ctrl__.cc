@@ -16,14 +16,16 @@
 #include <octave/oct.h>
 #include "__imaq_handler__.h"
 
-DEFUN_DLD(__imaq_handler_s_fmt__, args, nargout,
+DEFUN_DLD(__imaq_handler_g_ctrl__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} __imaq_handler_s_fmt__ (@var{h}, @var{size})\n\
-Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
+@deftypefn {Loadable Function} {@var{value} =} __imaq_handler_g_ctrl__ (@var{h}, @var{id})\n\
+Get value for control @var{id} from imaq_handler @var{h}.\n\
+Use the field id from __imaq_handler_queryctrl__.\n\
+@seealso{__imaq_handler_queryctrl__}\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length ();
+  int nargin = args.length();
 
   if (nargin != 2)
     {
@@ -34,13 +36,11 @@ Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
   imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
   if (imgh)
     {
-      Matrix s = args(1).matrix_value();
-      unsigned int xres = s(0);
-      unsigned int yres = s(1);
-      if (! error_state)
-        {
-          imgh->s_fmt(xres, yres);
-        }
+      unsigned int id = args(1).int_value();
+      if (!error_state)
+        retval = octave_value(imgh->g_ctrl(id));
+      else
+        error("ID has to be an integer value");
     }
   return retval;
 }

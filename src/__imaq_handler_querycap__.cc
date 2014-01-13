@@ -16,16 +16,16 @@
 #include <octave/oct.h>
 #include "__imaq_handler__.h"
 
-DEFUN_DLD(__imaq_handler_s_fmt__, args, nargout,
+DEFUN_DLD(__imaq_handler_querycap__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} __imaq_handler_s_fmt__ (@var{h}, @var{size})\n\
-Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
+@deftypefn {Loadable Function} {@var{c} = } __imaq_handler_querycap__ (@var{h})\n\
+Query device capabilities, driver name, card type etc. from imaq_handler @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length ();
+  int nargin = args.length();
 
-  if (nargin != 2)
+  if (nargin != 1)
     {
       print_usage();
       return retval;
@@ -34,13 +34,7 @@ Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
   imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
   if (imgh)
     {
-      Matrix s = args(1).matrix_value();
-      unsigned int xres = s(0);
-      unsigned int yres = s(1);
-      if (! error_state)
-        {
-          imgh->s_fmt(xres, yres);
-        }
+      retval = imgh->querycap();
     }
   return retval;
 }

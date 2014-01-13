@@ -38,6 +38,7 @@ img_win::~img_win()
 {
   cout << "img_win::~img_win D'Tor" << endl;
   hide();
+  Fl::wait(0);
   free(pixel);
 }
 

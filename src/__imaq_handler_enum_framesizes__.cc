@@ -16,16 +16,18 @@
 #include <octave/oct.h>
 #include "__imaq_handler__.h"
 
-DEFUN_DLD(__imaq_handler_s_fmt__, args, nargout,
+DEFUN_DLD(__imaq_handler_enum_framesizes__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} __imaq_handler_s_fmt__ (@var{h}, @var{size})\n\
-Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
+@deftypefn {Loadable Function} {@var{sizes} = } __imaq_handler_enum_framesizes__ (@var{h})\n\
+@deftypefnx {Loadable Function} {@var{sizes} = } __imaq_handler_enum_framesizes__ (@var{h}, @var{format})\n\
+Enumerate available frame sizes from imaq_handler @var{h}.\n\
+If no format is given, V4L2_PIX_FMT_RGB24 is assumed.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length ();
+  int nargin = args.length();
 
-  if (nargin != 2)
+  if (nargin < 1 || nargin>2)
     {
       print_usage();
       return retval;
@@ -34,13 +36,16 @@ Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
   imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
   if (imgh)
     {
-      Matrix s = args(1).matrix_value();
-      unsigned int xres = s(0);
-      unsigned int yres = s(1);
-      if (! error_state)
+      unsigned int pixel_format = V4L2_PIX_FMT_RGB24;
+      if (nargin == 2)
         {
-          imgh->s_fmt(xres, yres);
+          unsigned int tmp_pixel_format = args(1).int_value();
+          if (!error_state)
+            pixel_format = tmp_pixel_format;
+          else
+            error("FORMAT not valid");
         }
+      retval = octave_value(imgh->enum_framesizes(pixel_format));
     }
   return retval;
 }

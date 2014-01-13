@@ -74,23 +74,28 @@ public:
   void print (std::ostream& os, bool pr_as_read_syntax) const;  //!< print itself on ostream
   int open (string d);       //!< open a v4l2 device e.g. /dev/video0
   octave_value querycap ();  //!< Query device capabilities
+
+  octave_value enuminput (); //!< Enumerate video inputs
   int g_input ();            //!< Query the current video input
   void s_input(int index);   //!< Select video input
 
-  octave_value enuminput (); //!< Enumerate video inputs
   octave_value enum_fmt (enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE); //!< Enumerate image formats
   Matrix enum_framesizes(__u32 pixel_format = V4L2_PIX_FMT_RGB24);               //!< Enumerate frame sizes
   Matrix enum_frameintervals(__u32 pixel_format, __u32 width, __u32 height);     //!< Enumerate frame intervals
+  Matrix g_fmt();                             //!< Get current format size
+  void s_fmt (__u32 xres, __u32 yres);        //!< Set format size
 
   octave_value queryctrl ();                  //!< Query controls
+  int g_ctrl (int id);                        //!< Get control
   void s_ctrl (int id, int value);            //!< Set control
-  void s_fmt (__u32 xres, __u32 yres);        //!< Set format size
-  Matrix g_fmt();
+
   octave_value_list capture (int nargout,
                              bool preview=0); //!< Retrieve captured image from buffer
   int capture_to_ppm(const char *fn);         //!< Retrieve captured image from buffer and save it as ppm
+
   void streamon(unsigned int n);              //!< start streaming with n buffers
   void streamoff();                           //!< stop streaming
+
   void close ();                              //!< close v4l2 device
 
 private:
