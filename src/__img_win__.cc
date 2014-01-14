@@ -25,7 +25,7 @@ img_win::img_win(int x, int y, int w, int h)
   :Fl_Double_Window(x, y, w, h, NULL), pixel(NULL), RGB(0)
 {
   Fl::visual(FL_RGB);
-  cout << "img_win::img_win C'Tor" << endl;
+  //cout << "img_win::img_win C'Tor" << endl;
   // create test image
   uchar tmp[w*h];
   for(int x=0; x<w; ++x)
@@ -36,7 +36,7 @@ img_win::img_win(int x, int y, int w, int h)
 
 img_win::~img_win()
 {
-  cout << "img_win::~img_win D'Tor" << endl;
+  //cout << "img_win::~img_win D'Tor" << endl;
   hide();
   Fl::wait(0);
   free(pixel);
@@ -55,7 +55,7 @@ void img_win::copy_img(const unsigned char* p, unsigned int w, unsigned int h, b
   if(len!=pixel_len())
     {
       // resize buffers
-      cout << "img_win::copy_img resize buffers" << endl;
+      //cout << "img_win::copy_img resize buffers" << endl;
       pixel = (uchar*)realloc(pixel, len);
       if (!pixel)
         {
@@ -64,7 +64,7 @@ void img_win::copy_img(const unsigned char* p, unsigned int w, unsigned int h, b
         }
       Fl_Double_Window::size(w+2*BORDER_PX, h+2*BORDER_PX);
       RGB = rgb;
-      label(0, 0);
+      label("dummy_values", 0, 0);
     }
 
   memcpy(pixel, p, len);
@@ -73,10 +73,10 @@ void img_win::copy_img(const unsigned char* p, unsigned int w, unsigned int h, b
     flush();
 }
 
-void img_win::label(unsigned int seq, double fps)
+void img_win::label(const char *device, unsigned int seq, double fps)
 {
   int l=80;
   char buf[l];
-  snprintf(buf, l, "%d x %d %s seq=%06d fps=%5.2f", img_w(), img_h(), (RGB)? "RGB":"gray", seq, fps);
+  snprintf(buf, l, "%d x %d %s seq=%06d fps=%5.2f %s", img_w(), img_h(), (RGB)? "RGB":"gray", seq, fps, device);
   Fl_Double_Window::label(buf);
 }

@@ -6,10 +6,10 @@ if(!exist("x", "var"))
  x = __imaq_handler_open__("/dev/video0");
 endif
 
-__imaq_handler_s_fmt__(x, 640, 480);
-__imaq_handler_streamon__(x, 5);
+__imaq_handler_s_fmt__(x, [640 480]);
+__imaq_handler_streamon__(x, 2);
 
-l = 300;
+l = 200;
 t = zeros(l, 1);
 for i=1:l
   [img, seq, timestamp] = __imaq_handler_capture__(x, 1);
@@ -17,8 +17,8 @@ for i=1:l
 endfor
 
 __imaq_handler_streamoff__(x);
-__imaq_handler_s_fmt__(x, 1280, 960);
-__imaq_handler_streamon__(x, 5);
+__imaq_handler_s_fmt__(x, [1280 960]);
+__imaq_handler_streamon__(x, 2);
 for i=1:l
   [img, seq, timestamp] = __imaq_handler_capture__(x, 1);
   t(i) = timestamp.tv_sec + timestamp.tv_usec./1e6;

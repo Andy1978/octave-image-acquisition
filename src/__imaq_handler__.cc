@@ -118,24 +118,21 @@ void imaq_handler::xioctl_name(int fh, unsigned long int request, void *arg, con
   if (r == -1)
     {
       error("%s:%i xioctl %s error %d, %s\n", file, line, name, errno, strerror(errno));
-      exit(EXIT_FAILURE);
     }
 }
 
-int imaq_handler::open(string d)
+void imaq_handler::open(string d)
 {
   octave_stdout << "imaq_handler::open_device " << d << endl;
   fd = v4l2_open(d.c_str(), O_RDWR | O_NONBLOCK, 0);
   if (fd < 0)
     {
       error("Cannot open device %s. Error %d, %s\n", d.c_str(), errno, strerror(errno));
-      return -1;
     }
   else
     {
       dev = d;
     }
-  return fd;
 }
 
 /*!
@@ -150,15 +147,17 @@ octave_value imaq_handler::querycap()
   xioctl (fd, VIDIOC_QUERYCAP, &cap);
 
   octave_scalar_map st;
-  st.assign ("driver",    std::string((const char*)cap.driver));
-  st.assign ("card",      std::string((const char*)cap.card));
-  st.assign ("bus_info",  std::string((const char*)cap.bus_info));
+  if (!error_state)
+    {
+      st.assign ("driver",    std::string((const char*)cap.driver));
+      st.assign ("card",      std::string((const char*)cap.card));
+      st.assign ("bus_info",  std::string((const char*)cap.bus_info));
 
-  char tmp[15];
-  snprintf(tmp, 15, "%u.%u.%u", (cap.version >> 16) & 0xFF, (cap.version >> 8) & 0xFF, cap.version & 0xFF);
-  st.assign ("version",   std::string(tmp));
-  st.assign ("capabilities", (unsigned int)(cap.capabilities));
-
+      char tmp[15];
+      snprintf(tmp, 15, "%u.%u.%u", (cap.version >> 16) & 0xFF, (cap.version >> 8) & 0xFF, cap.version & 0xFF);
+      st.assign ("version",   std::string(tmp));
+      st.assign ("capabilities", (unsigned int)(cap.capabilities));
+    }
   return octave_value (st);
 }
 
@@ -168,9 +167,7 @@ octave_value imaq_handler::querycap()
 int imaq_handler::g_input()
 {
   int index;
-  int r = v4l2_ioctl (fd, VIDIOC_G_INPUT, &index);
-  if (r == -1)
-    index = -1;
+  xioctl (fd, VIDIOC_G_INPUT, &index);
   return index;
 }
 
@@ -447,7 +444,6 @@ void imaq_handler::s_fmt(__u32 xres, __u32 yres)
       if (fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_RGB24)
         {
           error("Libv4l didn't accept RGB24 format. Can't proceed.\n");
-          exit(EXIT_FAILURE);
         }
       if (xres && yres && ((fmt.fmt.pix.width != xres) || (fmt.fmt.pix.height != yres)))
         warning("driver is sending image at %dx%d but %dx%d was requested\n",
@@ -484,7 +480,7 @@ void imaq_handler::reqbufs (unsigned int n)
   n_buffer = req.count;
 }
 
-int imaq_handler::mmap ()
+void imaq_handler::mmap ()
 {
   struct v4l2_buffer buf;
   buffers = (buffer*)calloc(n_buffer, sizeof(*buffers));
@@ -505,10 +501,8 @@ int imaq_handler::mmap ()
       if (buffers[i].start == MAP_FAILED)
         {
           error("init_buffers mmap failed %s", strerror(errno));
-          return -1;
         }
     }
-  return 0;
 }
 
 void imaq_handler::qbuf ()
@@ -520,7 +514,8 @@ void imaq_handler::qbuf ()
       buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       buf.memory = V4L2_MEMORY_MMAP;
       buf.index = i;
-      xioctl(fd, VIDIOC_QBUF, &buf); //enqueu
+      // enqueu buffer
+      xioctl(fd, VIDIOC_QBUF, &buf);
     }
 }
 
@@ -541,6 +536,7 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
   CLEAR(fmt);
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   xioctl(fd, VIDIOC_G_FMT, &fmt);
+    
   dim_vector dv (3, fmt.fmt.pix.width, fmt.fmt.pix.height);
   uint8NDArray img (dv);
 
@@ -571,7 +567,8 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
   CLEAR(buf);
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;
-  xioctl(fd, VIDIOC_DQBUF, &buf); //dequeue
+  // dequeue buffers
+  xioctl(fd, VIDIOC_DQBUF, &buf);
 
   // calculate real fps
   static double last_timestamp = 0;
@@ -581,7 +578,7 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
 
   // check buffer sizes
   if(img.numel() != int(buf.bytesused))
-    error("imaq_handler::capture size mismatch");
+    error("imaq_handler::capture size mismatch, please file a bug report");
 
   unsigned char* p=reinterpret_cast<unsigned char*>(img.fortran_vec());
   memcpy(p, buffers[buf.index].start, buf.bytesused);
@@ -641,7 +638,7 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
       if (preview_window)
         {
           preview_window->copy_img(p, fmt.fmt.pix.width, fmt.fmt.pix.height, 1); //until now only RGB is supported
-          preview_window->label(buf.sequence, 1.0/dt);
+          preview_window->label(dev.c_str(), buf.sequence, 1.0/dt);
         }
     }
   else if (preview_window)
@@ -655,21 +652,19 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
 /*!
  * Main purpose is for debugging this class
  */
-int imaq_handler::capture_to_ppm(const char *fn)
+void imaq_handler::capture_to_ppm(const char *fn)
 {
   uint8NDArray img = capture(1, 0)(0).uint8_array_value();
   unsigned char* p=reinterpret_cast<unsigned char*>(img.fortran_vec());
   FILE *fout = fopen(fn, "w");
   if (!fout)
     {
-      perror("Cannot open image");
-      return -1;
+      error("imaq_handler::capture_to_ppm cannot open file %s", fn);
     }
   fprintf(fout, "P6\n%d %d 255\n",
           img.dim2(), img.dim3());
   fwrite(p, img.numel(), 1, fout);
   fclose(fout);
-  return 0;
 }
 
 /*!
@@ -684,7 +679,7 @@ void imaq_handler::streamon(unsigned int n)
 {
   if(streaming)
     {
-      error("imaq_handler::streamon streaming already enabled");
+      error("imaq_handler::streamon streaming already enabled. Buffer size unchanged.");
     }
   else
     {
@@ -700,8 +695,8 @@ void imaq_handler::streamon(unsigned int n)
       enum   v4l2_buf_type type;
       type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       xioctl(fd, VIDIOC_STREAMON, &type);
-
-      streaming = 1;
+      if (!error_state)
+        streaming = 1;
     }
 }
 
@@ -721,7 +716,7 @@ void imaq_handler::streamoff()
       enum   v4l2_buf_type type;
       type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       xioctl(fd, VIDIOC_STREAMOFF, &type);
-
+      
       streaming = 0;
 
       // unmap the buffers

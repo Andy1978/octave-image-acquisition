@@ -1,0 +1,16 @@
+autoload("__imaq_handler_open__", "_imaq_handler_.oct");
+autoload("__imaq_handler_querycap__", "_imaq_handler_.oct");
+autoload("__imaq_handler_enuminput__", "_imaq_handler_.oct");
+autoload("__imaq_handler_g_input__", "_imaq_handler_.oct");
+autoload("__imaq_handler_s_input__", "_imaq_handler_.oct");
+autoload("__imaq_handler_enum_fmt__", "_imaq_handler_.oct");
+autoload("__imaq_handler_enum_framesizes__", "_imaq_handler_.oct");
+autoload("__imaq_handler_enum_frameintervals__", "_imaq_handler_.oct");
+autoload("__imaq_handler_g_fmt__", "_imaq_handler_.oct");
+autoload("__imaq_handler_s_fmt__", "_imaq_handler_.oct");
+autoload("__imaq_handler_queryctrl__", "_imaq_handler_.oct");
+autoload("__imaq_handler_g_ctrl__", "_imaq_handler_.oct");
+autoload("__imaq_handler_s_ctrl__", "_imaq_handler_.oct");
+autoload("__imaq_handler_streamoff__", "_imaq_handler_.oct");
+autoload("__imaq_handler_streamon__", "_imaq_handler_.oct");
+autoload("__imaq_handler_capture__", "_imaq_handler_.oct");

@@ -26,9 +26,15 @@ function vi = set (vi, varargin)
     varargin(1:2) = [];
     if (ischar (prop) && strcmp (prop, "VideoResolution"))
       if (isvector (val) && isreal (val) && length (val) == 2)
-        __imaq_handler_s_fmt__(vi.imaqh, val(1), val(2));
+        __imaq_handler_s_fmt__(vi.imaqh, val);
       else
         error ("set: expecting the value to be a real vector [width height]");
+      endif
+    elseif (ischar (prop) && strcmp (prop, "VideoInput"))
+      if (isscalar (val) && isreal (val))
+        __imaq_handler_s_input__(vi.imaqh, val);
+      else
+        error ("set: expecting the value to be a integer");
       endif
     else
       error ("set: invalid property of videoinput class");

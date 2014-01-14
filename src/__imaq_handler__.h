@@ -61,18 +61,20 @@ public:
 
   octave_base_value *clone(void) const // TODO: check if this is okay
   {
+    octave_stdout << "imaq_handler clone" << endl;
     return new imaq_handler(*this);
   }
 
   octave_base_value *empty_clone(void) const // TODO: check if this is okay
   {
+    octave_stdout << "imaq_handler empty_clone" << endl;
     return new imaq_handler();
   }
 
   ~imaq_handler(void);
 
+  void open (string d);       //!< open a v4l2 device e.g. /dev/video0
   void print (std::ostream& os, bool pr_as_read_syntax) const;  //!< print itself on ostream
-  int open (string d);       //!< open a v4l2 device e.g. /dev/video0
   octave_value querycap ();  //!< Query device capabilities
 
   octave_value enuminput (); //!< Enumerate video inputs
@@ -91,7 +93,7 @@ public:
 
   octave_value_list capture (int nargout,
                              bool preview=0); //!< Retrieve captured image from buffer
-  int capture_to_ppm(const char *fn);         //!< Retrieve captured image from buffer and save it as ppm
+  void capture_to_ppm(const char *fn);         //!< Retrieve captured image from buffer and save it as ppm
 
   void streamon(unsigned int n);              //!< start streaming with n buffers
   void streamoff();                           //!< stop streaming
@@ -121,7 +123,7 @@ private:
   void xioctl_name(int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line);
   octave_scalar_map get_osm (struct v4l2_queryctrl queryctrl);
   void reqbufs (unsigned int n);  //!< Initiate Memory Mapping or User Pointer I/O
-  int mmap ();
+  void mmap ();
   void qbuf ();
   void munmap();
 

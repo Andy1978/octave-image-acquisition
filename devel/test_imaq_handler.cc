@@ -24,11 +24,14 @@ int main()
   imaq_handler *m = new imaq_handler();
 
   m->open("/dev/video0");
-/*
+
   octave_value caps = m->querycap();
   caps.print(cout, 0);
 
   octave_value enuminp = m->enuminput();
+  m->s_input(0);
+  m->s_input(1);
+  
   enuminp.print(cout, 0);
 
   octave_value fmt = m->enum_fmt();
@@ -52,7 +55,8 @@ int main()
   ctrls.print (cout, 0);
 
   m->s_fmt(640, 480);
-  m->streamon();
+  // start streaming with 2 buffers
+  m->streamon(2);
 
   octave_value_list cap = m->capture(3);
   uint8NDArray img = cap(0).uint8_array_value();
@@ -72,22 +76,27 @@ int main()
   // change size
   m->streamoff();
   m->s_fmt(160, 120);
-  m->streamon();
+  m->streamon(3);
 
   m->capture_to_ppm("test4.ppm");
   m->capture_to_ppm("test5.ppm");
-*/
+
   // change size
   m->streamoff();
   m->s_fmt(640, 480);
   m->streamon(10);
   
-  for (int i=0; i<1000; ++i)
+  for (int i=0; i<100; ++i)
     m->capture(1, 1);
-    //cap = m->capture(1, 1);
 
   m->print(cout, 0);
+  /***** test double opens */
+  imaq_handler *m2 = new imaq_handler();
+  m2->open("/dev/video0");
+  m2->s_fmt(640, 480);
+  
   m->close();
+  m2->close();
 
   delete m;
   return 0;

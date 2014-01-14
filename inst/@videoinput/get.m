@@ -21,6 +21,10 @@ function val = get (vi, prop)
   switch (prop)
     case "SelectedSourceName"
       val = vi.SelectedSourceName;
+    case "DeviceCapabilities"
+      val = __imaq_handler_querycap__(vi.imaqh);
+    case "VideoInput"
+      val = __imaq_handler_g_input__(vi.imaqh);
     case "VideoResolution"
       val = __imaq_handler_g_fmt__(vi.imaqh);
     otherwise

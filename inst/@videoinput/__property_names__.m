@@ -21,6 +21,8 @@
 function [props] = __property_names__ (sys, flg)
 
   props = {"SelectedSourceName";
+           "DeviceCapabilities";
+           "VideoInput";
            "VideoResolution"};
 
 endfunction

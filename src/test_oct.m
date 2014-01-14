@@ -11,6 +11,11 @@ inputs = __imaq_handler_enuminput__(x)
 
 inp = __imaq_handler_g_input__(x)
 __imaq_handler_s_input__(x, 0)
+try
+  __imaq_handler_s_input__(x, 1)
+catch ERR
+  disp("this shloud fail if input 1 is out of range")
+end_try_catch
 
 __imaq_handler_enum_fmt__(x)
 __imaq_handler_enum_fmt__(x).description
@@ -48,3 +53,19 @@ __imaq_handler_g_ctrl__(x, controls.brightness.id)
 #clear x
 
 page_screen_output(oldval);
+
+########### testing double opens and s_fmt ##############
+
+x2 = __imaq_handler_open__("/dev/video0");
+try
+  __imaq_handler_s_fmt__(x2, [640 480]);
+catch ERR
+  disp("INFO: this is expected because /dev/video0 is still streaming")
+end_try_catch
+
+__imaq_handler_streamoff__(x);
+__imaq_handler_s_fmt__(x2, [640 480]);
+__imaq_handler_g_fmt__(x2)
+
+clear x2
+clear x
