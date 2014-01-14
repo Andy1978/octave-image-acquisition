@@ -13,6 +13,12 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn {Function File} {} start_streaming (@var{vi}, @var{n})
+## Start streaming with @var{n} buffers. It is recommended to use at least 2 buffers.
+## @seealso{stop_streaming}
+## @end deftypefn
+
 function start_streaming (vi, n = 2)
   if (nargin > 2 || nargin < 1)
     print_usage();

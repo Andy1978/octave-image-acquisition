@@ -14,7 +14,14 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.<http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
+## @deftypefn {Function File} {@var{props} =} set (@var{vi}, @var{prop})
+## @deftypefnx {Function File} {@var{val} =} set (@var{vi}, @var{prop}, @var{value})
 ## Set or modify properties of videoinput objects.
+##
+## TODO: please document me and add examples, see get
+##
+## @seealso{get}
+## @end deftypefn
 
 function ret = set (vi, varargin)
   if (length (varargin) == 1) ## show available values for controls
@@ -24,6 +31,10 @@ function ret = set (vi, varargin)
         ret = getfield(ctrls, prop);
         ret = rmfield(ret , "id");
       else
+        # TODO: implement that
+        # set(obj, "VideoInput" calls __imaq_handler_enuminput__
+        # set(obj, "VideoResolution" calls __imaq_handler_enum_framesizes__
+        # set(obj, "VideoFrameIntervals" calls __imaq_handler_enum_frameintervals__
         error("only implemented for v4l2 video controls")
       endif
   elseif (length (varargin) < 2 || rem (length (varargin), 2) != 0)

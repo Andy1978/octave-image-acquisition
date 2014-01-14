@@ -14,11 +14,33 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## Get a snapshot from a videoinput object.
+## @deftypefn {Function File} {[@var{img}, @var{seq}, @var{t}] =} getsnapshot (@var{vi}, [@var{preview}])
+## Get a snapshot from a videoinput object buffer.
+## Streaming has to be enabled before calling getsnapshot.
+## If @var{preview}==true the captured image is also shown in a separate FLTK window.
+##
+## @table @var
+## @item @var{img}
+## Retrieved image
+## @item @var{seq}
+## Set by the driver, counting the frames (not fields!) in sequence.
+## @item struct @var{t}
+## For input streams this is time when the first data byte was captured,
+## as returned by the clock_gettime() function for the relevant clock id.
+##
+## @table @var
+## @item @var{tv_sec}
+## seconds
+## @item @var{tv_usec}
+## microseconds
+## @end table
+## @end table
+## @seealso {start_streaming, preview}
+## @end deftypefn
 
-function [ret, seq, timestamp] = getsnapshot (vi, pv=0)
-  if (nargin != 1)
+function [img, seq, timestamp] = getsnapshot (vi, pv=0)
+  if (nargin < 1 || nargin>2)
     print_usage();
   endif
-  [ret, seq, timestamp] = __imaq_handler_capture__(vi.imaqh, pv);
+  [img, seq, timestamp] = __imaq_handler_capture__(vi.imaqh, pv);
 endfunction

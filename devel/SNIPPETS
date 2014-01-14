@@ -79,3 +79,7 @@ ffmpeg -f v4l2 -r 25 -s 640x480 -i /dev/video0 out.avi
 
 v4l2-ctl --set-ctrl=exposure_absolute=100
 
+Loopback
+sudo modprobe v4l2loopback
+gst-launch-0.10 videotestsrc ! v4l2sink device=/dev/video0
+

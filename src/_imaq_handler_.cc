@@ -480,7 +480,7 @@ Get a snapshot from imaq_handler @var{h}\n\
 %! __imaq_handler_s_fmt__(vi, s(2,:));         # use smales available format
 %! disp("The image size is now")
 %! disp(__imaq_handler_g_fmt__(vi))
-%! __imaq_handler_streamon__(vi, 2);           # enable streaming with 2 buffers 
+%! __imaq_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
 %! for i=1:l
 %!   __imaq_handler_capture__(vi, 1);
 %! endfor
@@ -513,7 +513,7 @@ Get a snapshot from imaq_handler @var{h}\n\
 %! fail = 0;
 %! x1 = __imaq_handler_open__("/dev/video0");
 %! s = __imaq_handler_enum_framesizes__(x1);
-%! 
+%!
 %! __imaq_handler_s_fmt__(x1, s(1,:));
 %! __imaq_handler_streamon__(x1, 3);
 %! x2 = __imaq_handler_open__("/dev/video0");
@@ -521,7 +521,7 @@ Get a snapshot from imaq_handler @var{h}\n\
 %!   __imaq_handler_s_fmt__(x2, [640 480]);
 %! catch ERR #this error is expected because /dev/video0 is still streaming
 %!   disp("INFO: this error is expected because /dev/video0 is still streaming")
-%!   fail = 1; 
+%!   fail = 1;
 %! end_try_catch
 %! assert (fail, 1);
 */

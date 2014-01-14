@@ -14,7 +14,43 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
+## @deftypefn {Function File} {@var{props} =} get (@var{vi})
+## @deftypefnx {Function File} {@var{val} =} get (@var{vi}, @var{prop})
 ## Access property values of videoinput objects.
+##
+## Without @var{prop} a cell with available properties is returned.
+## The first four entries (starting with a upper letter) are fixed, the others
+## queried from and specific to the used driver.
+##
+## @example
+## @group
+## get (obj) @result{}
+##  @{
+##    [1,1] = SelectedSourceName
+##    [2,1] = DeviceCapabilities
+##    [3,1] = VideoInput
+##    [4,1] = VideoResolution
+##    [5,1] = brightness
+##    [6,1] = saturation
+##  @}
+## @end group
+## @end example
+##
+## @example
+## @group
+## get (obj, "SelectedSourceName")
+##   @result{} /dev/video0
+## @end group
+## @end example
+##
+## @example
+## @group
+## get (obj, "VideoResolution")
+##   @result{}    320   240
+## @end group
+## @end example
+## @seealso{set}
+## @end deftypefn
 
 function val = get (vi, prop)
   if (nargin > 2)

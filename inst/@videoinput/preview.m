@@ -14,7 +14,10 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## Show preview images from a videoinput object.
+## @deftypefn {Function File} {} preview (@var{vi})
+## Repeatedly get a snapshot from a videoinput object buffer and display
+## it in a FLTK window. Stop execution with CTRL-C.
+## @end deftypefn
 
 function preview (vi)
   if (nargin != 1)
