@@ -52,3 +52,6 @@ function vi = videoinput (adaptorname, device, format)
   endif
   
 endfunction
+
+%!test
+%! huhu = 5

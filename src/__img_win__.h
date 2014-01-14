@@ -19,6 +19,7 @@
   Currently RGB24 (8bit red, green, blue) and Grayvalues with 8bit are supported.
 */
 
+#include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/fl_draw.H>
 #include <iostream>

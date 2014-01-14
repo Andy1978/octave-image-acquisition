@@ -16,29 +16,43 @@
 ## -*- texinfo -*-
 ## Set or modify properties of videoinput objects.
 
-function vi = set (vi, varargin)
-  if (length (varargin) < 2 || rem (length (varargin), 2) != 0)
-    error ("set: expecting property/value pairs");
-  endif
-  while (length (varargin) > 1)
+function ret = set (vi, varargin)
+  if (length (varargin) == 1) ## show available values for controls
     prop = varargin{1};
-    val = varargin{2};
-    varargin(1:2) = [];
-    if (ischar (prop) && strcmp (prop, "VideoResolution"))
-      if (isvector (val) && isreal (val) && length (val) == 2)
-        __imaq_handler_s_fmt__(vi.imaqh, val);
+    ctrls = __imaq_handler_queryctrl__(vi.imaqh);
+      if (isfield(ctrls, prop))
+        ret = getfield(ctrls, prop);
+        ret = rmfield(ret , "id");
       else
-        error ("set: expecting the value to be a real vector [width height]");
+        error("only implemented for v4l2 video controls")
       endif
-    elseif (ischar (prop) && strcmp (prop, "VideoInput"))
-      if (isscalar (val) && isreal (val))
-        __imaq_handler_s_input__(vi.imaqh, val);
-      else
-        error ("set: expecting the value to be a integer");
+  elseif (length (varargin) < 2 || rem (length (varargin), 2) != 0)
+    error ("set: expecting property/value pairs");
+  else
+    while (length (varargin) > 1)
+      prop = varargin{1};
+      val = varargin{2};
+      varargin(1:2) = [];
+      if (ischar (prop) && strcmp (prop, "VideoResolution"))
+        if (isvector (val) && isreal (val) && length (val) == 2)
+          __imaq_handler_s_fmt__(vi.imaqh, val);
+        else
+          error ("set: expecting the value to be a real vector [width height]");
+        endif
+      elseif (ischar (prop) && strcmp (prop, "VideoInput"))
+        if (isscalar (val) && isreal (val))
+          __imaq_handler_s_input__(vi.imaqh, val);
+        else
+          error ("set: expecting the value to be a integer");
+        endif
+      else  #ctrls
+        ctrls = __imaq_handler_queryctrl__(vi.imaqh);
+        if (isfield(ctrls, prop))
+          __imaq_handler_s_ctrl__(vi.imaqh, ctrls.(prop).id, val);
+        else
+          error ("set: invalid property of videoinput class");
+        endif
       endif
-    else
-      error ("set: invalid property of videoinput class");
-    endif
-  endwhile
-  
+    endwhile
+  endif
 endfunction

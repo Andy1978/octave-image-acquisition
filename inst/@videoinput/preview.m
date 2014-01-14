@@ -1,4 +1,4 @@
-## Copyright (C) 2013 Andreas Weber <andy.weber.aw@gmail.com>
+## Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -13,9 +13,22 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
-function display (vi)
-  printf("%s = A v4l2 (Video 4 Linux 2) wrapper\n", inputname(1));
-  printf("SelectedSourceName = %s\n", get(vi, "SelectedSourceName"));
-  #printf("VideoResolution    = %i x %ipx\n", vi.VideoResolution(1), vi.VideoResolution(2));
-  # TODO: what to printe here? user controls? device capabilities?
+## -*- texinfo -*-
+## Show preview images from a videoinput object.
+
+function preview (vi)
+  if (nargin != 1)
+    print_usage();
+  endif
+
+  unwind_protect
+    __imaq_handler_streamon__(vi.imaqh, 3);
+    disp("Hit CTRL+C to exit")
+    fflush(stdout);
+    while(1)
+      __imaq_handler_capture__(vi.imaqh, 1);
+    endwhile
+  unwind_protect_cleanup
+    __imaq_handler_streamoff__(vi.imaqh);
+  end_unwind_protect
 endfunction

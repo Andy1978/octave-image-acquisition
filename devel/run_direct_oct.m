@@ -1,6 +1,7 @@
 ## 13.01.2014 Andreas Weber
 ## Simple test script for __xxx__.oct
 
+addpath("../src")
 oldval = page_screen_output(0);
 
 x = __imaq_handler_open__("/dev/video0");
@@ -14,7 +15,7 @@ __imaq_handler_s_input__(x, 0)
 try
   __imaq_handler_s_input__(x, 1)
 catch ERR
-  disp("this shloud fail if input 1 is out of range")
+  disp("this should fail if input 1 is out of range")
 end_try_catch
 
 __imaq_handler_enum_fmt__(x)

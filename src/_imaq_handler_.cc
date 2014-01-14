@@ -250,7 +250,7 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with st
 DEFUN_DLD(__imaq_handler_g_fmt__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} @var{fmt} = __imaq_handler_g_fmt__ (@var{h})\n\
-Get format.\n\
+Get format [width height].\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -438,7 +438,7 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
 
 DEFUN_DLD(__imaq_handler_capture__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{f} =} __imaq_handler_capture__ (@var{h},[@var{preview}])\n\
+@deftypefn {Loadable Function} {@var{f} =} __imaq_handler_capture__ (@var{h}, [@var{preview}])\n\
 Get a snapshot from imaq_handler @var{h}\n\
 @end deftypefn")
 {
@@ -469,7 +469,7 @@ Get a snapshot from imaq_handler @var{h}\n\
 %!demo
 %! disp("open /dev/video0 and show live images with 2 different formats")
 %! vi = __imaq_handler_open__("/dev/video0");
-%! s = __imaq_handler_enum_framesizes__(vi);  # get available frame sizes
+%! s = __imaq_handler_enum_framesizes__(vi);   # get available frame sizes
 %! __imaq_handler_s_fmt__(vi, s(1,:));         # use the default framesize
 %! __imaq_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
 %! l = 200;
@@ -485,3 +485,58 @@ Get a snapshot from imaq_handler @var{h}\n\
 %!   __imaq_handler_capture__(vi, 1);
 %! endfor
 %! __imaq_handler_streamoff__(vi);
+*/
+
+/*
+%!demo
+%! x = __imaq_handler_open__("/dev/video0");
+%! disp("get controls")
+%! ctrls = __imaq_handler_queryctrl__(x)
+%! fieldnames(__imaq_handler_queryctrl__(x))
+*/
+
+/*
+%!test
+%! x = __imaq_handler_open__("/dev/video0");
+%! s = __imaq_handler_enum_framesizes__(x);
+%! default_size = s(1,:);
+%! __imaq_handler_s_fmt__(x, default_size);
+%! t = __imaq_handler_enum_frameintervals__(x, default_size);
+%! #__imaq_handler_enum_fmt__(x).description
+%! __imaq_handler_streamon__(x, 2);
+%! [img, seq, timestamp] = __imaq_handler_capture__(x);
+%! assert(size(img), [default_size(2), default_size(1), 3]);
+*/
+
+/*  open same video device twice
+%!test
+%! fail = 0;
+%! x1 = __imaq_handler_open__("/dev/video0");
+%! s = __imaq_handler_enum_framesizes__(x1);
+%! 
+%! __imaq_handler_s_fmt__(x1, s(1,:));
+%! __imaq_handler_streamon__(x1, 3);
+%! x2 = __imaq_handler_open__("/dev/video0");
+%! try
+%!   __imaq_handler_s_fmt__(x2, [640 480]);
+%! catch ERR #this error is expected because /dev/video0 is still streaming
+%!   disp("INFO: this error is expected because /dev/video0 is still streaming")
+%!   fail = 1; 
+%! end_try_catch
+%! assert (fail, 1);
+*/
+
+/*  change controls
+%!test
+%! x = __imaq_handler_open__("/dev/video0");
+%! __imaq_handler_s_fmt__(x, [640 480]);
+%! ctrls = __imaq_handler_queryctrl__(x);
+%! min_brightness = ctrls.brightness.min;
+%! max_brightness = ctrls.brightness.max;
+%! __imaq_handler_s_ctrl__(x, ctrls.brightness.id, min_brightness);
+%! assert(__imaq_handler_g_ctrl__(x, ctrls.brightness.id), min_brightness)
+%! __imaq_handler_s_ctrl__(x, ctrls.brightness.id, max_brightness);
+%! assert(__imaq_handler_g_ctrl__(x, ctrls.brightness.id), max_brightness)
+%! __imaq_handler_s_ctrl__(x, ctrls.brightness.id, 100);
+%! assert(__imaq_handler_g_ctrl__(x, ctrls.brightness.id), 100);
+*/

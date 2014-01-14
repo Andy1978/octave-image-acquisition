@@ -17,18 +17,31 @@
 ## Access property values of videoinput objects.
 
 function val = get (vi, prop)
-  
-  switch (prop)
-    case "SelectedSourceName"
-      val = vi.SelectedSourceName;
-    case "DeviceCapabilities"
-      val = __imaq_handler_querycap__(vi.imaqh);
-    case "VideoInput"
-      val = __imaq_handler_g_input__(vi.imaqh);
-    case "VideoResolution"
-      val = __imaq_handler_g_fmt__(vi.imaqh);
-    otherwise
-      error ("videoinput: get: invalid property name '%s'", prop);
-  endswitch
+  if (nargin > 2)
+    print_usage();
+  endif
+  if (nargin == 1)
+    ctrls = __imaq_handler_queryctrl__(vi.imaqh);
+    val = vertcat(__property_names__(vi), fieldnames(ctrls));
+  else
+    switch (prop)
+      case "SelectedSourceName"
+        val = vi.SelectedSourceName;
+      case "DeviceCapabilities"
+        val = __imaq_handler_querycap__(vi.imaqh);
+      case "VideoInput"
+        val = __imaq_handler_g_input__(vi.imaqh);
+      case "VideoResolution"
+        val = __imaq_handler_g_fmt__(vi.imaqh);
+      otherwise
+        # get controls
+        ctrls = __imaq_handler_queryctrl__(vi.imaqh);
+        if (isfield(ctrls, prop))
+          val = __imaq_handler_g_ctrl__(vi.imaqh, ctrls.(prop).id);
+        else
+          error ("videoinput: get: invalid property name '%s'", prop);
+        endif
+    endswitch
+  endif
 
 endfunction

@@ -312,7 +312,7 @@ octave_scalar_map imaq_handler::get_osm (struct v4l2_queryctrl queryctrl)
 {
   octave_scalar_map ctrl;
   ctrl.assign ("id", int(queryctrl.id));
-  ctrl.assign ("value", g_ctrl(queryctrl.id));
+  //ctrl.assign ("value", g_ctrl(queryctrl.id));
   ctrl.assign ("min", int(queryctrl.minimum));
   ctrl.assign ("max", int(queryctrl.maximum));
   if (queryctrl.type == V4L2_CTRL_TYPE_INTEGER)
@@ -457,7 +457,7 @@ Matrix imaq_handler::g_fmt()
   CLEAR(fmt);
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   xioctl(fd, VIDIOC_G_FMT, &fmt);
-  Matrix ret(2,1);
+  Matrix ret(1,2);
   ret(0) = fmt.fmt.pix.width;
   ret(1) = fmt.fmt.pix.height;
   return ret;
@@ -637,6 +637,8 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
         }
       if (preview_window)
         {
+          if(!preview_window->shown())
+            preview_window->show();
           preview_window->copy_img(p, fmt.fmt.pix.width, fmt.fmt.pix.height, 1); //until now only RGB is supported
           preview_window->label(dev.c_str(), buf.sequence, 1.0/dt);
         }
@@ -707,12 +709,11 @@ void imaq_handler::streamon(unsigned int n)
  */
 void imaq_handler::streamoff()
 {
-  if(!streaming)
+  if(streaming)
     {
-      error("imaq_handler::streamoff streaming wasn't enabled");
-    }
-  else
-    {
+      if (preview_window)
+        preview_window->hide();
+      Fl::wait(0);
       enum   v4l2_buf_type type;
       type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       xioctl(fd, VIDIOC_STREAMOFF, &type);

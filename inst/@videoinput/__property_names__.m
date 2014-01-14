@@ -14,15 +14,13 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {[@var{props}, @var{vals}] =} __property_names__ ()
+## @deftypefn {Function File} {[@var{props}] =} __property_names__ ()
 ## Return the list of properties for class videoinput.
 ## @end deftypefn
 
-function [props] = __property_names__ (sys, flg)
-
+function [props] = __property_names__ ()
   props = {"SelectedSourceName";
            "DeviceCapabilities";
            "VideoInput";
            "VideoResolution"};
-
 endfunction
