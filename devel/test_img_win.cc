@@ -1,4 +1,4 @@
-#include "__img_win__.h"
+#include "cl_img_win.h"
 #include <FL/Fl.H>
 #include <unistd.h>
 

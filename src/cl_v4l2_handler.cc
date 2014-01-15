@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License along with
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
-#include "__imaq_handler__.h"
+#include "cl_v4l2_handler.h"
 
 static std::string num2s(unsigned num) //taken from v4l2-ctl.cpp
 {
@@ -64,26 +64,26 @@ static std::string fcc2s(unsigned int val) //taken from v4l2-ctl.cpp
   return s;
 }
 
-DEFINE_OCTAVE_ALLOCATOR(imaq_handler);
-DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(imaq_handler, "imaq_handler", "imaq_handler");
+DEFINE_OCTAVE_ALLOCATOR(v4l2_handler);
+DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(v4l2_handler, "v4l2_handler", "v4l2_handler");
 
-imaq_handler::imaq_handler()
+v4l2_handler::v4l2_handler()
   : octave_base_value(),
     fd(-1), n_buffer(0), buffers(0), streaming(0),
     preview_window(0)
 {
-  octave_stdout << "imaq_handler C'Tor " << endl;
+  octave_stdout << "v4l2_handler C'Tor " << endl;
 }
 
-imaq_handler::imaq_handler(const imaq_handler& m)
+v4l2_handler::v4l2_handler(const v4l2_handler& m)
   : octave_base_value()
 {
-  octave_stdout << "imaq_handler: the copy constructor shouldn't be called" << std::endl;
+  octave_stdout << "v4l2_handler: the copy constructor shouldn't be called" << std::endl;
 }
 
-imaq_handler::~imaq_handler()
+v4l2_handler::~v4l2_handler()
 {
-  octave_stdout << "imaq_handler D'Tor " << endl;
+  octave_stdout << "v4l2_handler D'Tor " << endl;
 
   // delete preview_window if active
   if (preview_window)
@@ -96,9 +96,9 @@ imaq_handler::~imaq_handler()
   close();
 }
 
-void imaq_handler::print(std::ostream& os, bool pr_as_read_syntax = false) const
+void v4l2_handler::print(std::ostream& os, bool pr_as_read_syntax = false) const
 {
-  os << "imaq_handler:print " << endl;
+  os << "v4l2_handler:print " << endl;
   os << "device = " << dev << endl;
   os << "fd = " << fd << endl;
   os << "n_buffer = " << n_buffer << endl;
@@ -106,7 +106,7 @@ void imaq_handler::print(std::ostream& os, bool pr_as_read_syntax = false) const
 
 // calls to xioctl should never fail.
 // If it fails something unexpected happened
-void imaq_handler::xioctl_name(int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line)
+void v4l2_handler::xioctl_name(int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line)
 {
   int r;
   do
@@ -121,9 +121,9 @@ void imaq_handler::xioctl_name(int fh, unsigned long int request, void *arg, con
     }
 }
 
-void imaq_handler::open(string d)
+void v4l2_handler::open(string d)
 {
-  octave_stdout << "imaq_handler::open_device " << d << endl;
+  octave_stdout << "v4l2_handler::open_device " << d << endl;
   fd = v4l2_open(d.c_str(), O_RDWR | O_NONBLOCK, 0);
   if (fd < 0)
     {
@@ -140,7 +140,7 @@ void imaq_handler::open(string d)
  * v4l2-ctl -D
  * \return octave_scalar_map with device capabilities
  */
-octave_value imaq_handler::querycap()
+octave_value v4l2_handler::querycap()
 {
   struct v4l2_capability cap;
   CLEAR(cap);
@@ -164,7 +164,7 @@ octave_value imaq_handler::querycap()
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
  */
-int imaq_handler::g_input()
+int v4l2_handler::g_input()
 {
   int index;
   xioctl (fd, VIDIOC_G_INPUT, &index);
@@ -174,7 +174,7 @@ int imaq_handler::g_input()
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
  */
-void imaq_handler::s_input(int index)
+void v4l2_handler::s_input(int index)
 {
   xioctl (fd, VIDIOC_S_INPUT, &index);
 }
@@ -184,7 +184,7 @@ void imaq_handler::s_input(int index)
  * see also output from "v4l2-ctl -n"
  * \return octave_map with the enumeration of all inputs
  */
-octave_value imaq_handler::enuminput()
+octave_value v4l2_handler::enuminput()
 {
   octave_map ret;
   struct v4l2_input inp;
@@ -222,7 +222,7 @@ octave_value imaq_handler::enuminput()
  * see also "v4l2-ctl -w --list-formats"
  * \return octave_map with available video formats
  */
-octave_value imaq_handler::enum_fmt(enum v4l2_buf_type type)
+octave_value v4l2_handler::enum_fmt(enum v4l2_buf_type type)
 {
   octave_map ret;
   struct v4l2_fmtdesc fmt;
@@ -251,7 +251,7 @@ octave_value imaq_handler::enum_fmt(enum v4l2_buf_type type)
  * \return Nx2 Matrix with width, height
  * \sa enum_frameintervals
  */
-Matrix imaq_handler::enum_framesizes(__u32 pixel_format)
+Matrix v4l2_handler::enum_framesizes(__u32 pixel_format)
 {
   Matrix ret;
   struct v4l2_frmsizeenum frmsize;
@@ -282,7 +282,7 @@ Matrix imaq_handler::enum_framesizes(__u32 pixel_format)
  * \return row vector with frame interval (1/FPS)
  * \sa enum_framesizes
  */
-Matrix imaq_handler::enum_frameintervals(__u32 pixel_format, __u32 width, __u32 height)
+Matrix v4l2_handler::enum_frameintervals(__u32 pixel_format, __u32 width, __u32 height)
 {
   Matrix ret;
   struct v4l2_frmivalenum frmival;
@@ -308,7 +308,7 @@ Matrix imaq_handler::enum_frameintervals(__u32 pixel_format, __u32 width, __u32 
 }
 
 // get octave_scalar_map from v4l2_queryctrl
-octave_scalar_map imaq_handler::get_osm (struct v4l2_queryctrl queryctrl)
+octave_scalar_map v4l2_handler::get_osm (struct v4l2_queryctrl queryctrl)
 {
   octave_scalar_map ctrl;
   ctrl.assign ("id", int(queryctrl.id));
@@ -355,7 +355,7 @@ octave_scalar_map imaq_handler::get_osm (struct v4l2_queryctrl queryctrl)
  * Use id for calls to s_ctrl
  * \sa s_ctrl
  */
-octave_value imaq_handler::queryctrl()
+octave_value v4l2_handler::queryctrl()
 {
   struct v4l2_queryctrl queryctrl;
   CLEAR(queryctrl);
@@ -392,7 +392,7 @@ octave_value imaq_handler::queryctrl()
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/control.html
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-ctrl.html
  */
-int imaq_handler::g_ctrl(int id)
+int v4l2_handler::g_ctrl(int id)
 {
   struct v4l2_control control;
   CLEAR(control);
@@ -405,7 +405,7 @@ int imaq_handler::g_ctrl(int id)
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/control.html
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-ctrl.html
  */
-void imaq_handler::s_ctrl(int id, int value)
+void v4l2_handler::s_ctrl(int id, int value)
 {
   struct v4l2_control control;
   CLEAR(control);
@@ -420,11 +420,11 @@ void imaq_handler::s_ctrl(int id, int value)
  *
  * The used libv4l2 pixelformat is set to V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED
  */
-void imaq_handler::s_fmt(__u32 xres, __u32 yres)
+void v4l2_handler::s_fmt(__u32 xres, __u32 yres)
 {
   if(streaming)
     {
-      error("imaq_handler::s_fmt you have to stop streaming first");
+      error("v4l2_handler::s_fmt you have to stop streaming first");
     }
   else
     {
@@ -451,7 +451,7 @@ void imaq_handler::s_fmt(__u32 xres, __u32 yres)
     }
 }
 
-Matrix imaq_handler::g_fmt()
+Matrix v4l2_handler::g_fmt()
 {
   struct v4l2_format fmt;
   CLEAR(fmt);
@@ -467,7 +467,7 @@ Matrix imaq_handler::g_fmt()
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-reqbufs.html
  * \param n number of buffers to initiate. A count value of zero frees all buffers.
  */
-void imaq_handler::reqbufs (unsigned int n)
+void v4l2_handler::reqbufs (unsigned int n)
 {
   struct v4l2_requestbuffers req;
   CLEAR(req);
@@ -480,7 +480,7 @@ void imaq_handler::reqbufs (unsigned int n)
   n_buffer = req.count;
 }
 
-void imaq_handler::mmap ()
+void v4l2_handler::mmap ()
 {
   struct v4l2_buffer buf;
   buffers = (buffer*)calloc(n_buffer, sizeof(*buffers));
@@ -505,7 +505,7 @@ void imaq_handler::mmap ()
     }
 }
 
-void imaq_handler::qbuf ()
+void v4l2_handler::qbuf ()
 {
   struct v4l2_buffer buf;
   for (unsigned int i = 0; i < n_buffer; ++i)
@@ -523,13 +523,13 @@ void imaq_handler::qbuf ()
  *
  * \return image, sequence, timestamp, [timecode]
  */
-octave_value_list imaq_handler::capture (int nargout, bool preview)
+octave_value_list v4l2_handler::capture (int nargout, bool preview)
 {
   octave_value_list ret;
 
   if(!streaming)
     {
-      error("imaq_handler::capture streaming wasn't enabled");
+      error("v4l2_handler::capture streaming wasn't enabled");
       return octave_value();
     }
   struct v4l2_format fmt;
@@ -560,7 +560,7 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
   while ((r == -1 && (errno == EINTR)));
   if (r == -1)
     {
-      error("imaq_handler::capture select failed.");
+      error("v4l2_handler::capture select failed.");
       return octave_value();
     }
 
@@ -578,7 +578,7 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
 
   // check buffer sizes
   if(img.numel() != int(buf.bytesused))
-    error("imaq_handler::capture size mismatch, please file a bug report");
+    error("v4l2_handler::capture size mismatch, please file a bug report");
 
   unsigned char* p=reinterpret_cast<unsigned char*>(img.fortran_vec());
   memcpy(p, buffers[buf.index].start, buf.bytesused);
@@ -621,7 +621,7 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
         }
       else
         {
-          error("imaq_handler::capture timecode not available");
+          error("v4l2_handler::capture timecode not available");
         }
     }
 
@@ -640,7 +640,7 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
           if(!preview_window->shown())
             preview_window->show();
           preview_window->copy_img(p, fmt.fmt.pix.width, fmt.fmt.pix.height, 1); //until now only RGB is supported
-          preview_window->label(dev.c_str(), buf.sequence, 1.0/dt);
+          preview_window->custom_label(dev.c_str(), buf.sequence, 1.0/dt);
         }
     }
   else if (preview_window)
@@ -654,14 +654,14 @@ octave_value_list imaq_handler::capture (int nargout, bool preview)
 /*!
  * Main purpose is for debugging this class
  */
-void imaq_handler::capture_to_ppm(const char *fn)
+void v4l2_handler::capture_to_ppm(const char *fn)
 {
   uint8NDArray img = capture(1, 0)(0).uint8_array_value();
   unsigned char* p=reinterpret_cast<unsigned char*>(img.fortran_vec());
   FILE *fout = fopen(fn, "w");
   if (!fout)
     {
-      error("imaq_handler::capture_to_ppm cannot open file %s", fn);
+      error("v4l2_handler::capture_to_ppm cannot open file %s", fn);
     }
   fprintf(fout, "P6\n%d %d 255\n",
           img.dim2(), img.dim3());
@@ -677,11 +677,11 @@ void imaq_handler::capture_to_ppm(const char *fn)
  * - enque the buffers
  * - start streaming
  */
-void imaq_handler::streamon(unsigned int n)
+void v4l2_handler::streamon(unsigned int n)
 {
   if(streaming)
     {
-      error("imaq_handler::streamon streaming already enabled. Buffer size unchanged.");
+      error("v4l2_handler::streamon streaming already enabled. Buffer size unchanged.");
     }
   else
     {
@@ -707,7 +707,7 @@ void imaq_handler::streamon(unsigned int n)
  * - unmap the buffers
  * - free buffers
  */
-void imaq_handler::streamoff()
+void v4l2_handler::streamoff()
 {
   if(streaming)
     {
@@ -727,7 +727,7 @@ void imaq_handler::streamoff()
     }
 }
 
-void imaq_handler::munmap()
+void v4l2_handler::munmap()
 {
   if(buffers)
     {
@@ -738,7 +738,7 @@ void imaq_handler::munmap()
   buffers = 0;
 }
 
-void imaq_handler::close()
+void v4l2_handler::close()
 {
   if(streaming)
     streamoff();
@@ -747,23 +747,23 @@ void imaq_handler::close()
   fd = -1;
 }
 
-imaq_handler* get_imaq_handler_from_ov(octave_value ov)
+v4l2_handler* get_v4l2_handler_from_ov(octave_value ov)
 {
   static bool type_loaded = false;
   if (!type_loaded)
     {
-      imaq_handler::register_type();
+      v4l2_handler::register_type();
       type_loaded = true;
     }
 
-  if (ov.type_id() != imaq_handler::static_type_id())
+  if (ov.type_id() != v4l2_handler::static_type_id())
     {
-      error("get_imaq_handler_from_ov: not a valid imaq_handler");
+      error("get_v4l2_handler_from_ov: not a valid v4l2_handler");
       return 0;
     }
 
-  imaq_handler* imgh = 0;
+  v4l2_handler* imgh = 0;
   const octave_base_value& rep = ov.get_rep();
-  imgh = &((imaq_handler &)rep);
+  imgh = &((v4l2_handler &)rep);
   return imgh;
 }

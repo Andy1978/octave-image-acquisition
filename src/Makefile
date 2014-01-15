@@ -3,14 +3,14 @@
 .PHONY:clean
 .PHONY:all
 
-TARGETS = _imaq_handler_.oct
+TARGETS = __v4l2_handler__.oct
 
 LIBS = -lv4l2 $(shell fltk-config  --ldflags)
 MKOCTFLAGS = -g -Wall -v
 
 all: $(TARGETS)
 
-%.oct: %.cc __imaq_handler__.o __img_win__.o
+%.oct: %.cc cl_v4l2_handler.o cl_img_win.o
 	mkoctfile $(MKOCTFLAGS) $^ $(LIBS)
 
 %.o: %.cc %.h
@@ -18,6 +18,5 @@ all: $(TARGETS)
 
 clean:
 	rm -f $(TARGETS)
-	rm -f *.ppm *.o *.oct octave-core
-	rm -f octave-workspace
+	rm -f *.ppm *.o *.oct octave-core octave-workspace
 	rm -rf doxy

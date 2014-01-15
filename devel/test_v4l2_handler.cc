@@ -14,14 +14,14 @@
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
-#include "__imaq_handler__.h"
+#include "cl_v4l2_handler.h"
 
 using namespace std;
 
 int main()
 {
   cout << __FILE__ << " " << __DATE__ << endl;
-  imaq_handler *m = new imaq_handler();
+  v4l2_handler *m = new v4l2_handler();
 
   m->open("/dev/video0");
 
@@ -91,7 +91,7 @@ int main()
 
   m->print(cout, 0);
   /***** test double opens */
-  imaq_handler *m2 = new imaq_handler();
+  v4l2_handler *m2 = new v4l2_handler();
   m2->open("/dev/video0");
   m2->s_fmt(640, 480);
   

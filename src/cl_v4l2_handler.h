@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License along with
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
-#ifndef _IMAQ_HANDLER_
-#define _IMAQ_HANDLER_
+#ifndef _V4L2_HANDLER_
+#define _V4L2_HANDLER_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,7 +33,7 @@
 
 #include <octave/dMatrix.h>
 #include <iostream>
-#include "__img_win__.h"
+#include "cl_img_win.h"
 
 using namespace std;
 
@@ -53,25 +53,25 @@ struct buffer
  * A big help was the Video Grabber example using libv4l by Mauro Carvalho Cheha
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/v4l2grab-example.html
  */
-class imaq_handler: public octave_base_value
+class v4l2_handler: public octave_base_value
 {
 public:
 
-  imaq_handler();
+  v4l2_handler();
 
   octave_base_value *clone(void) const // TODO: check if this is okay
   {
-    octave_stdout << "imaq_handler clone" << endl;
-    return new imaq_handler(*this);
+    octave_stdout << "v4l2_handler clone" << endl;
+    return new v4l2_handler(*this);
   }
 
   octave_base_value *empty_clone(void) const // TODO: check if this is okay
   {
-    octave_stdout << "imaq_handler empty_clone" << endl;
-    return new imaq_handler();
+    octave_stdout << "v4l2_handler empty_clone" << endl;
+    return new v4l2_handler();
   }
 
-  ~imaq_handler(void);
+  ~v4l2_handler(void);
 
   void open (string d);       //!< open a v4l2 device e.g. /dev/video0
   void print (std::ostream& os, bool pr_as_read_syntax) const;  //!< print itself on ostream
@@ -101,7 +101,7 @@ public:
   void close ();                              //!< close v4l2 device
 
 private:
-  imaq_handler(const imaq_handler& m);
+  v4l2_handler(const v4l2_handler& m);
 
   int fd;
   string dev;
@@ -131,6 +131,6 @@ private:
   DECLARE_OV_TYPEID_FUNCTIONS_AND_DATA
 };
 
-imaq_handler* get_imaq_handler_from_ov(octave_value ov);
+v4l2_handler* get_v4l2_handler_from_ov(octave_value ov);
 
 #endif

@@ -1,0 +1,20 @@
+__fqp_v4l2_handler__ = fullfile (fileparts (mfilename ("fullpath")), "__v4l2_handler__.oct");
+
+autoload("__v4l2_handler_open__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_querycap__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_enuminput__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_g_input__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_s_input__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_enum_fmt__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_enum_framesizes__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_enum_frameintervals__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_g_fmt__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_s_fmt__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_queryctrl__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_g_ctrl__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_s_ctrl__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_streamoff__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_streamon__", __fqp_v4l2_handler__);
+autoload("__v4l2_handler_capture__", __fqp_v4l2_handler__);
+
+clear __fqp_v4l2_handler__;

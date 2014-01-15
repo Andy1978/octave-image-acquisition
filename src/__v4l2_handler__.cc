@@ -14,14 +14,14 @@
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <octave/oct.h>
-#include "__imaq_handler__.h"
+#include "cl_v4l2_handler.h"
 
 static bool type_loaded = false;
 
-DEFUN_DLD(__imaq_handler_open__, args, nargout,
+DEFUN_DLD(__v4l2_handler_open__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{h} =} __imaq_handler_open__ (@var{device})\n\
-Creates an instance of imaq_handler for a v4l2 device and opens it.\n\
+@deftypefn {Loadable Function} {@var{h} =} __v4l2_handler_open__ (@var{device})\n\
+Creates an instance of v4l2_handler for a v4l2 device and opens it.\n\
 @seealso{getsnapshot}\n\
 @end deftypefn")
 {
@@ -36,23 +36,23 @@ Creates an instance of imaq_handler for a v4l2 device and opens it.\n\
 
   if (!type_loaded)
     {
-      imaq_handler::register_type();
+      v4l2_handler::register_type();
       type_loaded = true;
     }
   string device = args(0).string_value();
   if (! error_state)
     {
-      imaq_handler *h = new imaq_handler();
+      v4l2_handler *h = new v4l2_handler();
       h->open(device.c_str());
       retval.append(octave_value(h));
     }
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_querycap__, args, nargout,
+DEFUN_DLD(__v4l2_handler_querycap__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{c} = } __imaq_handler_querycap__ (@var{h})\n\
-Query device capabilities, driver name, card type etc. from imaq_handler @var{h}.\n\
+@deftypefn {Loadable Function} {@var{c} = } __v4l2_handler_querycap__ (@var{h})\n\
+Query device capabilities, driver name, card type etc. from v4l2_handler @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -64,7 +64,7 @@ Query device capabilities, driver name, card type etc. from imaq_handler @var{h}
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       retval = imgh->querycap();
@@ -73,10 +73,10 @@ Query device capabilities, driver name, card type etc. from imaq_handler @var{h}
 }
 // INPUTS
 
-DEFUN_DLD(__imaq_handler_enuminput__, args, nargout,
+DEFUN_DLD(__v4l2_handler_enuminput__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{inputs} = } __imaq_handler_enuminput__ (@var{h})\n\
-Enumerate video inputs from imaq_handler @var{h}.\n\
+@deftypefn {Loadable Function} {@var{inputs} = } __v4l2_handler_enuminput__ (@var{h})\n\
+Enumerate video inputs from v4l2_handler @var{h}.\n\
 Returns a struct with informations for all avaliable v4l2 inputs.\n\
 @end deftypefn")
 {
@@ -89,7 +89,7 @@ Returns a struct with informations for all avaliable v4l2 inputs.\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       retval = imgh->enuminput();
@@ -97,10 +97,10 @@ Returns a struct with informations for all avaliable v4l2 inputs.\n\
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_g_input__, args, nargout,
+DEFUN_DLD(__v4l2_handler_g_input__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{N} =} __imaq_handler_g_input__ (@var{h})\n\
-Query the current video input from imaq_handler @var{h}.\n\
+@deftypefn {Loadable Function} {@var{N} =} __v4l2_handler_g_input__ (@var{h})\n\
+Query the current video input from v4l2_handler @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -111,7 +111,7 @@ Query the current video input from imaq_handler @var{h}.\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       retval = octave_value(imgh->g_input());
@@ -119,10 +119,10 @@ Query the current video input from imaq_handler @var{h}.\n\
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_s_input__, args, nargout,
+DEFUN_DLD(__v4l2_handler_s_input__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {} __imaq_handler_s_input__ (@var{h}, @var{n})\n\
-Select video input @var{n} from imaq_handler @var{h}.\n\
+@deftypefn {Loadable Function} {} __v4l2_handler_s_input__ (@var{h}, @var{n})\n\
+Select video input @var{n} from v4l2_handler @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -134,7 +134,7 @@ Select video input @var{n} from imaq_handler @var{h}.\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       int num = args(1).int_value();
@@ -147,10 +147,10 @@ Select video input @var{n} from imaq_handler @var{h}.\n\
 }
 // FORMAT
 
-DEFUN_DLD(__imaq_handler_enum_fmt__, args, nargout,
+DEFUN_DLD(__v4l2_handler_enum_fmt__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{formats} = } __imaq_handler_enum_fmt__ (@var{h})\n\
-Enumerate image formats from imaq_handler @var{h}.\n\
+@deftypefn {Loadable Function} {@var{formats} = } __v4l2_handler_enum_fmt__ (@var{h})\n\
+Enumerate image formats from v4l2_handler @var{h}.\n\
 Returns a struct with informations for all avaliable v4l2 formats.\n\
 @end deftypefn")
 {
@@ -163,7 +163,7 @@ Returns a struct with informations for all avaliable v4l2 formats.\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       retval = imgh->enum_fmt();
@@ -171,11 +171,11 @@ Returns a struct with informations for all avaliable v4l2 formats.\n\
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_enum_framesizes__, args, nargout,
+DEFUN_DLD(__v4l2_handler_enum_framesizes__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{sizes} = } __imaq_handler_enum_framesizes__ (@var{h})\n\
-@deftypefnx {Loadable Function} {@var{sizes} = } __imaq_handler_enum_framesizes__ (@var{h}, @var{format})\n\
-Enumerate available frame sizes from imaq_handler @var{h}.\n\
+@deftypefn {Loadable Function} {@var{sizes} = } __v4l2_handler_enum_framesizes__ (@var{h})\n\
+@deftypefnx {Loadable Function} {@var{sizes} = } __v4l2_handler_enum_framesizes__ (@var{h}, @var{format})\n\
+Enumerate available frame sizes from v4l2_handler @var{h}.\n\
 If no format is given, V4L2_PIX_FMT_RGB24 is assumed.\n\
 @end deftypefn")
 {
@@ -188,7 +188,7 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed.\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       unsigned int pixel_format = V4L2_PIX_FMT_RGB24;
@@ -205,11 +205,11 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed.\n\
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_enum_frameintervals__, args, nargout,
+DEFUN_DLD(__v4l2_handler_enum_frameintervals__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{T} = } __imaq_handler_enum_frameintervals__ (@var{h}, @var{size})\n\
-@deftypefnc {Loadable Function} {@var{T} = } __imaq_handler_enum_frameintervals__ (@var{h}, @var{size}, @var{format})\n\
-Enumerate available frame intervals [s] from imaq_handler @var{h}.\n\
+@deftypefn {Loadable Function} {@var{T} = } __v4l2_handler_enum_frameintervals__ (@var{h}, @var{size})\n\
+@deftypefnc {Loadable Function} {@var{T} = } __v4l2_handler_enum_frameintervals__ (@var{h}, @var{size}, @var{format})\n\
+Enumerate available frame intervals [s] from v4l2_handler @var{h}.\n\
 If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with string constants?!?).\n\
 @end deftypefn")
 {
@@ -222,7 +222,7 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with st
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       Matrix s = args(1).matrix_value();
@@ -247,9 +247,9 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with st
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_g_fmt__, args, nargout,
+DEFUN_DLD(__v4l2_handler_g_fmt__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} @var{fmt} = __imaq_handler_g_fmt__ (@var{h})\n\
+@deftypefn {Loadable Function} @var{fmt} = __v4l2_handler_g_fmt__ (@var{h})\n\
 Get format [width height].\n\
 @end deftypefn")
 {
@@ -262,7 +262,7 @@ Get format [width height].\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       retval = octave_value(imgh->g_fmt());
@@ -270,9 +270,9 @@ Get format [width height].\n\
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_s_fmt__, args, nargout,
+DEFUN_DLD(__v4l2_handler_s_fmt__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} __imaq_handler_s_fmt__ (@var{h}, @var{size})\n\
+@deftypefn {Loadable Function} __v4l2_handler_s_fmt__ (@var{h}, @var{size})\n\
 Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
 @end deftypefn")
 {
@@ -285,7 +285,7 @@ Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       Matrix s = args(1).matrix_value();
@@ -300,12 +300,12 @@ Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
 }
 // CONTROLS
 
-DEFUN_DLD(__imaq_handler_queryctrl__, args, nargout,
+DEFUN_DLD(__v4l2_handler_queryctrl__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{controls} = } __imaq_handler_queryctrl__ (@var{h})\n\
-Query controls like brightness, contrast, saturation etc. from imaq_handler @var{h}.\n\
-Use the field id for calls to __imaq_handler_s_ctrl__.\n\
-@seealso{__imaq_handler_s_ctrl__}\n\
+@deftypefn {Loadable Function} {@var{controls} = } __v4l2_handler_queryctrl__ (@var{h})\n\
+Query controls like brightness, contrast, saturation etc. from v4l2_handler @var{h}.\n\
+Use the field id for calls to __v4l2_handler_s_ctrl__.\n\
+@seealso{__v4l2_handler_s_ctrl__}\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -317,7 +317,7 @@ Use the field id for calls to __imaq_handler_s_ctrl__.\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       retval = imgh->queryctrl();
@@ -325,12 +325,12 @@ Use the field id for calls to __imaq_handler_s_ctrl__.\n\
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_g_ctrl__, args, nargout,
+DEFUN_DLD(__v4l2_handler_g_ctrl__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{value} =} __imaq_handler_g_ctrl__ (@var{h}, @var{id})\n\
-Get value for control @var{id} from imaq_handler @var{h}.\n\
-Use the field id from __imaq_handler_queryctrl__.\n\
-@seealso{__imaq_handler_queryctrl__}\n\
+@deftypefn {Loadable Function} {@var{value} =} __v4l2_handler_g_ctrl__ (@var{h}, @var{id})\n\
+Get value for control @var{id} from v4l2_handler @var{h}.\n\
+Use the field id from __v4l2_handler_queryctrl__.\n\
+@seealso{__v4l2_handler_queryctrl__}\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -342,7 +342,7 @@ Use the field id from __imaq_handler_queryctrl__.\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       unsigned int id = args(1).int_value();
@@ -354,12 +354,12 @@ Use the field id from __imaq_handler_queryctrl__.\n\
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_s_ctrl__, args, nargout,
+DEFUN_DLD(__v4l2_handler_s_ctrl__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {} __imaq_handler_s_ctrl__ (@var{h}, @var{id}, @var{value})\n\
-Set control @var{id} like brightness, contrast, saturation etc. in imaq_handler @var{h}.\n\
-Use the field id from __imaq_handler_queryctrl__.\n\
-@seealso{__imaq_handler_queryctrl__}\n\
+@deftypefn {Loadable Function} {} __v4l2_handler_s_ctrl__ (@var{h}, @var{id}, @var{value})\n\
+Set control @var{id} like brightness, contrast, saturation etc. in v4l2_handler @var{h}.\n\
+Use the field id from __v4l2_handler_queryctrl__.\n\
+@seealso{__v4l2_handler_queryctrl__}\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -371,7 +371,7 @@ Use the field id from __imaq_handler_queryctrl__.\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       unsigned int id = args(1).int_value();
@@ -385,9 +385,9 @@ Use the field id from __imaq_handler_queryctrl__.\n\
 }
 // STREAMING
 
-DEFUN_DLD(__imaq_handler_streamoff__, args, nargout,
+DEFUN_DLD(__v4l2_handler_streamoff__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} __imaq_handler_streamoff__ (@var{h})\n\
+@deftypefn {Loadable Function} __v4l2_handler_streamoff__ (@var{h})\n\
 Stop streaming.\n\
 @seealso{streamoff}\n\
 @end deftypefn")
@@ -401,15 +401,15 @@ Stop streaming.\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     imgh->streamoff();
   return retval;
 }
 
-DEFUN_DLD(__imaq_handler_streamon__, args, nargout,
+DEFUN_DLD(__v4l2_handler_streamon__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} __imaq_handler_streamon__ (@var{h}, @var{n})\n\
+@deftypefn {Loadable Function} __v4l2_handler_streamon__ (@var{h}, @var{n})\n\
 Start streaming with @var{n} buffers. It is recommended to use at least 2 buffers.\n\
 @seealso{streamoff, getsnapshot}\n\
 @end deftypefn")
@@ -423,7 +423,7 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       unsigned int n_buffers = args(1).int_value();
@@ -436,10 +436,10 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
 }
 // CAPTURES
 
-DEFUN_DLD(__imaq_handler_capture__, args, nargout,
+DEFUN_DLD(__v4l2_handler_capture__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{f} =} __imaq_handler_capture__ (@var{h}, [@var{preview}])\n\
-Get a snapshot from imaq_handler @var{h}\n\
+@deftypefn {Loadable Function} {@var{f} =} __v4l2_handler_capture__ (@var{h}, [@var{preview}])\n\
+Get a snapshot from v4l2_handler @var{h}\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -451,7 +451,7 @@ Get a snapshot from imaq_handler @var{h}\n\
       return retval;
     }
 
-  imaq_handler* imgh = get_imaq_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
   if (imgh)
     {
       int preview = 0;
@@ -468,57 +468,57 @@ Get a snapshot from imaq_handler @var{h}\n\
 /*
 %!demo
 %! disp("open /dev/video0 and show live images with 2 different formats")
-%! vi = __imaq_handler_open__("/dev/video0");
-%! s = __imaq_handler_enum_framesizes__(vi);   # get available frame sizes
-%! __imaq_handler_s_fmt__(vi, s(1,:));         # use the default framesize
-%! __imaq_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
+%! vi = __v4l2_handler_open__("/dev/video0");
+%! s = __v4l2_handler_enum_framesizes__(vi);   # get available frame sizes
+%! __v4l2_handler_s_fmt__(vi, s(1,:));         # use the default framesize
+%! __v4l2_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
 %! l = 200;
 %! for i=1:l
-%!   __imaq_handler_capture__(vi, 1);          # capture 200 frames and show preview
+%!   __v4l2_handler_capture__(vi, 1);          # capture 200 frames and show preview
 %! endfor
-%! __imaq_handler_streamoff__(vi);             # diable streaming
-%! __imaq_handler_s_fmt__(vi, s(2,:));         # use smales available format
+%! __v4l2_handler_streamoff__(vi);             # diable streaming
+%! __v4l2_handler_s_fmt__(vi, s(2,:));         # use smales available format
 %! disp("The image size is now")
-%! disp(__imaq_handler_g_fmt__(vi))
-%! __imaq_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
+%! disp(__v4l2_handler_g_fmt__(vi))
+%! __v4l2_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
 %! for i=1:l
-%!   __imaq_handler_capture__(vi, 1);
+%!   __v4l2_handler_capture__(vi, 1);
 %! endfor
-%! __imaq_handler_streamoff__(vi);
+%! __v4l2_handler_streamoff__(vi);
 */
 
 /*
 %!demo
-%! x = __imaq_handler_open__("/dev/video0");
+%! x = __v4l2_handler_open__("/dev/video0");
 %! disp("get controls")
-%! ctrls = __imaq_handler_queryctrl__(x)
-%! fieldnames(__imaq_handler_queryctrl__(x))
+%! ctrls = __v4l2_handler_queryctrl__(x)
+%! fieldnames(__v4l2_handler_queryctrl__(x))
 */
 
 /*
 %!test
-%! x = __imaq_handler_open__("/dev/video0");
-%! s = __imaq_handler_enum_framesizes__(x);
+%! x = __v4l2_handler_open__("/dev/video0");
+%! s = __v4l2_handler_enum_framesizes__(x);
 %! default_size = s(1,:);
-%! __imaq_handler_s_fmt__(x, default_size);
-%! t = __imaq_handler_enum_frameintervals__(x, default_size);
-%! #__imaq_handler_enum_fmt__(x).description
-%! __imaq_handler_streamon__(x, 2);
-%! [img, seq, timestamp] = __imaq_handler_capture__(x);
+%! __v4l2_handler_s_fmt__(x, default_size);
+%! t = __v4l2_handler_enum_frameintervals__(x, default_size);
+%! #__v4l2_handler_enum_fmt__(x).description
+%! __v4l2_handler_streamon__(x, 2);
+%! [img, seq, timestamp] = __v4l2_handler_capture__(x);
 %! assert(size(img), [default_size(2), default_size(1), 3]);
 */
 
 /*  open same video device twice
 %!test
 %! fail = 0;
-%! x1 = __imaq_handler_open__("/dev/video0");
-%! s = __imaq_handler_enum_framesizes__(x1);
+%! x1 = __v4l2_handler_open__("/dev/video0");
+%! s = __v4l2_handler_enum_framesizes__(x1);
 %!
-%! __imaq_handler_s_fmt__(x1, s(1,:));
-%! __imaq_handler_streamon__(x1, 3);
-%! x2 = __imaq_handler_open__("/dev/video0");
+%! __v4l2_handler_s_fmt__(x1, s(1,:));
+%! __v4l2_handler_streamon__(x1, 3);
+%! x2 = __v4l2_handler_open__("/dev/video0");
 %! try
-%!   __imaq_handler_s_fmt__(x2, [640 480]);
+%!   __v4l2_handler_s_fmt__(x2, [640 480]);
 %! catch ERR #this error is expected because /dev/video0 is still streaming
 %!   disp("INFO: this error is expected because /dev/video0 is still streaming")
 %!   fail = 1;
@@ -528,15 +528,15 @@ Get a snapshot from imaq_handler @var{h}\n\
 
 /*  change controls
 %!test
-%! x = __imaq_handler_open__("/dev/video0");
-%! __imaq_handler_s_fmt__(x, [640 480]);
-%! ctrls = __imaq_handler_queryctrl__(x);
+%! x = __v4l2_handler_open__("/dev/video0");
+%! __v4l2_handler_s_fmt__(x, [640 480]);
+%! ctrls = __v4l2_handler_queryctrl__(x);
 %! min_brightness = ctrls.brightness.min;
 %! max_brightness = ctrls.brightness.max;
-%! __imaq_handler_s_ctrl__(x, ctrls.brightness.id, min_brightness);
-%! assert(__imaq_handler_g_ctrl__(x, ctrls.brightness.id), min_brightness)
-%! __imaq_handler_s_ctrl__(x, ctrls.brightness.id, max_brightness);
-%! assert(__imaq_handler_g_ctrl__(x, ctrls.brightness.id), max_brightness)
-%! __imaq_handler_s_ctrl__(x, ctrls.brightness.id, 100);
-%! assert(__imaq_handler_g_ctrl__(x, ctrls.brightness.id), 100);
+%! __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, min_brightness);
+%! assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), min_brightness)
+%! __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, max_brightness);
+%! assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), max_brightness)
+%! __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, 100);
+%! assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), 100);
 */

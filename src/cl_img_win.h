@@ -57,7 +57,7 @@ public:
   ~img_win();
   void draw();
   void copy_img(const unsigned char* p, unsigned int w, unsigned int h, bool rgb);
-  void label(const char *device, unsigned int seq, double fps);
+  void custom_label(const char *device, unsigned int seq, double fps);
 };
 
 #endif

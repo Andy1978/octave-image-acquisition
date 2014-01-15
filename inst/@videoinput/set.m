@@ -26,15 +26,15 @@
 function ret = set (vi, varargin)
   if (length (varargin) == 1) ## show available values for controls
     prop = varargin{1};
-    ctrls = __imaq_handler_queryctrl__(vi.imaqh);
+    ctrls = __v4l2_handler_queryctrl__(vi.imaqh);
       if (isfield(ctrls, prop))
         ret = getfield(ctrls, prop);
         ret = rmfield(ret , "id");
       else
         # TODO: implement that
-        # set(obj, "VideoInput" calls __imaq_handler_enuminput__
-        # set(obj, "VideoResolution" calls __imaq_handler_enum_framesizes__
-        # set(obj, "VideoFrameIntervals" calls __imaq_handler_enum_frameintervals__
+        # set(obj, "VideoInput" calls __v4l2_handler_enuminput__
+        # set(obj, "VideoResolution" calls __v4l2_handler_enum_framesizes__
+        # set(obj, "VideoFrameIntervals" calls __v4l2_handler_enum_frameintervals__
         error("only implemented for v4l2 video controls")
       endif
   elseif (length (varargin) < 2 || rem (length (varargin), 2) != 0)
@@ -46,20 +46,20 @@ function ret = set (vi, varargin)
       varargin(1:2) = [];
       if (ischar (prop) && strcmp (prop, "VideoResolution"))
         if (isvector (val) && isreal (val) && length (val) == 2)
-          __imaq_handler_s_fmt__(vi.imaqh, val);
+          __v4l2_handler_s_fmt__(vi.imaqh, val);
         else
           error ("set: expecting the value to be a real vector [width height]");
         endif
       elseif (ischar (prop) && strcmp (prop, "VideoInput"))
         if (isscalar (val) && isreal (val))
-          __imaq_handler_s_input__(vi.imaqh, val);
+          __v4l2_handler_s_input__(vi.imaqh, val);
         else
           error ("set: expecting the value to be a integer");
         endif
       else  #ctrls
-        ctrls = __imaq_handler_queryctrl__(vi.imaqh);
+        ctrls = __v4l2_handler_queryctrl__(vi.imaqh);
         if (isfield(ctrls, prop))
-          __imaq_handler_s_ctrl__(vi.imaqh, ctrls.(prop).id, val);
+          __v4l2_handler_s_ctrl__(vi.imaqh, ctrls.(prop).id, val);
         else
           error ("set: invalid property of videoinput class");
         endif

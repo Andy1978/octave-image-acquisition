@@ -25,13 +25,13 @@ function preview (vi)
   endif
 
   unwind_protect
-    __imaq_handler_streamon__(vi.imaqh, 3);
+    __v4l2_handler_streamon__(vi.imaqh, 3);
     disp("Hit CTRL+C to exit")
     fflush(stdout);
     while(1)
-      __imaq_handler_capture__(vi.imaqh, 1);
+      __v4l2_handler_capture__(vi.imaqh, 1);
     endwhile
   unwind_protect_cleanup
-    __imaq_handler_streamoff__(vi.imaqh);
+    __v4l2_handler_streamoff__(vi.imaqh);
   end_unwind_protect
 endfunction

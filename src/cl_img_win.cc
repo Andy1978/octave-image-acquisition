@@ -17,12 +17,12 @@
   10.01.2014 Andreas Weber
   /file img_win.cpp
 */
-#include "__img_win__.h"
+#include "cl_img_win.h"
 #include <stdlib.h>
 #include <FL/Fl.H>
 
 img_win::img_win(int x, int y, int w, int h)
-  :Fl_Double_Window(x, y, w, h, NULL), pixel(NULL), RGB(0)
+  :Fl_Double_Window(x, y, w, h, "img_win"), pixel(NULL), RGB(0)
 {
   Fl::visual(FL_RGB);
   //cout << "img_win::img_win C'Tor" << endl;
@@ -64,7 +64,7 @@ void img_win::copy_img(const unsigned char* p, unsigned int w, unsigned int h, b
         }
       Fl_Double_Window::size(w+2*BORDER_PX, h+2*BORDER_PX);
       RGB = rgb;
-      label("dummy_values", 0, 0);
+      custom_label("dummy", 0, 0);
     }
 
   memcpy(pixel, p, len);
@@ -73,10 +73,10 @@ void img_win::copy_img(const unsigned char* p, unsigned int w, unsigned int h, b
     flush();
 }
 
-void img_win::label(const char *device, unsigned int seq, double fps)
+void img_win::custom_label(const char *device, unsigned int seq, double fps)
 {
-  int l=80;
-  char buf[l];
-  snprintf(buf, l, "%d x %d %s seq=%06d fps=%5.2f %s", img_w(), img_h(), (RGB)? "RGB":"gray", seq, fps, device);
-  Fl_Double_Window::label(buf);
+#define BUF_LEN 80
+  static char buf[BUF_LEN];
+  snprintf(buf, BUF_LEN, "%d x %d %s seq=%06d fps=%5.2f %s", img_w(), img_h(), (RGB)? "RGB":"gray", seq, fps, device);
+  label(buf);
 }

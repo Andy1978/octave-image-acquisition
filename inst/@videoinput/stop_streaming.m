@@ -23,5 +23,5 @@ function stop_streaming (vi)
   if (nargin != 1)
     print_usage();
   endif
-  __imaq_handler_streamoff__(vi.imaqh);
+  __v4l2_handler_streamoff__(vi.imaqh);
 endfunction

@@ -44,7 +44,7 @@ function vi = videoinput (adaptorname, device, format)
     endif
   endif
 
-  vidata.imaqh = __imaq_handler_open__(vidata.SelectedSourceName);
+  vidata.imaqh = __v4l2_handler_open__(vidata.SelectedSourceName);
   vi = class (vidata, "videoinput");
   
   if (nargin == 3)

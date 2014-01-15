@@ -42,5 +42,5 @@ function [img, seq, timestamp] = getsnapshot (vi, pv=0)
   if (nargin < 1 || nargin>2)
     print_usage();
   endif
-  [img, seq, timestamp] = __imaq_handler_capture__(vi.imaqh, pv);
+  [img, seq, timestamp] = __v4l2_handler_capture__(vi.imaqh, pv);
 endfunction
