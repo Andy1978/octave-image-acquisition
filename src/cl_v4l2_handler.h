@@ -83,9 +83,12 @@ public:
 
   octave_value enum_fmt (enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE); //!< Enumerate image formats
   Matrix enum_framesizes(__u32 pixel_format = V4L2_PIX_FMT_RGB24);               //!< Enumerate frame sizes
-  Matrix enum_frameintervals(__u32 pixel_format, __u32 width, __u32 height);     //!< Enumerate frame intervals
   Matrix g_fmt();                             //!< Get current format size
   void s_fmt (__u32 xres, __u32 yres);        //!< Set format size
+
+  Matrix enum_frameintervals(__u32 pixel_format, __u32 width, __u32 height);     //!< Enumerate frame intervals
+  Matrix g_parm();                    //!< Get streaming parameters (like frame interval)
+  void s_parm(Matrix timeperframe);   //!< Set streaming parameters (like frame interval)
 
   octave_value queryctrl ();                  //!< Query controls
   int g_ctrl (int id);                        //!< Get control

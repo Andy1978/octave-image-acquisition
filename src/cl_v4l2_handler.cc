@@ -278,7 +278,7 @@ Matrix v4l2_handler::enum_framesizes(__u32 pixel_format)
  * \param pixel_format constant e.g. V4L2_PIX_FMT_RGB24
  * \param width in px
  * \param height in px
- * \return row vector with frame interval (1/FPS)
+ * \return Nx2 matrix with frame interval numerator, denominator
  * \sa enum_framesizes
  */
 Matrix v4l2_handler::enum_frameintervals(__u32 pixel_format, __u32 width, __u32 height)
@@ -294,8 +294,9 @@ Matrix v4l2_handler::enum_frameintervals(__u32 pixel_format, __u32 width, __u32 
     {
       if (frmival.type == V4L2_FRMIVAL_TYPE_DISCRETE)
         {
-          ret.resize(frmival.index+1, 1);
-          ret(frmival.index, 0) = double(frmival.discrete.numerator)/frmival.discrete.denominator;
+          ret.resize(frmival.index+1, 2);
+          ret(frmival.index, 0) = frmival.discrete.numerator;
+          ret(frmival.index, 1) = frmival.discrete.denominator;
         }
       else if (frmival.type == V4L2_FRMIVAL_TYPE_STEPWISE)
         {
@@ -304,6 +305,51 @@ Matrix v4l2_handler::enum_frameintervals(__u32 pixel_format, __u32 width, __u32 
       frmival.index++;
     }
   return ret;
+}
+
+/*!
+ * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-parm.html
+ */
+Matrix v4l2_handler::g_parm()
+{
+  Matrix ret(1,2);
+  struct v4l2_streamparm sparam;
+  CLEAR(sparam);
+  sparam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  xioctl(fd, VIDIOC_G_PARM, &sparam);
+  if(!error_state)
+    {
+      if(sparam.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
+        {
+          const struct v4l2_fract &tf = sparam.parm.capture.timeperframe;
+          ret(0) = tf.numerator;
+          ret(1) = tf.denominator;
+        }
+      else
+        {
+          error("timeperframe is not supported");
+        }
+    }
+  return ret;
+}
+
+/*!
+ * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-parm.html
+ */
+void v4l2_handler::s_parm(Matrix timeperframe)
+{
+  struct v4l2_streamparm sparam;
+  CLEAR(sparam);
+  sparam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  sparam.parm.capture.timeperframe.numerator = timeperframe(0);
+  sparam.parm.capture.timeperframe.denominator = timeperframe(1);
+  xioctl(fd, VIDIOC_S_PARM, &sparam);
+  struct v4l2_fract *tf = &sparam.parm.capture.timeperframe;
+  if (!tf->denominator || !tf->numerator)
+    error("Invalid framerate");
+  if (tf->numerator != int(timeperframe(0)) || tf->denominator != int(timeperframe(1)))
+    warning("driver is using %d/%d as timeperframe but %d/%d was requested",
+      tf->numerator, tf->denominator, int(timeperframe(0)), int(timeperframe(1)));
 }
 
 // get octave_scalar_map from v4l2_queryctrl
@@ -445,7 +491,7 @@ void v4l2_handler::s_fmt(__u32 xres, __u32 yres)
           error("Libv4l didn't accept RGB24 format. Can't proceed.\n");
         }
       if (xres && yres && ((fmt.fmt.pix.width != xres) || (fmt.fmt.pix.height != yres)))
-        warning("driver is sending image at %dx%d but %dx%d was requested\n",
+        warning("driver is sending image at %dx%d but %dx%d was requested",
                 fmt.fmt.pix.width, fmt.fmt.pix.height, xres, yres);
     }
 }

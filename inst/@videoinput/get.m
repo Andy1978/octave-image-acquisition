@@ -70,7 +70,7 @@ function val = get (vi, prop)
       case "VideoResolution"
         val = __v4l2_handler_g_fmt__(vi.imaqh);
       case "VideoFrameInterval"
-        error("TODO not implemented");
+        val = __v4l2_handler_g_parm__(vi.imaqh);
       case "VideoFormat"
         error("TODO not implemented");
       otherwise
@@ -94,7 +94,7 @@ endfunction
 %! video_in = get(obj, "VideoInput");
 %! s = get(obj, "VideoResolution");
 
-%!xtest
+%!test
 %! obj = videoinput("v4l2", __test__device__);
 %! T = get(obj, "VideoFrameInterval");
 

@@ -48,8 +48,8 @@
 ## @end exmmple
 ##
 ## @item 'VideoFrameInterval'
-## Time between frames in seconds. This is conceptually 1/fps.
-## TODO: not implemented
+## Time between frames in seconds as [numerator, denominator]. Conceptually fps=1/frame_interval.
+##
 ## @item 'VideoFormat'
 ## TODO: not implemented, see set(obj, 'VideoFormat')
 ## @end table
@@ -83,7 +83,11 @@ function ret = set (vi, varargin)
               error ('set VideoInput: expecting the value to be a scalar integer');
             endif
           case 'VideoFrameInterval'
-            error('not implemented')
+            if (ismatrix (val) && isreal (val) && numel (val) == 2)
+              __v4l2_handler_s_parm__(vi.imaqh, val);
+            else
+              error ('set VideoFrameInterval: expecting a 1x2 matrix with [numerator, denominator]');
+            endif
           case 'VideoFormat'
             error('not implemented (fixed to V4L2_PIX_FMT_RGB24')
           otherwise
@@ -166,8 +170,14 @@ endfunction
 %! set (obj, 'VideoFrameInterval', 'RGB3');
 %! set (obj, 'VideoFrameInterval', fmts(2).pixelformat);
 
-%!xtest
+%!test
 %! obj = videoinput ("v4l2", __test__device__);
 %! T = set (obj, 'VideoFrameInterval');
-%! set (obj, 'VideoFrameInterval', T(1));
-%! set (obj, 'VideoFrameInterval', T(2));
+%! set (obj, 'VideoFrameInterval', T(1,:));
+%! set (obj, 'VideoFrameInterval', T(2,:));
+
+%!warning 
+%! obj = videoinput ("v4l2", __test__device__);
+%! # This shouldn't be supported by any camera and the driver
+%! # camps this to valid values but a warning should be displayed
+%! set (obj, 'VideoFrameInterval', [1 10000]);

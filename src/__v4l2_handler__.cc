@@ -209,7 +209,8 @@ DEFUN_DLD(__v4l2_handler_enum_frameintervals__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{T} = } __v4l2_handler_enum_frameintervals__ (@var{h}, @var{size})\n\
 @deftypefnc {Loadable Function} {@var{T} = } __v4l2_handler_enum_frameintervals__ (@var{h}, @var{size}, @var{format})\n\
-Enumerate available frame intervals [s] from v4l2_handler @var{h}.\n\
+Enumerate available frame intervals from v4l2_handler @var{h}.\n\
+Return a Nx2 matrix with numerator, denominator.\n\
 If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with string constants?!?).\n\
 @end deftypefn")
 {
@@ -243,6 +244,52 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with st
             error("FORMAT not valid");
         }
       retval = octave_value(imgh->enum_frameintervals(pixel_format, width, height));
+    }
+  return retval;
+}
+
+DEFUN_DLD(__v4l2_handler_g_parm__, args, nargout,
+          "-*- texinfo -*-\n\
+@deftypefn {Loadable Function} {@var{T} = } __v4l2_handler_g_parm__ (@var{h})\n\
+Return current frame interval as numerator, denominator.\n\
+@end deftypefn")
+{
+  octave_value_list retval;
+  int nargin = args.length();
+
+  if (nargin != 1)
+    {
+      print_usage();
+      return retval;
+    }
+
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  if (imgh)
+    {
+      retval = octave_value(imgh->g_parm());
+    }
+  return retval;
+}
+
+DEFUN_DLD(__v4l2_handler_s_parm__, args, nargout,
+          "-*- texinfo -*-\n\
+@deftypefn {Loadable Function} {@var{T} = } __v4l2_handler_s_parm__ (@var{h}, @var{s})\n\
+Set frame interval numerator and denominator.\n\
+@end deftypefn")
+{
+  octave_value_list retval;
+  int nargin = args.length();
+
+  if (nargin != 2)
+    {
+      print_usage();
+      return retval;
+    }
+
+  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  if (imgh)
+    {
+      imgh->s_parm(args(1).matrix_value());
     }
   return retval;
 }
