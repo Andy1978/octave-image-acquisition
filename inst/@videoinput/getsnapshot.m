@@ -35,7 +35,7 @@
 ## microseconds
 ## @end table
 ## @end table
-## @seealso {start_streaming, preview}
+## @seealso {start, preview}
 ## @end deftypefn
 
 function [img, seq, timestamp] = getsnapshot (vi, pv=0)

@@ -14,14 +14,14 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {} stop_streaming (@var{vi})
-## Stop streaming.
-## @seealso{start_streaming}
+## @deftypefn {Function File} {} start (@var{vi}, @var{n})
+## Start streaming with @var{n} buffers. It is recommended to use at least 2 buffers.
+## @seealso{stop}
 ## @end deftypefn
 
-function stop_streaming (vi)
-  if (nargin != 1)
+function start (vi, n = 2)
+  if (nargin > 2 || nargin < 1)
     print_usage();
   endif
-  __v4l2_handler_streamoff__(vi.imaqh);
+  __v4l2_handler_streamon__(vi.imaqh, n);
 endfunction
