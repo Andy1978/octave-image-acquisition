@@ -468,15 +468,18 @@ Matrix v4l2_handler::g_fmt()
  */
 void v4l2_handler::reqbufs (unsigned int n)
 {
-  struct v4l2_requestbuffers req;
-  CLEAR(req);
-  req.count = n;
-  req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  req.memory = V4L2_MEMORY_MMAP;
-  xioctl(fd, VIDIOC_REQBUFS, &req);
-  if (req.count<n)
-    error("init_buffers VIDIOC_REQBUFS: running out of free memory\n");
-  n_buffer = req.count;
+  if (fd>=0)
+    {
+      struct v4l2_requestbuffers req;
+      CLEAR(req);
+      req.count = n;
+      req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+      req.memory = V4L2_MEMORY_MMAP;
+      xioctl(fd, VIDIOC_REQBUFS, &req);
+      if (req.count<n)
+        error("init_buffers VIDIOC_REQBUFS: running out of free memory\n");
+      n_buffer = req.count;
+    }
 }
 
 void v4l2_handler::mmap ()
@@ -686,7 +689,7 @@ void v4l2_handler::streamon(unsigned int n)
 {
   if(streaming)
     {
-      error("v4l2_handler::streamon streaming already enabled. Buffer size unchanged.");
+      warning("v4l2_handler::streamon streaming already enabled. Buffer size unchanged.");
     }
   else
     {
@@ -745,7 +748,7 @@ void v4l2_handler::munmap()
 void v4l2_handler::close()
 {
   streamoff();
-  if (fd != -1)
+  if (fd >= 0)
     v4l2_close(fd);
   fd = -1;
 }
