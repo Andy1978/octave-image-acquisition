@@ -72,7 +72,7 @@ v4l2_handler::v4l2_handler()
     fd(-1), n_buffer(0), buffers(0), streaming(0),
     preview_window(0)
 {
-  octave_stdout << "v4l2_handler C'Tor " << endl;
+  //octave_stdout << "v4l2_handler C'Tor " << endl;
 }
 
 v4l2_handler::v4l2_handler(const v4l2_handler& m)
@@ -83,7 +83,7 @@ v4l2_handler::v4l2_handler(const v4l2_handler& m)
 
 v4l2_handler::~v4l2_handler()
 {
-  octave_stdout << "v4l2_handler D'Tor " << endl;
+  //octave_stdout << "v4l2_handler D'Tor " << endl;
 
   // delete preview_window if active
   if (preview_window)
@@ -123,7 +123,6 @@ void v4l2_handler::xioctl_name(int fh, unsigned long int request, void *arg, con
 
 void v4l2_handler::open(string d)
 {
-  octave_stdout << "v4l2_handler::open_device " << d << endl;
   fd = v4l2_open(d.c_str(), O_RDWR | O_NONBLOCK, 0);
   if (fd < 0)
     {
@@ -657,6 +656,12 @@ octave_value_list v4l2_handler::capture (int nargout, bool preview)
 void v4l2_handler::capture_to_ppm(const char *fn)
 {
   uint8NDArray img = capture(1, 0)(0).uint8_array_value();
+  Matrix per(3,1);
+  per(0) = 2;
+  per(1) = 1;
+  per(2) = 0;
+  img = img.permute(per);  
+  
   unsigned char* p=reinterpret_cast<unsigned char*>(img.fortran_vec());
   FILE *fout = fopen(fn, "w");
   if (!fout)
@@ -719,12 +724,11 @@ void v4l2_handler::streamoff()
       xioctl(fd, VIDIOC_STREAMOFF, &type);
       
       streaming = 0;
-
-      // unmap the buffers
-      munmap();
-      // free the buffers
-      reqbufs(0);
     }
+  // unmap the buffers
+  munmap();
+  // free the buffers
+  reqbufs(0);
 }
 
 void v4l2_handler::munmap()
@@ -734,14 +738,13 @@ void v4l2_handler::munmap()
       for (unsigned int i = 0; i < n_buffer; ++i)
         v4l2_munmap(buffers[i].start, buffers[i].length);
       free(buffers);
+      buffers = 0;
     }
-  buffers = 0;
 }
 
 void v4l2_handler::close()
 {
-  if(streaming)
-    streamoff();
+  streamoff();
   if (fd != -1)
     v4l2_close(fd);
   fd = -1;

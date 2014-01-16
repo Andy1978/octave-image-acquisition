@@ -44,3 +44,18 @@ function [img, seq, timestamp] = getsnapshot (vi, pv=0)
   endif
   [img, seq, timestamp] = __v4l2_handler_capture__(vi.imaqh, pv);
 endfunction
+
+%!test
+%! obj = videoinput("v4l2", __test__device__);
+%! oldval = get(obj, "VideoResolution");
+%! default_size = set(obj, "VideoResolution")(1,:);
+%! set(obj, "VideoResolution", default_size);
+%! start(obj, 2)
+%! img = getsnapshot(obj);
+%! img = getsnapshot(obj, 1);
+%! [img, seq]= getsnapshot(obj, 1);
+%! assert (seq, 2); #the third image captured
+%! [img, seq, T]= getsnapshot(obj, 0);
+%! assert (isstruct(T))
+%! stop(obj)
+%! set(obj, "VideoResolution", oldval);

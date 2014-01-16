@@ -1,6 +1,11 @@
- Summary of important changes for image-acquisition 0.0.0 (yyyy/mm/dd):
+ Summary of important changes for image-acquisition 0.1.0 (2014/01/16):
 ------------------------------------------------------------------------
 
- ** Initial release.
- ** There are no news yet. The development has just begun...
-
+ ** Initial release. 
+    Most of the functions which are required to get/set properties,
+    start/stop streaming, preview and capture images are already implemented
+    for v4l2 devices.
+    
+    However functions to change the video format (RGB, YUYV, MJPG),
+    FrameInterval (1./(frames per second)) and others are still missing
+    but will be implemented soon.

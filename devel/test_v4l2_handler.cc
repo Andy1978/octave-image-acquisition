@@ -30,7 +30,6 @@ int main()
 
   octave_value enuminp = m->enuminput();
   m->s_input(0);
-  m->s_input(1);
   
   enuminp.print(cout, 0);
 
@@ -90,14 +89,6 @@ int main()
     m->capture(1, 1);
 
   m->print(cout, 0);
-  /***** test double opens */
-  v4l2_handler *m2 = new v4l2_handler();
-  m2->open("/dev/video0");
-  m2->s_fmt(640, 480);
-  
-  m->close();
-  m2->close();
-
   delete m;
-  return 0;
+  return EXIT_SUCCESS;
 }

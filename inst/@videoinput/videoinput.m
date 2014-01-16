@@ -54,4 +54,6 @@ function vi = videoinput (adaptorname, device, format)
 endfunction
 
 %!test
-%! huhu = 5
+%! obj = videoinput("v4l2", __test__device__);
+%!error obj = videoinput("v4l2", "/dev/null")
+%!error obj = videoinput("matrox", "/dev/video0")

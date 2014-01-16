@@ -1,5 +1,7 @@
 __fqp_v4l2_handler__ = fullfile (fileparts (mfilename ("fullpath")), "__v4l2_handler__.oct");
-
+if(!exist(__fqp_v4l2_handler__, "file"))
+  __fqp_v4l2_handler__ = fullfile (fileparts (mfilename ("fullpath")), "src/__v4l2_handler__.oct");
+endif
 autoload("__v4l2_handler_open__", __fqp_v4l2_handler__);
 autoload("__v4l2_handler_querycap__", __fqp_v4l2_handler__);
 autoload("__v4l2_handler_enuminput__", __fqp_v4l2_handler__);

@@ -19,7 +19,7 @@
 ## Access property values of videoinput objects.
 ##
 ## Without @var{prop} a cell with available properties is returned.
-## The first four entries (starting with a upper letter) are fixed, the others
+## The entries starting with a upper letter are available on all devices, the others
 ## queried from and specific to the used driver.
 ##
 ## @example
@@ -69,6 +69,10 @@ function val = get (vi, prop)
         val = __v4l2_handler_g_input__(vi.imaqh);
       case "VideoResolution"
         val = __v4l2_handler_g_fmt__(vi.imaqh);
+      case "VideoFrameInterval"
+        error("TODO not implemented");
+      case "VideoFormat"
+        error("TODO not implemented");
       otherwise
         # get controls
         ctrls = __v4l2_handler_queryctrl__(vi.imaqh);
@@ -81,3 +85,21 @@ function val = get (vi, prop)
   endif
 
 endfunction
+
+%!test
+%! obj = videoinput("v4l2", __test__device__);
+%! props = get(obj);
+%! assert(get(obj, "SelectedSourceName"), __test__device__);
+%! caps = get(obj, "DeviceCapabilities");
+%! video_in = get(obj, "VideoInput");
+%! s = get(obj, "VideoResolution");
+
+%!xtest
+%! obj = videoinput("v4l2", __test__device__);
+%! T = get(obj, "VideoFrameInterval");
+
+%!xtest
+%! obj = videoinput("v4l2", __test__device__);
+%! f = get(obj, "VideoFormat");
+
+%!error get(obj, "there_is_no_such_property")

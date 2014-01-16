@@ -24,6 +24,18 @@ cl_img_win.o: ../src/cl_img_win.cc ../src/cl_img_win.h
 test_img_win: test_img_win.cc cl_img_win.o
 	$(CC) $(CXXFLAGS) $^ -o $@ $(FL_LDFLAGS)
 
+.PHONY:clean
+
+../src/__v4l2_handler__.oct:
+	$(MAKE) -C ../src
+
+check: ../src/__v4l2_handler__.oct
+	octave -q run_tests.m
+
+cpp_check: test_img_win test_v4l2_handler 
+	./test_img_win
+	./test_v4l2_handler
+
 clean:
-	rm -f $(TARGETS)
+	rm -f $(TARGETS) fntest.log
 	rm -f *.ppm *.o *.oct octave-core octave-workspace

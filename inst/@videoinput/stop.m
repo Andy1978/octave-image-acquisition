@@ -25,3 +25,5 @@ function stop (vi)
   endif
   __v4l2_handler_streamoff__(vi.imaqh);
 endfunction
+
+# already tested in getsnapshot

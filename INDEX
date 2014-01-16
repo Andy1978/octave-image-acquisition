@@ -5,6 +5,7 @@ v4l2 Video Input
  @videoinput/videoinput
  @videoinput/get
  @videoinput/set
- @videoinput/start_streaming
- @videoinput/stop_streaming
+ @videoinput/start
+ @videoinput/stop
  @videoinput/getsnapshot
+ @videoinput/preview

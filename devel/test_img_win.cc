@@ -22,7 +22,7 @@ int main()
   w *=2;
   h *=2;
   uchar img[w*h*3];
-  for (i=0; i<h; i+=3)
+  for (i=0; i<h; i+=10)
     {
       for(int y=0; y<h; ++y)
         for(int x=0; x<w; ++x)

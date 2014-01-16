@@ -25,3 +25,5 @@ function start (vi, n = 2)
   endif
   __v4l2_handler_streamon__(vi.imaqh, n);
 endfunction
+
+# already tested in getsnapshot

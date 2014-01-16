@@ -14,15 +14,11 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {[@var{props}] =} __property_names__ ()
-## Return the list of fixed properties for class videoinput.
+## @deftypefn {Function File} {@var{dev} =} __test__device__ ()
+## Return device which should be used in tests, for example "/dev/video0"
 ## @end deftypefn
 
-function [props] = __property_names__ ()
-  props = {"SelectedSourceName";
-           "DeviceCapabilities";
-           "VideoInput";
-           "VideoResolution";
-           "VideoFrameInterval",
-           "VideoFormat"};
+function dev = __test__device__()
+  # TODO: returns a fixed device until imaqhwinfo is implemented
+  dev = '/dev/video0';
 endfunction
