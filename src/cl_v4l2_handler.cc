@@ -98,10 +98,8 @@ v4l2_handler::~v4l2_handler()
 
 void v4l2_handler::print(std::ostream& os, bool pr_as_read_syntax = false) const
 {
-  os << "v4l2_handler:print " << endl;
-  os << "device = " << dev << endl;
-  os << "fd = " << fd << endl;
-  os << "n_buffer = " << n_buffer << endl;
+  os << "This is class v4l2_handler" << endl;
+  os << "dev = " << dev << ", fd = " << fd << ", n_buffer = " << n_buffer << ", streaming = " << ((streaming)? "true":"false") << endl;
 }
 
 // calls to xioctl should never fail.
@@ -347,9 +345,9 @@ void v4l2_handler::s_parm(Matrix timeperframe)
   struct v4l2_fract *tf = &sparam.parm.capture.timeperframe;
   if (!tf->denominator || !tf->numerator)
     error("Invalid framerate");
-  if (tf->numerator != int(timeperframe(0)) || tf->denominator != int(timeperframe(1)))
+  if (tf->numerator != __u32(timeperframe(0)) || tf->denominator != __u32(timeperframe(1)))
     warning("driver is using %d/%d as timeperframe but %d/%d was requested",
-      tf->numerator, tf->denominator, int(timeperframe(0)), int(timeperframe(1)));
+      tf->numerator, tf->denominator, __u32(timeperframe(0)), __u32(timeperframe(1)));
 }
 
 // get octave_scalar_map from v4l2_queryctrl

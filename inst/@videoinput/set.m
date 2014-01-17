@@ -167,8 +167,8 @@ endfunction
 %!xtest
 %! obj = videoinput ("v4l2", __test__device__);
 %! fmts = set (obj, 'VideoFormat');
-%! set (obj, 'VideoFrameInterval', 'RGB3');
-%! set (obj, 'VideoFrameInterval', fmts(2).pixelformat);
+%! set (obj, 'VideoFormat', 'RGB3');
+%! set (obj, 'VideoFormat', fmts(2).pixelformat);
 
 %!test
 %! obj = videoinput ("v4l2", __test__device__);

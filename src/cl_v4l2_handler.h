@@ -96,7 +96,7 @@ public:
 
   octave_value_list capture (int nargout,
                              bool preview=0); //!< Retrieve captured image from buffer
-  void capture_to_ppm(const char *fn);         //!< Retrieve captured image from buffer and save it as ppm
+  void capture_to_ppm(const char *fn);        //!< Retrieve captured image from buffer and save it as ppm
 
   void streamon(unsigned int n);              //!< start streaming with n buffers
   void streamoff();                           //!< stop streaming
