@@ -39,25 +39,25 @@ private:
   uchar* pixel;         //!< internal memory for image
   bool RGB;
 
-  int img_w()
+  int img_w ()
   {
-    return w()-2*BORDER_PX;
+    return w () - 2 * BORDER_PX;
   }
-  int img_h()
+  int img_h ()
   {
-    return h()-2*BORDER_PX;
+    return h () - 2 * BORDER_PX;
   }
   int pixel_len()
   {
-    return img_w()*img_h()*((RGB)? 3: 1);
+    return img_w () * img_h () * ((RGB)? 3: 1);
   }
 
 public:
-  img_win(int x, int y, int w, int h);
-  ~img_win();
-  void draw();
-  void copy_img(const unsigned char* p, unsigned int w, unsigned int h, bool rgb);
-  void custom_label(const char *device, unsigned int seq, double fps);
+  img_win (int x, int y, int w, int h);
+  ~img_win ();
+  void draw ();
+  void copy_img (const unsigned char* p, unsigned int w, unsigned int h, bool rgb);
+  void custom_label (const char *device, unsigned int seq, double fps);
 };
 
 #endif

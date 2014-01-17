@@ -21,8 +21,8 @@
 #include <stdlib.h>
 #include <FL/Fl.H>
 
-img_win::img_win(int x, int y, int w, int h)
-  :Fl_Double_Window(x, y, w, h, "img_win"), pixel(NULL), RGB(0)
+img_win::img_win (int x, int y, int w, int h)
+  :Fl_Double_Window (x, y, w, h, "img_win"), pixel(NULL), RGB(0)
 {
   Fl::visual(FL_RGB);
   //cout << "img_win::img_win C'Tor" << endl;
@@ -34,7 +34,7 @@ img_win::img_win(int x, int y, int w, int h)
   copy_img(tmp, w, h, RGB);
 }
 
-img_win::~img_win()
+img_win::~img_win ()
 {
   //cout << "img_win::~img_win D'Tor" << endl;
   hide();
@@ -42,41 +42,44 @@ img_win::~img_win()
   free(pixel);
 }
 
-void img_win::draw()
+void
+img_win::draw ()
 {
-  Fl_Double_Window::draw();
+  Fl_Double_Window::draw ();
   if (pixel)
-    fl_draw_image(pixel, BORDER_PX, BORDER_PX, img_w(), img_h(), (RGB)? 3: 1);
+    fl_draw_image (pixel, BORDER_PX, BORDER_PX, img_w(), img_h(), (RGB)? 3: 1);
 }
 
-void img_win::copy_img(const unsigned char* p, unsigned int w, unsigned int h, bool rgb)
+void
+img_win::copy_img (const unsigned char* p, unsigned int w, unsigned int h, bool rgb)
 {
-  int len = w*h*((rgb)? 3:1);
-  if(len!=pixel_len())
+  int len = w * h * ((rgb)? 3:1);
+  if (len != pixel_len())
     {
       // resize buffers
       //cout << "img_win::copy_img resize buffers" << endl;
-      pixel = (uchar*)realloc(pixel, len);
+      pixel = (uchar*)realloc (pixel, len);
       if (!pixel)
         {
           cerr << "ERROR: could not allocate memory for internal pixel structure" << endl;
-          exit(EXIT_FAILURE);
+          exit (EXIT_FAILURE);
         }
-      Fl_Double_Window::size(w+2*BORDER_PX, h+2*BORDER_PX);
+      Fl_Double_Window::size (w + 2 * BORDER_PX, h + 2 * BORDER_PX);
       RGB = rgb;
-      custom_label("dummy", 0, 0);
+      custom_label ("dummy", 0, 0);
     }
 
-  memcpy(pixel, p, len);
-  redraw();
-  if (shown())
-    flush();
+  memcpy (pixel, p, len);
+  redraw ();
+  if (shown ())
+    flush ();
 }
 
-void img_win::custom_label(const char *device, unsigned int seq, double fps)
+void
+img_win::custom_label (const char *device, unsigned int seq, double fps)
 {
 #define BUF_LEN 80
   static char buf[BUF_LEN];
-  snprintf(buf, BUF_LEN, "%d x %d %s seq=%06d fps=%5.2f %s", img_w(), img_h(), (RGB)? "RGB":"gray", seq, fps, device);
-  label(buf);
+  snprintf (buf, BUF_LEN, "%d x %d %s seq=%06d fps=%5.2f %s", img_w(), img_h(), (RGB)? "RGB":"gray", seq, fps, device);
+  label (buf);
 }

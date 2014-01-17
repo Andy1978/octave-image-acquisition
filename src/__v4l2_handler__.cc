@@ -39,12 +39,12 @@ Creates an instance of v4l2_handler for a v4l2 device and opens it.\n\
       v4l2_handler::register_type();
       type_loaded = true;
     }
-  string device = args(0).string_value();
+  string device = args(0).string_value ();
   if (! error_state)
     {
-      v4l2_handler *h = new v4l2_handler();
-      h->open(device.c_str());
-      retval.append(octave_value(h));
+      v4l2_handler *h = new v4l2_handler ();
+      h->open (device.c_str ());
+      retval.append (octave_value (h));
     }
   return retval;
 }
@@ -56,18 +56,18 @@ Query device capabilities, driver name, card type etc. from v4l2_handler @var{h}
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin != 1)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = imgh->querycap();
+      retval = imgh->querycap ();
     }
   return retval;
 }
@@ -81,18 +81,18 @@ Returns a struct with informations for all avaliable v4l2 inputs.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin != 1)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = imgh->enuminput();
+      retval = imgh->enuminput ();
     }
   return retval;
 }
@@ -104,17 +104,17 @@ Query the current video input from v4l2_handler @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
   if (nargin != 1)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = octave_value(imgh->g_input());
+      retval = octave_value(imgh->g_input ());
     }
   return retval;
 }
@@ -126,20 +126,20 @@ Select video input @var{n} from v4l2_handler @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin != 2)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      int num = args(1).int_value();
+      int num = args(1).int_value ();
       if (!error_state)
-        imgh->s_input(num);
+        imgh->s_input (num);
       else
         error("N has to be a integer selecting the desired video input, starting from  0.");
     }
@@ -155,18 +155,18 @@ Returns a struct with informations for all avaliable v4l2 formats.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin != 1)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = imgh->enum_fmt();
+      retval = imgh->enum_fmt ();
     }
   return retval;
 }
@@ -180,27 +180,27 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin < 1 || nargin>2)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
       unsigned int pixel_format = V4L2_PIX_FMT_RGB24;
       if (nargin == 2)
         {
-          unsigned int tmp_pixel_format = args(1).int_value();
+          unsigned int tmp_pixel_format = args(1).int_value ();
           if (!error_state)
             pixel_format = tmp_pixel_format;
           else
             error("FORMAT not valid");
         }
-      retval = octave_value(imgh->enum_framesizes(pixel_format));
+      retval = octave_value(imgh->enum_framesizes (pixel_format));
     }
   return retval;
 }
@@ -215,18 +215,18 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with st
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin < 2 || nargin>3)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      Matrix s = args(1).matrix_value();
+      Matrix s = args(1).matrix_value ();
       unsigned int width = s(0);
       unsigned int height = s(1);
       if (error_state)
@@ -237,13 +237,13 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with st
       unsigned int pixel_format = V4L2_PIX_FMT_RGB24;
       if (nargin == 3)
         {
-          unsigned int tmp_pixel_format = args(1).int_value();
+          unsigned int tmp_pixel_format = args(1).int_value ();
           if (!error_state)
             pixel_format = tmp_pixel_format;
           else
             error("FORMAT not valid");
         }
-      retval = octave_value(imgh->enum_frameintervals(pixel_format, width, height));
+      retval = octave_value(imgh->enum_frameintervals (pixel_format, width, height));
     }
   return retval;
 }
@@ -255,18 +255,18 @@ Return current frame interval as numerator, denominator.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin != 1)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = octave_value(imgh->g_parm());
+      retval = octave_value(imgh->g_parm ());
     }
   return retval;
 }
@@ -278,18 +278,18 @@ Set frame interval numerator and denominator.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin != 2)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      imgh->s_parm(args(1).matrix_value());
+      imgh->s_parm(args(1).matrix_value ());
     }
   return retval;
 }
@@ -305,14 +305,14 @@ Get format [width height].\n\
 
   if (nargin != 1)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = octave_value(imgh->g_fmt());
+      retval = octave_value(imgh->g_fmt ());
     }
   return retval;
 }
@@ -328,19 +328,19 @@ Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
 
   if (nargin != 2)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      Matrix s = args(1).matrix_value();
+      Matrix s = args(1).matrix_value ();
       unsigned int xres = s(0);
       unsigned int yres = s(1);
       if (! error_state)
         {
-          imgh->s_fmt(xres, yres);
+          imgh->s_fmt (xres, yres);
         }
     }
   return retval;
@@ -356,18 +356,18 @@ Use the field id for calls to __v4l2_handler_s_ctrl__.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin != 1)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = imgh->queryctrl();
+      retval = imgh->queryctrl ();
     }
   return retval;
 }
@@ -381,20 +381,20 @@ Use the field id from __v4l2_handler_queryctrl__.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin != 2)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      unsigned int id = args(1).int_value();
+      unsigned int id = args(1).int_value ();
       if (!error_state)
-        retval = octave_value(imgh->g_ctrl(id));
+        retval = octave_value(imgh->g_ctrl (id));
       else
         error("ID has to be an integer value");
     }
@@ -410,21 +410,21 @@ Use the field id from __v4l2_handler_queryctrl__.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin != 3)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      unsigned int id = args(1).int_value();
-      unsigned int value = args(2).int_value();
+      unsigned int id = args(1).int_value ();
+      unsigned int value = args(2).int_value ();
       if (!error_state)
-        imgh->s_ctrl(id, value);
+        imgh->s_ctrl (id, value);
       else
         error("ID and VALUE has to be integer values");
     }
@@ -444,13 +444,13 @@ Stop streaming.\n\
 
   if (nargin != 1)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
-    imgh->streamoff();
+    imgh->streamoff ();
   return retval;
 }
 
@@ -466,17 +466,17 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
 
   if (nargin != 2)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      unsigned int n_buffers = args(1).int_value();
+      unsigned int n_buffers = args(1).int_value ();
       if (! error_state)
         {
-          imgh->streamon(n_buffers);
+          imgh->streamon (n_buffers);
         }
     }
   return retval;
@@ -490,23 +490,23 @@ Get a snapshot from v4l2_handler @var{h}\n\
 @end deftypefn")
 {
   octave_value_list retval;
-  int nargin = args.length();
+  int nargin = args.length ();
 
   if (nargin < 1 || nargin>2)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
-  v4l2_handler* imgh = get_v4l2_handler_from_ov(args(0));
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
       int preview = 0;
       if (nargin==2)
-        preview = args(1).int_value();
+        preview = args(1).int_value ();
       if (!error_state)
         {
-          retval = octave_value(imgh->capture(nargout, preview));
+          retval = octave_value(imgh->capture (nargout, preview));
         }
     }
   return retval;

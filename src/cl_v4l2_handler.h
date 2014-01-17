@@ -57,21 +57,21 @@ class v4l2_handler: public octave_base_value
 {
 public:
 
-  v4l2_handler();
+  v4l2_handler ();
 
-  octave_base_value *clone(void) const // TODO: check if this is okay
+  octave_base_value *clone (void) const // TODO: check if this is okay
   {
     octave_stdout << "v4l2_handler clone" << endl;
-    return new v4l2_handler(*this);
+    return new v4l2_handler (*this);
   }
 
-  octave_base_value *empty_clone(void) const // TODO: check if this is okay
+  octave_base_value *empty_clone (void) const // TODO: check if this is okay
   {
     octave_stdout << "v4l2_handler empty_clone" << endl;
-    return new v4l2_handler();
+    return new v4l2_handler ();
   }
 
-  ~v4l2_handler(void);
+  ~v4l2_handler (void);
 
   void open (string d);       //!< open a v4l2 device e.g. /dev/video0
   void print (std::ostream& os, bool pr_as_read_syntax) const;  //!< print itself on ostream
@@ -79,16 +79,16 @@ public:
 
   octave_value enuminput (); //!< Enumerate video inputs
   int g_input ();            //!< Query the current video input
-  void s_input(int index);   //!< Select video input
+  void s_input (int index);  //!< Select video input
 
   octave_value enum_fmt (enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE); //!< Enumerate image formats
-  Matrix enum_framesizes(__u32 pixel_format = V4L2_PIX_FMT_RGB24);               //!< Enumerate frame sizes
-  Matrix g_fmt();                             //!< Get current format size
+  Matrix enum_framesizes (__u32 pixel_format = V4L2_PIX_FMT_RGB24);              //!< Enumerate frame sizes
+  Matrix g_fmt ();                            //!< Get current format size
   void s_fmt (__u32 xres, __u32 yres);        //!< Set format size
 
-  Matrix enum_frameintervals(__u32 pixel_format, __u32 width, __u32 height);     //!< Enumerate frame intervals
-  Matrix g_parm();                    //!< Get streaming parameters (like frame interval)
-  void s_parm(Matrix timeperframe);   //!< Set streaming parameters (like frame interval)
+  Matrix enum_frameintervals (__u32 pixel_format, __u32 width, __u32 height);     //!< Enumerate frame intervals
+  Matrix g_parm ();                    //!< Get streaming parameters (like frame interval)
+  void s_parm (Matrix timeperframe);   //!< Set streaming parameters (like frame interval)
 
   octave_value queryctrl ();                  //!< Query controls
   int g_ctrl (int id);                        //!< Get control
@@ -96,15 +96,15 @@ public:
 
   octave_value_list capture (int nargout,
                              bool preview=0); //!< Retrieve captured image from buffer
-  void capture_to_ppm(const char *fn);        //!< Retrieve captured image from buffer and save it as ppm
+  void capture_to_ppm (const char *fn);       //!< Retrieve captured image from buffer and save it as ppm
 
-  void streamon(unsigned int n);              //!< start streaming with n buffers
-  void streamoff();                           //!< stop streaming
+  void streamon (unsigned int n);             //!< start streaming with n buffers
+  void streamoff ();                          //!< stop streaming
 
   void close ();                              //!< close v4l2 device
 
 private:
-  v4l2_handler(const v4l2_handler& m);
+  v4l2_handler (const v4l2_handler& m);
 
   int fd;
   string dev;
@@ -123,17 +123,17 @@ private:
     return true;
   }
 
-  void xioctl_name(int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line);
+  void xioctl_name (int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line);
   octave_scalar_map get_osm (struct v4l2_queryctrl queryctrl);
   void reqbufs (unsigned int n);  //!< Initiate Memory Mapping or User Pointer I/O
   void mmap ();
   void qbuf ();
-  void munmap();
+  void munmap ();
 
   DECLARE_OCTAVE_ALLOCATOR
   DECLARE_OV_TYPEID_FUNCTIONS_AND_DATA
 };
 
-v4l2_handler* get_v4l2_handler_from_ov(octave_value ov);
+v4l2_handler* get_v4l2_handler_from_ov (octave_value ov);
 
 #endif

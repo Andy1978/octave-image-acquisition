@@ -15,14 +15,16 @@
 
 #include "cl_v4l2_handler.h"
 
-static std::string num2s(unsigned num) //taken from v4l2-ctl.cpp
+static std::string
+num2s (unsigned num) //taken from v4l2-ctl.cpp
 {
   char buf[10];
   sprintf(buf, "%08x", num);
   return buf;
 }
 
-static std::string buftype2s(int type) //taken from v4l2-ctl.cpp
+static std::string
+buftype2s (int type) //taken from v4l2-ctl.cpp
 {
   switch (type)
     {
@@ -53,7 +55,8 @@ static std::string buftype2s(int type) //taken from v4l2-ctl.cpp
     }
 }
 
-static std::string fcc2s(unsigned int val) //taken from v4l2-ctl.cpp
+static std::string
+fcc2s (unsigned int val) //taken from v4l2-ctl.cpp
 {
   std::string s;
 
@@ -67,7 +70,7 @@ static std::string fcc2s(unsigned int val) //taken from v4l2-ctl.cpp
 DEFINE_OCTAVE_ALLOCATOR(v4l2_handler);
 DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(v4l2_handler, "v4l2_handler", "v4l2_handler");
 
-v4l2_handler::v4l2_handler()
+v4l2_handler::v4l2_handler ()
   : octave_base_value(),
     fd(-1), n_buffer(0), buffers(0), streaming(0),
     preview_window(0)
@@ -75,13 +78,13 @@ v4l2_handler::v4l2_handler()
   //octave_stdout << "v4l2_handler C'Tor " << endl;
 }
 
-v4l2_handler::v4l2_handler(const v4l2_handler& m)
+v4l2_handler::v4l2_handler (const v4l2_handler& m)
   : octave_base_value()
 {
   octave_stdout << "v4l2_handler: the copy constructor shouldn't be called" << std::endl;
 }
 
-v4l2_handler::~v4l2_handler()
+v4l2_handler::~v4l2_handler ()
 {
   //octave_stdout << "v4l2_handler D'Tor " << endl;
 
@@ -96,7 +99,8 @@ v4l2_handler::~v4l2_handler()
   close();
 }
 
-void v4l2_handler::print(std::ostream& os, bool pr_as_read_syntax = false) const
+void
+v4l2_handler::print (std::ostream& os, bool pr_as_read_syntax = false) const
 {
   os << "This is class v4l2_handler" << endl;
   os << "dev = " << dev << ", fd = " << fd << ", n_buffer = " << n_buffer << ", streaming = " << ((streaming)? "true":"false") << endl;
@@ -104,7 +108,8 @@ void v4l2_handler::print(std::ostream& os, bool pr_as_read_syntax = false) const
 
 // calls to xioctl should never fail.
 // If it fails something unexpected happened
-void v4l2_handler::xioctl_name(int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line)
+void
+v4l2_handler::xioctl_name (int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line)
 {
   int r;
   do
@@ -119,7 +124,8 @@ void v4l2_handler::xioctl_name(int fh, unsigned long int request, void *arg, con
     }
 }
 
-void v4l2_handler::open(string d)
+void
+v4l2_handler::open (string d)
 {
   fd = v4l2_open(d.c_str(), O_RDWR | O_NONBLOCK, 0);
   if (fd < 0)
@@ -137,7 +143,8 @@ void v4l2_handler::open(string d)
  * v4l2-ctl -D
  * \return octave_scalar_map with device capabilities
  */
-octave_value v4l2_handler::querycap()
+octave_value
+v4l2_handler::querycap ()
 {
   struct v4l2_capability cap;
   CLEAR(cap);
@@ -151,7 +158,7 @@ octave_value v4l2_handler::querycap()
       st.assign ("bus_info",  std::string((const char*)cap.bus_info));
 
       char tmp[15];
-      snprintf(tmp, 15, "%u.%u.%u", (cap.version >> 16) & 0xFF, (cap.version >> 8) & 0xFF, cap.version & 0xFF);
+      snprintf (tmp, 15, "%u.%u.%u", (cap.version >> 16) & 0xFF, (cap.version >> 8) & 0xFF, cap.version & 0xFF);
       st.assign ("version",   std::string(tmp));
       st.assign ("capabilities", (unsigned int)(cap.capabilities));
     }
@@ -161,7 +168,8 @@ octave_value v4l2_handler::querycap()
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
  */
-int v4l2_handler::g_input()
+int
+v4l2_handler::g_input ()
 {
   int index;
   xioctl (fd, VIDIOC_G_INPUT, &index);
@@ -171,7 +179,8 @@ int v4l2_handler::g_input()
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
  */
-void v4l2_handler::s_input(int index)
+void
+v4l2_handler::s_input (int index)
 {
   xioctl (fd, VIDIOC_S_INPUT, &index);
 }
@@ -181,7 +190,8 @@ void v4l2_handler::s_input(int index)
  * see also output from "v4l2-ctl -n"
  * \return octave_map with the enumeration of all inputs
  */
-octave_value v4l2_handler::enuminput()
+octave_value
+v4l2_handler::enuminput ()
 {
   octave_map ret;
   struct v4l2_input inp;
@@ -219,7 +229,8 @@ octave_value v4l2_handler::enuminput()
  * see also "v4l2-ctl -w --list-formats"
  * \return octave_map with available video formats
  */
-octave_value v4l2_handler::enum_fmt(enum v4l2_buf_type type)
+octave_value
+v4l2_handler::enum_fmt (enum v4l2_buf_type type)
 {
   octave_map ret;
   struct v4l2_fmtdesc fmt;
@@ -248,7 +259,8 @@ octave_value v4l2_handler::enum_fmt(enum v4l2_buf_type type)
  * \return Nx2 Matrix with width, height
  * \sa enum_frameintervals
  */
-Matrix v4l2_handler::enum_framesizes(__u32 pixel_format)
+Matrix
+v4l2_handler::enum_framesizes (__u32 pixel_format)
 {
   Matrix ret;
   struct v4l2_frmsizeenum frmsize;
@@ -279,7 +291,8 @@ Matrix v4l2_handler::enum_framesizes(__u32 pixel_format)
  * \return Nx2 matrix with frame interval numerator, denominator
  * \sa enum_framesizes
  */
-Matrix v4l2_handler::enum_frameintervals(__u32 pixel_format, __u32 width, __u32 height)
+Matrix
+v4l2_handler::enum_frameintervals (__u32 pixel_format, __u32 width, __u32 height)
 {
   Matrix ret;
   struct v4l2_frmivalenum frmival;
@@ -308,7 +321,8 @@ Matrix v4l2_handler::enum_frameintervals(__u32 pixel_format, __u32 width, __u32 
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-parm.html
  */
-Matrix v4l2_handler::g_parm()
+Matrix
+v4l2_handler::g_parm ()
 {
   Matrix ret(1,2);
   struct v4l2_streamparm sparam;
@@ -334,7 +348,8 @@ Matrix v4l2_handler::g_parm()
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-parm.html
  */
-void v4l2_handler::s_parm(Matrix timeperframe)
+void
+v4l2_handler::s_parm (Matrix timeperframe)
 {
   struct v4l2_streamparm sparam;
   CLEAR(sparam);
@@ -347,11 +362,12 @@ void v4l2_handler::s_parm(Matrix timeperframe)
     error("Invalid framerate");
   if (tf->numerator != __u32(timeperframe(0)) || tf->denominator != __u32(timeperframe(1)))
     warning("driver is using %d/%d as timeperframe but %d/%d was requested",
-      tf->numerator, tf->denominator, __u32(timeperframe(0)), __u32(timeperframe(1)));
+            tf->numerator, tf->denominator, __u32(timeperframe(0)), __u32(timeperframe(1)));
 }
 
 // get octave_scalar_map from v4l2_queryctrl
-octave_scalar_map v4l2_handler::get_osm (struct v4l2_queryctrl queryctrl)
+octave_scalar_map
+v4l2_handler::get_osm (struct v4l2_queryctrl queryctrl)
 {
   octave_scalar_map ctrl;
   ctrl.assign ("id", int(queryctrl.id));
@@ -398,7 +414,8 @@ octave_scalar_map v4l2_handler::get_osm (struct v4l2_queryctrl queryctrl)
  * Use id for calls to s_ctrl
  * \sa s_ctrl
  */
-octave_value v4l2_handler::queryctrl()
+octave_value
+v4l2_handler::queryctrl ()
 {
   struct v4l2_queryctrl queryctrl;
   CLEAR(queryctrl);
@@ -435,7 +452,8 @@ octave_value v4l2_handler::queryctrl()
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/control.html
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-ctrl.html
  */
-int v4l2_handler::g_ctrl(int id)
+int
+v4l2_handler::g_ctrl (int id)
 {
   struct v4l2_control control;
   CLEAR(control);
@@ -448,7 +466,8 @@ int v4l2_handler::g_ctrl(int id)
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/control.html
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-ctrl.html
  */
-void v4l2_handler::s_ctrl(int id, int value)
+void
+v4l2_handler::s_ctrl (int id, int value)
 {
   struct v4l2_control control;
   CLEAR(control);
@@ -463,7 +482,8 @@ void v4l2_handler::s_ctrl(int id, int value)
  *
  * The used libv4l2 pixelformat is set to V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED
  */
-void v4l2_handler::s_fmt(__u32 xres, __u32 yres)
+void
+v4l2_handler::s_fmt (__u32 xres, __u32 yres)
 {
   if(streaming)
     {
@@ -494,7 +514,8 @@ void v4l2_handler::s_fmt(__u32 xres, __u32 yres)
     }
 }
 
-Matrix v4l2_handler::g_fmt()
+Matrix
+v4l2_handler::g_fmt ()
 {
   struct v4l2_format fmt;
   CLEAR(fmt);
@@ -510,7 +531,8 @@ Matrix v4l2_handler::g_fmt()
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-reqbufs.html
  * \param n number of buffers to initiate. A count value of zero frees all buffers.
  */
-void v4l2_handler::reqbufs (unsigned int n)
+void
+v4l2_handler::reqbufs (unsigned int n)
 {
   if (fd>=0)
     {
@@ -526,7 +548,8 @@ void v4l2_handler::reqbufs (unsigned int n)
     }
 }
 
-void v4l2_handler::mmap ()
+void
+v4l2_handler::mmap ()
 {
   struct v4l2_buffer buf;
   buffers = (buffer*)calloc(n_buffer, sizeof(*buffers));
@@ -551,7 +574,8 @@ void v4l2_handler::mmap ()
     }
 }
 
-void v4l2_handler::qbuf ()
+void
+v4l2_handler::qbuf ()
 {
   struct v4l2_buffer buf;
   for (unsigned int i = 0; i < n_buffer; ++i)
@@ -569,7 +593,8 @@ void v4l2_handler::qbuf ()
  *
  * \return image, sequence, timestamp, [timecode]
  */
-octave_value_list v4l2_handler::capture (int nargout, bool preview)
+octave_value_list
+v4l2_handler::capture (int nargout, bool preview)
 {
   octave_value_list ret;
 
@@ -700,9 +725,10 @@ octave_value_list v4l2_handler::capture (int nargout, bool preview)
 /*!
  * Main purpose is for debugging this class
  */
-void v4l2_handler::capture_to_ppm(const char *fn)
+void
+v4l2_handler::capture_to_ppm (const char *fn)
 {
-  uint8NDArray img = capture(1, 0)(0).uint8_array_value();
+  uint8NDArray img = capture (1, 0)(0).uint8_array_value();
   Matrix per(3,1);
   per(0) = 2;
   per(1) = 1;
@@ -710,15 +736,15 @@ void v4l2_handler::capture_to_ppm(const char *fn)
   img = img.permute(per);
 
   unsigned char* p=reinterpret_cast<unsigned char*>(img.fortran_vec());
-  FILE *fout = fopen(fn, "w");
+  FILE *fout = fopen (fn, "w");
   if (!fout)
     {
       error("v4l2_handler::capture_to_ppm cannot open file %s", fn);
     }
-  fprintf(fout, "P6\n%d %d 255\n",
-          img.dim2(), img.dim3());
-  fwrite(p, img.numel(), 1, fout);
-  fclose(fout);
+  fprintf (fout, "P6\n%d %d 255\n",
+           img.dim2(), img.dim3());
+  fwrite (p, img.numel(), 1, fout);
+  fclose (fout);
 }
 
 /*!
@@ -729,7 +755,8 @@ void v4l2_handler::capture_to_ppm(const char *fn)
  * - enque the buffers
  * - start streaming
  */
-void v4l2_handler::streamon(unsigned int n)
+void
+v4l2_handler::streamon (unsigned int n)
 {
   if(streaming)
     {
@@ -759,7 +786,8 @@ void v4l2_handler::streamon(unsigned int n)
  * - unmap the buffers
  * - free buffers
  */
-void v4l2_handler::streamoff()
+void
+v4l2_handler::streamoff ()
 {
   if(streaming)
     {
@@ -778,7 +806,8 @@ void v4l2_handler::streamoff()
   reqbufs(0);
 }
 
-void v4l2_handler::munmap()
+void
+v4l2_handler::munmap ()
 {
   if(buffers)
     {
@@ -789,7 +818,8 @@ void v4l2_handler::munmap()
     }
 }
 
-void v4l2_handler::close()
+void
+v4l2_handler::close ()
 {
   streamoff();
   if (fd >= 0)
@@ -797,7 +827,8 @@ void v4l2_handler::close()
   fd = -1;
 }
 
-v4l2_handler* get_v4l2_handler_from_ov(octave_value ov)
+v4l2_handler*
+get_v4l2_handler_from_ov (octave_value ov)
 {
   static bool type_loaded = false;
   if (!type_loaded)
