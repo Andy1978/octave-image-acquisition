@@ -176,7 +176,7 @@ endfunction
 %! set (obj, 'VideoFrameInterval', T(1,:));
 %! set (obj, 'VideoFrameInterval', T(2,:));
 
-%!warning 
+%!warning
 %! obj = videoinput ("v4l2", __test__device__);
 %! # This shouldn't be supported by any camera and the driver
 %! # camps this to valid values but a warning should be displayed

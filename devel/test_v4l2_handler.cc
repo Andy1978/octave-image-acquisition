@@ -30,7 +30,7 @@ int main()
 
   octave_value enuminp = m->enuminput();
   m->s_input(0);
-  
+
   enuminp.print(cout, 0);
 
   octave_value fmt = m->enum_fmt();
@@ -84,7 +84,7 @@ int main()
   m->streamoff();
   m->s_fmt(640, 480);
   m->streamon(10);
-  
+
   for (int i=0; i<100; ++i)
     m->capture(1, 1);
 

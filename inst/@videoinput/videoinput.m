@@ -28,7 +28,7 @@
 function vi = videoinput (adaptorname, device, format)
   # defaults
   vidata = struct ("SelectedSourceName", "/dev/video0");
-                   
+
   if (nargin == 0 || nargin==1 || nargin>3)
     print_usage();
   endif
@@ -46,11 +46,11 @@ function vi = videoinput (adaptorname, device, format)
 
   vidata.imaqh = __v4l2_handler_open__(vidata.SelectedSourceName);
   vi = class (vidata, "videoinput");
-  
+
   if (nargin == 3)
     set(vi, "VideoResolution", format);
   endif
-  
+
 endfunction
 
 %!test

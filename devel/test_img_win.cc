@@ -5,7 +5,7 @@
 /*
  * Just a little test caller for img_win
  */
- 
+
 int main()
 {
   int w=300;

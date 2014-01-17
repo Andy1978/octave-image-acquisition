@@ -582,7 +582,7 @@ octave_value_list v4l2_handler::capture (int nargout, bool preview)
   CLEAR(fmt);
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   xioctl(fd, VIDIOC_G_FMT, &fmt);
-    
+
   dim_vector dv (3, fmt.fmt.pix.width, fmt.fmt.pix.height);
   uint8NDArray img (dv);
 
@@ -707,8 +707,8 @@ void v4l2_handler::capture_to_ppm(const char *fn)
   per(0) = 2;
   per(1) = 1;
   per(2) = 0;
-  img = img.permute(per);  
-  
+  img = img.permute(per);
+
   unsigned char* p=reinterpret_cast<unsigned char*>(img.fortran_vec());
   FILE *fout = fopen(fn, "w");
   if (!fout)
@@ -769,7 +769,7 @@ void v4l2_handler::streamoff()
       enum   v4l2_buf_type type;
       type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       xioctl(fd, VIDIOC_STREAMOFF, &type);
-      
+
       streaming = 0;
     }
   // unmap the buffers
