@@ -19,6 +19,19 @@
 ## @end deftypefn
 
 function dev = __test__device__()
-  # TODO: returns a fixed device until imaqhwinfo is implemented
-  dev = '/dev/video0';
+  persistent warning_shown = 0;
+  l = imaqhwinfo();
+  if ( numel(l) > 1)
+    dev = l(1).device;
+    # only show warning once
+    if (!warning_shown)
+      warning("It appears that you have more than one v4l2 device. We will just use %s (the first returned from imaqhwinfo) for tests.", dev);
+      warning_shown = 1;
+    endif
+  elseif (numel(l) == 0)
+    warning("It appears that you have no v4l2 device installed. All tests may fail. Please connect one or try\n       $ modprobe v4l2loopback\n       $ gst-launch videotestsrc ! v4l2sink device=/dev/video0");
+    dev = "/dev/null";
+  else
+    dev = l.device;
+  endif
 endfunction

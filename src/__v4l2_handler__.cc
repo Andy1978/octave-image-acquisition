@@ -14,6 +14,8 @@
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <octave/oct.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include "cl_v4l2_handler.h"
 
 static bool type_loaded = false;
@@ -511,6 +513,57 @@ Get a snapshot from v4l2_handler @var{h}\n\
     }
   return retval;
 }
+
+typedef std::vector<std::string> dev_vec;
+
+static bool is_v4l_dev(const char *name)
+{
+  return !memcmp(name, "video", 5) ||
+    !memcmp(name, "radio", 5) ||
+    !memcmp(name, "vbi", 3) ||
+    !memcmp(name, "v4l-subdev", 10);
+}
+
+DEFUN_DLD(__v4l2_list_devices__, args, nargout,
+          "-*- texinfo -*-\n\
+@deftypefn {Loadable Function} {@var{l} =} __v4l2_list_devices__ ()\n\
+List v4l2 devices in /dev/. It doesn't resolve links.\n\
+Use '$ v4l2-ctl --list-devices' for more details.\n\
+@end deftypefn")
+{
+// Most of this code was taken from v4l2-ctl-common.cpp:list_devices()
+// which is part of the v4l-utils (http://git.linuxtv.org/v4l-utils.git).
+// Thanks to Kevin Thayer (Copyright (C) 2003-2004),
+// Hans Verkuil (Copyright (C) 2004, 2006, 2007) and the linuxtv community.
+
+  octave_map retval;
+  DIR *dp;
+  struct dirent *ep;
+  dev_vec files;
+
+  dp = opendir("/dev");
+  if (dp == NULL) {
+    error ("Couldn't open /dev/ directory");
+    return octave_value();
+  }
+  while ((ep = readdir(dp)))
+    if (is_v4l_dev(ep->d_name))
+      files.push_back(std::string("/dev/") + ep->d_name);
+  closedir(dp);
+
+  octave_idx_type i=0;
+  for (dev_vec::iterator iter = files.begin();
+      iter != files.end(); ++iter)
+    {
+      v4l2_handler h;
+      h.open(iter->c_str());
+      octave_scalar_map caps = h.querycap ().scalar_map_value();
+      caps.assign ("device", *iter);
+      retval.assign(i++, caps);
+    }
+  return octave_value (retval);
+}
+
 
 /*
 %!demo

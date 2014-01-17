@@ -1,4 +1,4 @@
-## Copyright (C) 2013 Andreas Weber <andy.weber.aw@gmail.com>
+## Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -14,9 +14,13 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## Show a list of available v4l2 devices.
+## @deftypefn {Function File} {@var{list}] =} imaqhwinfo ()
+## Returns a struct array with v4l2 devices in /dev/. Links are not resolved.
+## @end deftypefn
 
 function ret = imaqhwinfo()
-  warning("This isn't implemented yet.\nPlease use \"v4l2-ctl --list-devices\" in the meanwhile.");
-  system("v4l2-ctl --list-devices");
+  ret = __v4l2_list_devices__ ();
 endfunction
+
+%!test
+%! d = imaqhwinfo();

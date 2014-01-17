@@ -3,7 +3,7 @@
 .PHONY:clean
 .PHONY:all
 
-TARGETS = __v4l2_handler__.oct
+TARGETS = __v4l2_handler__.oct cl_v4l2_handler.o cl_img_win.o
 
 LIBS = -lv4l2 $(shell fltk-config  --ldflags)
 MKOCTFLAGS = -g -Wall -v

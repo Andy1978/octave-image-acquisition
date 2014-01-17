@@ -1,6 +1,7 @@
-__fqp_v4l2_handler__ = fullfile (fileparts (mfilename ("fullpath")), "__v4l2_handler__.oct");
+__fqp__ = fileparts (mfilename ("fullpath"));
+__fqp_v4l2_handler__ = fullfile (__fqp__, "__v4l2_handler__.oct");
 if(!exist(__fqp_v4l2_handler__, "file"))
-  __fqp_v4l2_handler__ = fullfile (fileparts (mfilename ("fullpath")), "src/__v4l2_handler__.oct");
+  __fqp_v4l2_handler__ = fullfile (__fqp__, "src/__v4l2_handler__.oct");
 endif
 autoload("__v4l2_handler_open__", __fqp_v4l2_handler__);
 autoload("__v4l2_handler_querycap__", __fqp_v4l2_handler__);
@@ -20,5 +21,7 @@ autoload("__v4l2_handler_s_ctrl__", __fqp_v4l2_handler__);
 autoload("__v4l2_handler_streamoff__", __fqp_v4l2_handler__);
 autoload("__v4l2_handler_streamon__", __fqp_v4l2_handler__);
 autoload("__v4l2_handler_capture__", __fqp_v4l2_handler__);
+autoload("__v4l2_list_devices__", __fqp_v4l2_handler__);
 
 clear __fqp_v4l2_handler__;
+clear __fqp__;
