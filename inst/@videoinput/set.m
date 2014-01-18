@@ -37,7 +37,7 @@
 ## which are available on all videoinput devices. Only the non-obvious are
 ## described here.
 ##
-## @table
+## @table @var
 ## @item 'VideoResolution'
 ## Sets the width and height of the captured images. The driver attemps to
 ## adjust the values if the size requested is unavailable.
@@ -45,7 +45,7 @@
 ## @example
 ## set(obj, "VideoResolution", [960 700])
 ## @result{} warning: driver is sending image at 960x544 but 960x700 was requested
-## @end exmmple
+## @end example
 ##
 ## @item 'VideoFrameInterval'
 ## Time between frames in seconds as [numerator, denominator]. Conceptually fps=1/frame_interval.
