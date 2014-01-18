@@ -22,7 +22,7 @@ test_img_win: test_img_win.cc ../src/cl_img_win.o
 octs:
 	$(MAKE) -C ../src
 
-check: ../src/__v4l2_handler__.oct
+check: octs
 	octave -q run_tests.m
 
 cpp_check: test_img_win test_v4l2_handler 
