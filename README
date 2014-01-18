@@ -1,11 +1,155 @@
-This is a copy of the http://wiki.octave.org/image_acquisition_package.html
+This is a copy of http://wiki.octave.org/image_acquisition_package.html
 intended for users without internet connection or offline reading.
 
 The {{Forge|image_acquisition}} package is part of the [[Octave Forge]] project.
 
-There is not release package yet but if you can get the source here [http://sourceforge.net/p/octave/image-acquisition/ci/default/tree/]
+There is not release package yet but you can get the source here [http://sourceforge.net/p/octave/image-acquisition/ci/default/tree/]
+
+Simply do
+
+  $ hg clone http://hg.code.sf.net/p/octave/image-acquisition octave-image-acquisition
+  $ tar czf image-acquisition.tar.gz octave-image-acquisition
+  octave:>> pkg install image-acquisition.tar.gz
+
+If you want to report a bug see [[Image_acquisition_package#Reporting_bugs]]
 
 == Example session ==
+
+Lines starting with octave> are executed on the octave prompt.
+
+=== Load the package and list available hardware ===
+
+ octave> pkg load image-acquisition
+ octave> imaqhwinfo
+ ans =
+ 
+  scalar structure containing the fields:
+ 
+    driver = uvcvideo
+    card = UVC Camera (046d:0825)
+    bus_info = usb-0000:00:16.2-2
+    version = 3.2.51
+    capabilities =  83886081
+    device = /dev/video0
+
+=== Open the v4l2 device and output the result ===
+ octave> obj = videoinput("v4l2", "/dev/video0")
+ obj = videoinput for v4l2
+      device             = /dev/video0
+      driver             = uvcvideo
+      card               = UVC Camera (046d:0825)
+      VideoInput         = 0
+      VideoResolution    = 320 x 240 px
+      VideoFrameInterval = 1/30 s (30.0 fps)
+
+=== Query which properties are available for the used device ===
+The first 6 ones, starting with an upper letter are fixed, the other specific to the used v4l2 device.
+ octave> get(obj)
+ ans = 
+ {
+  [1,1] = SelectedSourceName
+  [2,1] = DeviceCapabilities
+  [3,1] = VideoInput
+  [4,1] = VideoResolution
+  [5,1] = VideoFrameInterval
+  [6,1] = VideoFormat
+  [7,1] = brightness
+  [8,1] = contrast
+  [9,1] = saturation
+  [10,1] = white_balance_temperature_auto
+  [11,1] = gain
+  [12,1] = power_line_frequency
+  [13,1] = white_balance_temperature
+  [14,1] = sharpness
+  [15,1] = backlight_compensation
+  [16,1] = exposure_auto
+  [17,1] = exposure_absolute
+  [18,1] = exposure_auto_priority
+ }
+
+=== Get device capabilities ===
+ octave> get(obj, "DeviceCapabilities")
+ ans =
+ 
+  scalar structure containing the fields:
+ 
+    driver = uvcvideo
+    card = UVC Camera (046d:0825)
+    bus_info = usb-0000:00:16.2-2
+    version = 3.2.51
+    capabilities =  83886081
+
+=== List available video resolutions ===
+ octave> set(obj, "VideoResolution")
+ ans =
+ 
+    640    480
+    160    120
+    176    144
+    320    176
+    320    240
+    352    288
+    432    240
+    544    288
+    640    360
+    752    416
+    800    448
+    800    600
+    864    480
+    960    544
+    960    720
+   1024    576
+   1184    656
+   1280    720
+   1280    960
+
+=== Set the video resolution to 320x240px ===
+
+ octave> set(obj, "VideoResolution", [320 240])
+
+=== Get the current brightness value ===
+ octave> get(obj, "brightness")
+ ans =  100
+
+=== Query possible range for brightness ===
+ octave> set(obj, "brightness")
+ ans =
+ 
+  scalar structure containing the fields:
+ 
+    min = 0
+    max =  255
+    step =  1
+    default =  128
+
+=== Set a new value for brightness ===
+ octave> set(obj, "brightness", 100)
+
+=== Start preview ===
+ octave> preview(obj)
+Close it with CTRL+C or with [X] on the preview window
+
+=== Use higher resolution and start streaming with 2 buffers ===
+ octave> set(obj, "VideoResolution", [640 480]);
+ octave> start(obj, 2)
+
+=== Get an image from the buffers, view and save it ===
+ octave> img = getsnapshot(obj);
+ octave> image(img)
+ octave> imwrite(img, "ex1_a.png")
+ octave> [img, seq, t] = getsnapshot(obj);
+ octave> seq
+  seq =  1
+ octave> t
+  t =
+ 
+  scalar structure containing the fields:
+ 
+    tv_sec =  19618
+    tv_usec =  346553
+
+=== Stop streaming ===
+ octave> stop(obj)
 
 == Using v4l2loopback for tests ==
 If you don't have a v4l2 device but test the package you could create a loopback device:
@@ -35,7 +179,31 @@ Exit octave and add libv4l2_debug.log to your bug report
 
 Consider running the included tests:
 
- test @videoinput/videoinput
- test @videoinput/get
- test @videoinput/set
- test @videoinput/getsnapshot
+ octave> test @videoinput/videoinput
+ octave> test @videoinput/get
+ octave> test @videoinput/set
+ octave> test @videoinput/getsnapshot
+
+== make check ==
+If you have cloned the hg repo you can run the test scripts to see if all works.
+
+ $ cd octave-image-acquisition/devel
+ $ make check
+
+ octave -q run_tests.m
+ libv4l2: error setting pixformat: Device or resource busy
+ INFO: this error is expected because /dev/video0 is still streaming
+ ../src/__v4l2_handler__.cc........................ PASS 3/3 
+ libv4l2: error getting capabilities: Inappropriate ioctl for device
+ @videoinput/videoinput............................ PASS 3/3 
+ @videoinput/get................................... PASS 4/4 
+ @videoinput/set................................... PASS 6/6 
+ @videoinput/getsnapshot........................... PASS 1/1 
+ imaqhwinfo........................................ PASS 1/1 
+ 
+ Summary:
+ 
+   PASS  18
+   FAIL   0
+
+The two errors are expected, see test scripts. If there are tests which FAIL, then please have a look at the generated fntest.log and add it to your bug report.
