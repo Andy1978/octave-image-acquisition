@@ -54,7 +54,7 @@ endfunction
 %! img = getsnapshot(obj);
 %! img = getsnapshot(obj, 1);
 %! [img, seq]= getsnapshot(obj, 1);
-%! assert (seq, 2); #the third image captured
+%! assert (seq>=2);
 %! [img, seq, T]= getsnapshot(obj, 0);
 %! assert (isstruct(T))
 %! stop(obj)
