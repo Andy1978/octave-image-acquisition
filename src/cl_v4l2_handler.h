@@ -95,13 +95,19 @@ public:
   void s_ctrl (int id, int value);            //!< Set control
 
   octave_value_list capture (int nargout,
-                             bool preview=0); //!< Retrieve captured image from buffer
+                             int preview=0);  //!< Retrieve captured image from buffer
   void capture_to_ppm (const char *fn);       //!< Retrieve captured image from buffer and save it as ppm
 
   void streamon (unsigned int n);             //!< start streaming with n buffers
   void streamoff ();                          //!< stop streaming
 
   void close ();                              //!< close v4l2 device
+
+  bool preview_window_is_shown()
+  {
+    Fl::wait(0);
+    return (preview_window)? preview_window->shown() : false;
+  }
 
 private:
   v4l2_handler (const v4l2_handler& m);

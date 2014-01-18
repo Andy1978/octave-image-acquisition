@@ -590,17 +590,18 @@ v4l2_handler::qbuf ()
 }
 
 /*!
- *
+ * \param nargout Number of output Parameter [image, sequence, timestamp, timecode]
+ * \param preview 0=no preview, 1=show preview win if closed, 2=leave it closed
  * \return image, sequence, timestamp, [timecode]
  */
 octave_value_list
-v4l2_handler::capture (int nargout, bool preview)
+v4l2_handler::capture (int nargout, int preview)
 {
   octave_value_list ret;
 
   if(!streaming)
     {
-      error("v4l2_handler::capture streaming wasn't enabled");
+      error("v4l2_handler::capture streaming wasn't enabled. Please use 'start(obj)'");
       return octave_value();
     }
   struct v4l2_format fmt;
@@ -698,7 +699,7 @@ v4l2_handler::capture (int nargout, bool preview)
 
   xioctl(fd, VIDIOC_QBUF, &buf);
 
-  // show preview window?
+  // use preview window?
   if (preview)
     {
       if (!preview_window)
@@ -708,7 +709,7 @@ v4l2_handler::capture (int nargout, bool preview)
         }
       if (preview_window)
         {
-          if(!preview_window->shown())
+          if(preview == 1 && !preview_window->shown())
             preview_window->show();
           preview_window->copy_img(p, fmt.fmt.pix.width, fmt.fmt.pix.height, 1); //until now only RGB is supported
           preview_window->custom_label(dev.c_str(), buf.sequence, 1.0/dt);

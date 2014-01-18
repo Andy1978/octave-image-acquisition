@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -564,6 +564,26 @@ Use '$ v4l2-ctl --list-devices' for more details.\n\
   return octave_value (retval);
 }
 
+DEFUN_DLD(__v4l2_preview_window_is_shown__, args, nargout,
+          "-*- texinfo -*-\n\
+@deftypefn {Loadable Function} {@var{l} =} __v4l2_preview_window_is_shown__ (@var{h})\n\
+Return preview_window->shown().\n\
+@end deftypefn")
+{
+  octave_value ret;
+  if (args.length () != 1)
+    {
+      print_usage ();
+      return ret;
+    }
+
+  v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
+  if (imgh)
+    {
+      ret = imgh->preview_window_is_shown ();
+    }
+  return ret;
+}
 
 /*
 %!demo

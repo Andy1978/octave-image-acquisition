@@ -23,13 +23,14 @@ function preview (vi)
   if (nargin != 1)
     print_usage();
   endif
-
   unwind_protect
-    __v4l2_handler_streamon__(vi.imaqh, 3);
+    __v4l2_handler_streamon__(vi.imaqh, 2);
     disp("Hit CTRL+C to exit")
     fflush(stdout);
-    while(1)
-      __v4l2_handler_capture__(vi.imaqh, 1);
+    # Show preview window if it's not already shown
+    __v4l2_handler_capture__(vi.imaqh, 1);
+    while(__v4l2_preview_window_is_shown__(vi.imaqh))
+      __v4l2_handler_capture__(vi.imaqh, 2);
     endwhile
   unwind_protect_cleanup
     __v4l2_handler_streamoff__(vi.imaqh);

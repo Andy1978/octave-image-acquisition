@@ -22,6 +22,7 @@ autoload("__v4l2_handler_streamoff__", __fqp_v4l2_handler__);
 autoload("__v4l2_handler_streamon__", __fqp_v4l2_handler__);
 autoload("__v4l2_handler_capture__", __fqp_v4l2_handler__);
 autoload("__v4l2_list_devices__", __fqp_v4l2_handler__);
+autoload("__v4l2_preview_window_is_shown__", __fqp_v4l2_handler__);
 
 clear __fqp_v4l2_handler__;
 clear __fqp__;
