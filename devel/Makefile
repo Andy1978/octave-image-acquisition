@@ -2,8 +2,9 @@
 
 .PHONY:clean
 .PHONY:all
+.PHONY:octs
 
-TARGETS = test_v4l2_handler test_img_win
+TARGETS = octs test_v4l2_handler test_img_win
 
 FL_LDFLAGS = $(shell fltk-config  --ldflags)
 LIBS = -lv4l2
@@ -12,21 +13,13 @@ CC = g++
 
 all: $(TARGETS)
 
-cl_v4l2_handler.o: ../src/cl_v4l2_handler.cc ../src/cl_v4l2_handler.h
-	mkoctfile $(CXXFLAGS) -v -c $< -o $@
-
-test_v4l2_handler: test_v4l2_handler.cc cl_v4l2_handler.o cl_img_win.o
+test_v4l2_handler: test_v4l2_handler.cc ../src/cl_v4l2_handler.o ../src/cl_img_win.o
 	mkoctfile $(CXXFLAGS) -v --link-stand-alone -Wl,-rpath=/usr/local/lib/octave/3.8.0/ $^ -o $@ $(LIBS) $(FL_LDFLAGS)
 
-cl_img_win.o: ../src/cl_img_win.cc ../src/cl_img_win.h
-	$(CC) $(CXXFLAGS) -c $< -o $@ $(FL_LDFLAGS)
-
-test_img_win: test_img_win.cc cl_img_win.o
+test_img_win: test_img_win.cc ../src/cl_img_win.o
 	$(CC) $(CXXFLAGS) $^ -o $@ $(FL_LDFLAGS)
 
-.PHONY:clean
-
-../src/__v4l2_handler__.oct:
+octs:
 	$(MAKE) -C ../src
 
 check: ../src/__v4l2_handler__.oct
