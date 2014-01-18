@@ -1,0 +1,41 @@
+This is a copy of the http://wiki.octave.org/image_acquisition_package.html
+intended for users without internet connection or offline reading.
+
+The {{Forge|image_acquisition}} package is part of the [[Octave Forge]] project.
+
+There is not release package yet but if you can get the source here [http://sourceforge.net/p/octave/image-acquisition/ci/default/tree/]
+
+== Example session ==
+
+== Using v4l2loopback for tests ==
+If you don't have a v4l2 device but test the package you could create a loopback device:
+ modprobe v4l2loopback
+ gst-launch-0.10 videotestsrc ! v4l2sink device=/dev/video0
+
+== Reporting bugs ==
+
+Please install v4l2-ctl (for example from Debian package v4l-utils),
+run the following commands and attach the output.
+
+ $ v4l2-ctl -w --list-devices
+ $ v4l2-ctl -w -D
+ $ v4l2-ctl -w -L
+ $ v4l2-ctl -w -n
+ $ v4l2-ctl -w --list-formats
+
+Enable libv4l2 logging:
+ $ export LIBV4L2_LOG_FILENAME=libv4l2_debug.log
+
+Start octave and execute your commands/scripts which show the problem.
+
+Please include the whole octave session beginning with the start of octave.
+There might be some warnings like "warning: function xyz shadows a built-in function" at start.
+
+Exit octave and add libv4l2_debug.log to your bug report
+
+Consider running the included tests:
+
+ test @videoinput/videoinput
+ test @videoinput/get
+ test @videoinput/set
+ test @videoinput/getsnapshot

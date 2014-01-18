@@ -1,7 +1,22 @@
 * implement lowpass filter for fps in preview window (see title bar)
 
-* implement setter/getter for "video format" (RGB, YUYV etc.)
+* After "pkg install" doc-cache doesn't list @videoinput/*.
+  Try to fix that.
+
+* implement setter/getter for "video source format" (RGB3, YUYV, MJPG etc.)
   Use FOURCC as description, see set(obj, "VideoFormat").pixelformat
+
+  Is there a way to tell libv4l2 which native source format it should select?
+  For example my uvcvideo webcam supports natively YUYV and MJPG (v4l2-ctl --list-formats)
+
+  VIDIOC_S_FMT app requesting: RGB3
+  VIDIOC_S_FMT converting from: YUYV
+  request == VIDIOC_S_FMT
+    pixelformat: RGB3 640x480
+    field: 1 bytesperline: 1920 imagesize921600
+    colorspace: 8, priv: 0
+
+  Asked on the linux-media@vger.kernel.org mailing list, waiting for answer.
 
 * Should I modify get(obj) so that it returns a struct with current values?
   Also consider properties like "DeviceCapabilities" which return a struct.
