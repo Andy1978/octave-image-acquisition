@@ -18,7 +18,7 @@
 ## @deftypefnx {Function File} {@var{vi} =} videoinput (@var{adaptorname}, @var{device}, @var{format})
 ## Initializes a new video input object. Currently only v4l2 is available as adaptorname.
 ##
-## @seealso{getsnapshot}
+## @seealso{@videoinput/getsnapshot}
 ## @end deftypefn
 
 ## Author:  Andreas Weber <andy.weber.aw@gmail.com>

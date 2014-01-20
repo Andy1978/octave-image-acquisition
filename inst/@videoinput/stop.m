@@ -16,7 +16,7 @@
 ## -*- texinfo -*-
 ## @deftypefn {Function File} {} stop (@var{vi})
 ## Stop streaming.
-## @seealso{start}
+## @seealso{@videoinput/start}
 ## @end deftypefn
 
 function stop (vi)

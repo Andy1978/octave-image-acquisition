@@ -49,7 +49,7 @@
 ##   @result{}    320   240
 ## @end group
 ## @end example
-## @seealso{set}
+## @seealso{@videoinput/set}
 ## @end deftypefn
 
 function val = get (vi, prop)
