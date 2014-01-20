@@ -54,7 +54,7 @@
 ## TODO: not implemented, see set(obj, 'VideoFormat')
 ## @end table
 ##
-## @seealso{@videoinput/get}
+## @seealso{@@videoinput/get}
 ## @end deftypefn
 
 function ret = set (vi, varargin)

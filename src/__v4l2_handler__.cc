@@ -629,7 +629,7 @@ Return preview_window->shown().\n\
 */
 
 /* open same video device twice
- * not all devices return an error, for example the v4l2loopback device doesn't 
+ * not all devices return an error, for example the v4l2loopback device doesn't
 %!test
 %! fail = 0;
 %! x1 = __v4l2_handler_open__(__test__device__());
@@ -647,7 +647,7 @@ Return preview_window->shown().\n\
 %! end_try_catch
 %! if (!strcmp(__v4l2_handler_querycap__(x1).driver, "v4l2 loopback"))
 %!   assert (fail, 1);
-%! endif 
+%! endif
 */
 
 /*  change controls

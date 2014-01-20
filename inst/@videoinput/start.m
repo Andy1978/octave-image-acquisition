@@ -16,7 +16,7 @@
 ## -*- texinfo -*-
 ## @deftypefn {Function File} {} start (@var{vi}, @var{n})
 ## Start streaming with @var{n} buffers. It is recommended to use at least 2 buffers.
-## @seealso{@videoinput/stop}
+## @seealso{@@videoinput/stop}
 ## @end deftypefn
 
 function start (vi, n = 2)

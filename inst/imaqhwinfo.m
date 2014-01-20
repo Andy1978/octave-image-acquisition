@@ -16,6 +16,20 @@
 ## -*- texinfo -*-
 ## @deftypefn {Function File} {@var{list} =} imaqhwinfo ()
 ## Returns a struct array with v4l2 devices in /dev/. Links are not resolved.
+##
+## @group
+## @example
+## imaqhwinfo()
+## @result{} scalar structure containing the fields:
+##
+##    driver = uvcvideo
+##    card = UVC Camera (046d:0825)
+##    bus_info = usb-0000:00:16.2-2
+##    version = 3.2.51
+##    capabilities =  83886081
+##    device = /dev/video0
+## @end example
+## @end group
 ## @end deftypefn
 
 function ret = imaqhwinfo()
