@@ -1,11 +1,11 @@
 image >> Image acquisition
-Devices
+list devices
  imaqhwinfo
-v4l2 Video Input
+v4l2 input
  @videoinput/videoinput
  @videoinput/get
  @videoinput/set
  @videoinput/start
- @videoinput/stop
- @videoinput/getsnapshot
  @videoinput/preview
+ @videoinput/getsnapshot
+ @videoinput/stop
