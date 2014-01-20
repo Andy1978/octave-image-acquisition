@@ -173,11 +173,14 @@ endfunction
 %!test
 %! obj = videoinput ("v4l2", __test__device__);
 %! T = set (obj, 'VideoFrameInterval');
-%! set (obj, 'VideoFrameInterval', T(1,:));
-%! set (obj, 'VideoFrameInterval', T(2,:));
+%! # not all drives support enumeration and query of trameintervals
+%! if (rows(T) >= 1)
+%!   set (obj, 'VideoFrameInterval', T(1,:));
+%!   set (obj, 'VideoFrameInterval', T(end,:));
+%! endif
 
 %!warning
 %! obj = videoinput ("v4l2", __test__device__);
 %! # This shouldn't be supported by any camera and the driver
-%! # camps this to valid values but a warning should be displayed
+%! # clamps this to valid values but a warning should be displayed
 %! set (obj, 'VideoFrameInterval', [1 10000]);

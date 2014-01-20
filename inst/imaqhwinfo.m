@@ -14,7 +14,7 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {@var{list}] =} imaqhwinfo ()
+## @deftypefn {Function File} {@var{list} =} imaqhwinfo ()
 ## Returns a struct array with v4l2 devices in /dev/. Links are not resolved.
 ## @end deftypefn
 

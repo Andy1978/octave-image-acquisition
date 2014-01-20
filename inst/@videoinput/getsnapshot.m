@@ -54,7 +54,10 @@ endfunction
 %! img = getsnapshot(obj);
 %! img = getsnapshot(obj, 1);
 %! [img, seq]= getsnapshot(obj, 1);
-%! assert (seq>=2);
+%! # The v4l2 loopback device doesn't support the seqence numbering and returns always 0
+%! if (!strcmp(get(obj, "DeviceCapabilities").driver, "v4l2 loopback"))
+%!   %! assert (seq>=2);
+%! endif
 %! [img, seq, T]= getsnapshot(obj, 0);
 %! assert (isstruct(T))
 %! stop(obj)

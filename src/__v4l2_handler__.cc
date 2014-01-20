@@ -609,7 +609,7 @@ Return preview_window->shown().\n\
 
 /*
 %!demo
-%! x = __v4l2_handler_open__("/dev/video0");
+%! x = __v4l2_handler_open__(__test__device__());
 %! disp("get controls")
 %! ctrls = __v4l2_handler_queryctrl__(x)
 %! fieldnames(__v4l2_handler_queryctrl__(x))
@@ -617,7 +617,7 @@ Return preview_window->shown().\n\
 
 /*
 %!test
-%! x = __v4l2_handler_open__("/dev/video0");
+%! x = __v4l2_handler_open__(__test__device__());
 %! s = __v4l2_handler_enum_framesizes__(x);
 %! default_size = s(1,:);
 %! __v4l2_handler_s_fmt__(x, default_size);
@@ -628,35 +628,49 @@ Return preview_window->shown().\n\
 %! assert(size(img), [default_size(2), default_size(1), 3]);
 */
 
-/*  open same video device twice
+/* open same video device twice
+ * not all devices return an error, for example the v4l2loopback device doesn't 
 %!test
 %! fail = 0;
-%! x1 = __v4l2_handler_open__("/dev/video0");
+%! x1 = __v4l2_handler_open__(__test__device__());
 %! s = __v4l2_handler_enum_framesizes__(x1);
-%!
 %! __v4l2_handler_s_fmt__(x1, s(1,:));
 %! __v4l2_handler_streamon__(x1, 3);
-%! x2 = __v4l2_handler_open__("/dev/video0");
 %! try
-%!   __v4l2_handler_s_fmt__(x2, [640 480]);
-%! catch ERR #this error is expected because /dev/video0 is still streaming
+%!   x2 = __v4l2_handler_open__(__test__device__());
+%!   __v4l2_handler_s_fmt__(x2, s(end,:));
+%! catch ERR
+%!   # this error is expected because streaming is still enabled
+%!   # or some driver forbids opening the same device twice
 %!   disp("INFO: this error is expected because /dev/video0 is still streaming")
 %!   fail = 1;
 %! end_try_catch
-%! assert (fail, 1);
+%! if (!strcmp(__v4l2_handler_querycap__(x1).driver, "v4l2 loopback"))
+%!   assert (fail, 1);
+%! endif 
 */
 
 /*  change controls
 %!test
-%! x = __v4l2_handler_open__("/dev/video0");
-%! __v4l2_handler_s_fmt__(x, [640 480]);
+%! x = __v4l2_handler_open__(__test__device__());
+%! s = __v4l2_handler_enum_framesizes__(x);
+%! __v4l2_handler_s_fmt__(x, s(end,:));
 %! ctrls = __v4l2_handler_queryctrl__(x);
-%! min_brightness = ctrls.brightness.min;
-%! max_brightness = ctrls.brightness.max;
-%! __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, min_brightness);
-%! assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), min_brightness)
-%! __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, max_brightness);
-%! assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), max_brightness)
-%! __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, 100);
-%! assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), 100);
+%!   if (isfield(ctrls, "brightness"))
+%!   min_brightness = ctrls.brightness.min;
+%!   max_brightness = ctrls.brightness.max;
+%!   __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, min_brightness);
+%!   assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), min_brightness)
+%!   __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, max_brightness);
+%!   assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), max_brightness)
+%!   __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, 100);
+%!   assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), 100);
+%! endif
+*/
+
+/*  check get timeperframe (1/fps).
+ *  This may fail for example with some sn9c20x cameras
+%!test
+%! x = __v4l2_handler_open__(__test__device__());
+%! r = __v4l2_handler_g_parm__(x);
 */

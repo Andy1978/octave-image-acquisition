@@ -339,7 +339,8 @@ v4l2_handler::g_parm ()
         }
       else
         {
-          error("timeperframe is not supported");
+          warning("V4L2_CAP_TIMEPERFRAME is not supported");
+          return Matrix(0,0);
         }
     }
   return ret;
@@ -358,11 +359,19 @@ v4l2_handler::s_parm (Matrix timeperframe)
   sparam.parm.capture.timeperframe.denominator = timeperframe(1);
   xioctl(fd, VIDIOC_S_PARM, &sparam);
   struct v4l2_fract *tf = &sparam.parm.capture.timeperframe;
-  if (!tf->denominator || !tf->numerator)
-    error("Invalid framerate");
-  if (tf->numerator != __u32(timeperframe(0)) || tf->denominator != __u32(timeperframe(1)))
-    warning("driver is using %d/%d as timeperframe but %d/%d was requested",
-            tf->numerator, tf->denominator, __u32(timeperframe(0)), __u32(timeperframe(1)));
+  if(sparam.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
+    {
+      if (!tf->denominator || !tf->numerator)
+        error("Invalid framerate");
+
+      if (tf->numerator != __u32(timeperframe(0)) || tf->denominator != __u32(timeperframe(1)))
+        warning("driver is using %d/%d as timeperframe but %d/%d was requested",
+                tf->numerator, tf->denominator, __u32(timeperframe(0)), __u32(timeperframe(1)));
+    }
+  else
+    {
+       warning("V4L2_CAP_TIMEPERFRAME is not supported");
+    }
 }
 
 // get octave_scalar_map from v4l2_queryctrl

@@ -14,6 +14,13 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## Run all tests
+## This should finish with "FAIL  0" but some device drivers do not implement
+## all v4l2 io-calls like enum frameintervals.
+##
+## Tested with
+## - v4l2 loopback 0.6.1
+## - uvcvideo 3.2.51 UVC Camera (046d:0825), Logitech, Inc. Webcam C270
+## - sn9c20x 3.2.51 USB20 Camera, Trust 14830
 
 run ('../PKG_ADD')
 addpath('../inst')
