@@ -1,8 +1,10 @@
+make -C devel clean
+make -C src realclean
 rm -rf release
 mkdir -p release/octave-image-acquisition
 
 cp -R inst doc src release/octave-image-acquisition
-cp COPYING DESCRIPTION INDEX NEWS PKG_ADD release/octave-image-acquisition
+cp COPYING DESCRIPTION INDEX NEWS PKG_ADD PKG_DEL release/octave-image-acquisition
 cd release/octave-image-acquisition/src
 make realclean
 ./bootstrap

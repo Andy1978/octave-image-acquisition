@@ -3,6 +3,10 @@
 * After "pkg install" doc-cache doesn't list @videoinput/*.
   Try to fix that.
 
+* ADD PKG_ADD and PKG_DEL to source code,
+  see https://sourceforge.net/p/octave/image/ci/default/tree/src/imerode.cc lines 679 and 680
+  for example
+
 * implement setter/getter for "video source format" (RGB3, YUYV, MJPG etc.)
   Use FOURCC as description, see set(obj, "VideoFormat").pixelformat
 
