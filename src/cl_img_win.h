@@ -23,6 +23,7 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/fl_draw.H>
 #include <iostream>
+#include <stdio.h>
 #include <string.h>   //for memcpy
 
 using namespace std;
