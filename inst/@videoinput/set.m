@@ -96,6 +96,10 @@ function ret = set (vi, varargin)
               ctrls = __v4l2_handler_queryctrl__(vi.imaqh);
               if (isfield(ctrls, prop))
                 __v4l2_handler_s_ctrl__(vi.imaqh, ctrls.(prop).id, val);
+                v = __v4l2_handler_g_ctrl__(vi.imaqh, ctrls.(prop).id);
+                if ( val != v)
+                  warning("v4l2 driver limited set value %d to %d", val, v);
+                endif
               else
                 error ('set: invalid property of videoinput class');
               endif
