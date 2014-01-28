@@ -1,3 +1,13 @@
+ Summary of minor changes for image-acquisition 0.1.2 (2014/01/28):
+------------------------------------------------------------------------
+ ** Use of autoconf
+ 
+ ** Fix to build with fltk1.1
+ 
+ ** Some fixes for tests with different cams
+ 
+ ** Print warning if driver limits set values
+
  Summary of important changes for image-acquisition 0.1.0 (2014/01/18):
 ------------------------------------------------------------------------
 

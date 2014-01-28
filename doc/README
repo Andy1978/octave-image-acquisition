@@ -1,17 +1,14 @@
 This is a copy of http://wiki.octave.org/image_acquisition_package.html
 intended for users without internet connection or offline reading.
 
-The {{Forge|image_acquisition}} package is part of the [[Octave Forge]] project.
+The {{Forge|image-acquisition}} package is part of the [[Octave Forge]] project.
 
-There is not release package yet but you can get the source here [http://sourceforge.net/p/octave/image-acquisition/ci/default/tree/]
+Build dependencies for Debian GNU/Linux are '''libv4l-dev''' and '''libfltk1.3-dev''' or '''libfltk1.1-dev'''. You can install it on GNU/Linux in octave with
+  octave> pkg install -forge image-acquisition
 
-Simply do
+If you see complains about a missing mkoctfile: [[FAQ#I_cannot_install_a_package._Octave_complains_about_a_missing_mkoctfile.]]
 
-  $ hg clone http://hg.code.sf.net/p/octave/image-acquisition octave-image-acquisition
-  $ tar czf image-acquisition.tar.gz octave-image-acquisition
-  octave:>> pkg install image-acquisition.tar.gz
-
-If you want to report a bug see [[Image_acquisition_package#Reporting_bugs]]
+If you want to report a bug: [[Image_acquisition_package#Reporting_bugs]]
 
 == Example session ==
 
@@ -184,26 +181,39 @@ Consider running the included tests:
  octave> test @videoinput/set
  octave> test @videoinput/getsnapshot
 
+== Build source from mercurial repository ==
+
+'''Warning: You really should use the <pkg install -forge> method described above if you are not sure what you are doing here.'''
+
+Get the source here [http://sourceforge.net/p/octave/image-acquisition/ci/default/tree/] and build it yourself. The build dependencies for Debian GNU/Linux wheezy are '''libv4l-dev''' and '''libfltk1.3-dev''' or '''libfltk1.1-dev'''. You also need the GNU autotools to generate the configure script.
+
+ $ hg clone http://hg.code.sf.net/p/octave/image-acquisition octave-image-acquisition
+ $ cd octave-image-acquisition/src/ && ./bootstrap
+ $ cd ../..
+ $ tar czf image-acquisition.tar.gz octave-image-acquisition
+ octave:>> pkg install -verbose image-acquisition.tar.gz
+
 == make check ==
-If you have cloned the hg repo you can run the test scripts to see if all works.
+If you have cloned the hg repo you can also run the test scripts to see if all works.
 
  $ cd octave-image-acquisition/devel
  $ make check
 
  octave -q run_tests.m
- libv4l2: error setting pixformat: Device or resource busy
  INFO: this error is expected because /dev/video0 is still streaming
- ../src/__v4l2_handler__.cc........................ PASS 3/3 
+ ../src/__v4l2_handler__.cc........................ PASS 4/4 
  libv4l2: error getting capabilities: Inappropriate ioctl for device
  @videoinput/videoinput............................ PASS 3/3 
  @videoinput/get................................... PASS 4/4 
+ warning: V4L2_CAP_TIMEPERFRAME is not supported
+ warning: V4L2_CAP_TIMEPERFRAME is not supported
  @videoinput/set................................... PASS 6/6 
  @videoinput/getsnapshot........................... PASS 1/1 
  imaqhwinfo........................................ PASS 1/1 
  
  Summary:
  
-   PASS  18
+   PASS  19
    FAIL   0
 
 The two errors are expected, see test scripts. If there are tests which FAIL, then please have a look at the generated fntest.log and add it to your bug report.
