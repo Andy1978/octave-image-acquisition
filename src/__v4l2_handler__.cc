@@ -663,8 +663,9 @@ Return preview_window->shown().\n\
 %!   assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), min_brightness)
 %!   __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, max_brightness);
 %!   assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), max_brightness)
-%!   __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, 100);
-%!   assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), 100);
+%!   v = round(max_brightness/2);
+%!   __v4l2_handler_s_ctrl__(x, ctrls.brightness.id, v);
+%!   assert(__v4l2_handler_g_ctrl__(x, ctrls.brightness.id), v);
 %! endif
 */
 
