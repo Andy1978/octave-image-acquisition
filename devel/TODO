@@ -7,10 +7,7 @@
   see https://sourceforge.net/p/octave/image/ci/default/tree/src/imerode.cc lines 679 and 680
   for example
 
-* implement setter/getter for "video source format" (RGB3, YUYV, MJPG etc.)
-  Use FOURCC as description, see set(obj, "VideoFormat").pixelformat
-
-  Is there a way to tell libv4l2 which native source format it should select?
+* Is there a way to tell libv4l2 which native source format it should select?
   For example my uvcvideo webcam supports natively YUYV and MJPG (v4l2-ctl --list-formats)
 
   VIDIOC_S_FMT app requesting: RGB3

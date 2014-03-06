@@ -175,16 +175,14 @@ Returns a struct with informations for all avaliable v4l2 formats.\n\
 
 DEFUN_DLD(__v4l2_handler_enum_framesizes__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{sizes} = } __v4l2_handler_enum_framesizes__ (@var{h})\n\
-@deftypefnx {Loadable Function} {@var{sizes} = } __v4l2_handler_enum_framesizes__ (@var{h}, @var{format})\n\
+@deftypefn {Loadable Function} {@var{sizes} = } __v4l2_handler_enum_framesizes__ (@var{h}, @var{format})\n\
 Enumerate available frame sizes from v4l2_handler @var{h}.\n\
-If no format is given, V4L2_PIX_FMT_RGB24 is assumed.\n\
 @end deftypefn")
 {
   octave_value_list retval;
   int nargin = args.length ();
 
-  if (nargin < 1 || nargin>2)
+  if (nargin != 2)
     {
       print_usage ();
       return retval;
@@ -193,15 +191,7 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed.\n\
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      unsigned int pixel_format = V4L2_PIX_FMT_RGB24;
-      if (nargin == 2)
-        {
-          unsigned int tmp_pixel_format = args(1).int_value ();
-          if (!error_state)
-            pixel_format = tmp_pixel_format;
-          else
-            error("FORMAT not valid");
-        }
+      string pixel_format = args(1).string_value ();
       retval = octave_value(imgh->enum_framesizes (pixel_format));
     }
   return retval;
@@ -209,17 +199,15 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed.\n\
 
 DEFUN_DLD(__v4l2_handler_enum_frameintervals__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{T} = } __v4l2_handler_enum_frameintervals__ (@var{h}, @var{size})\n\
-@deftypefnc {Loadable Function} {@var{T} = } __v4l2_handler_enum_frameintervals__ (@var{h}, @var{size}, @var{format})\n\
+@deftypefn {Loadable Function} {@var{T} = } __v4l2_handler_enum_frameintervals__ (@var{h}, @var{size}, @var{format})\n\
 Enumerate available frame intervals from v4l2_handler @var{h}.\n\
 Return a Nx2 matrix with numerator, denominator.\n\
-If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with string constants?!?).\n\
 @end deftypefn")
 {
   octave_value_list retval;
   int nargin = args.length ();
 
-  if (nargin < 2 || nargin>3)
+  if (nargin != 3)
     {
       print_usage ();
       return retval;
@@ -235,16 +223,7 @@ If no format is given, V4L2_PIX_FMT_RGB24 is assumed (TODO: implement me with st
         {
           print_usage();
         }
-
-      unsigned int pixel_format = V4L2_PIX_FMT_RGB24;
-      if (nargin == 3)
-        {
-          unsigned int tmp_pixel_format = args(1).int_value ();
-          if (!error_state)
-            pixel_format = tmp_pixel_format;
-          else
-            error("FORMAT not valid");
-        }
+      string pixel_format = args(2).string_value ();
       retval = octave_value(imgh->enum_frameintervals (pixel_format, width, height));
     }
   return retval;
@@ -299,7 +278,7 @@ Set frame interval numerator and denominator.\n\
 DEFUN_DLD(__v4l2_handler_g_fmt__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} @var{fmt} = __v4l2_handler_g_fmt__ (@var{h})\n\
-Get format [width height].\n\
+Get format pixelformat, size[width height].\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -321,14 +300,14 @@ Get format [width height].\n\
 
 DEFUN_DLD(__v4l2_handler_s_fmt__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} __v4l2_handler_s_fmt__ (@var{h}, @var{size})\n\
-Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
+@deftypefn {Loadable Function} __v4l2_handler_s_fmt__ (@var{h}, @var{fmt}, @var{size})\n\
+Set format @var{fmt}, @var{size} (V4L2_FIELD_INTERLACED).\n\
 @end deftypefn")
 {
   octave_value_list retval;
   int nargin = args.length ();
 
-  if (nargin != 2)
+  if (nargin != 3)
     {
       print_usage ();
       return retval;
@@ -337,12 +316,13 @@ Set format @var{size} (V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED).\n\
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      Matrix s = args(1).matrix_value ();
+      string fmt = args(1).string_value ();
+      Matrix s = args(2).matrix_value ();
       unsigned int xres = s(0);
       unsigned int yres = s(1);
       if (! error_state)
         {
-          imgh->s_fmt (xres, yres);
+          imgh->s_fmt (fmt, xres, yres);
         }
     }
   return retval;
@@ -589,15 +569,15 @@ Return preview_window->shown().\n\
 %!demo
 %! disp("open /dev/video0 and show live images with 2 different formats")
 %! vi = __v4l2_handler_open__("/dev/video0");
-%! s = __v4l2_handler_enum_framesizes__(vi);   # get available frame sizes
-%! __v4l2_handler_s_fmt__(vi, s(1,:));         # use the default framesize
+%! s = __v4l2_handler_enum_framesizes__(vi, "RGB24");   # get available frame sizes
+%! __v4l2_handler_s_fmt__(vi, "RGB24", s(1,:));         # use the default framesize
 %! __v4l2_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
 %! l = 200;
 %! for i=1:l
 %!   __v4l2_handler_capture__(vi, 1);          # capture 200 frames and show preview
 %! endfor
 %! __v4l2_handler_streamoff__(vi);             # diable streaming
-%! __v4l2_handler_s_fmt__(vi, s(2,:));         # use smales available format
+%! __v4l2_handler_s_fmt__(vi, "RGB24", s(2,:));         # use smales available format
 %! disp("The image size is now")
 %! disp(__v4l2_handler_g_fmt__(vi))
 %! __v4l2_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
@@ -618,10 +598,10 @@ Return preview_window->shown().\n\
 /*
 %!test
 %! x = __v4l2_handler_open__(__test__device__());
-%! s = __v4l2_handler_enum_framesizes__(x);
+%! s = __v4l2_handler_enum_framesizes__(x, "RGB24");
 %! default_size = s(1,:);
-%! __v4l2_handler_s_fmt__(x, default_size);
-%! t = __v4l2_handler_enum_frameintervals__(x, default_size);
+%! __v4l2_handler_s_fmt__(x, "RGB24", default_size);
+%! t = __v4l2_handler_enum_frameintervals__(x, default_size, "RGB24");
 %! #__v4l2_handler_enum_fmt__(x).description
 %! __v4l2_handler_streamon__(x, 2);
 %! [img, seq, timestamp] = __v4l2_handler_capture__(x);
@@ -633,12 +613,12 @@ Return preview_window->shown().\n\
 %!test
 %! fail = 0;
 %! x1 = __v4l2_handler_open__(__test__device__());
-%! s = __v4l2_handler_enum_framesizes__(x1);
-%! __v4l2_handler_s_fmt__(x1, s(1,:));
+%! s = __v4l2_handler_enum_framesizes__(x1, "RGB24");
+%! __v4l2_handler_s_fmt__(x1, "RGB24", s(1,:));
 %! __v4l2_handler_streamon__(x1, 3);
 %! try
 %!   x2 = __v4l2_handler_open__(__test__device__());
-%!   __v4l2_handler_s_fmt__(x2, s(end,:));
+%!   __v4l2_handler_s_fmt__(x2, "RGB24", s(end,:));
 %! catch ERR
 %!   # this error is expected because streaming is still enabled
 %!   # or some driver forbids opening the same device twice
@@ -653,8 +633,8 @@ Return preview_window->shown().\n\
 /*  change controls
 %!test
 %! x = __v4l2_handler_open__(__test__device__());
-%! s = __v4l2_handler_enum_framesizes__(x);
-%! __v4l2_handler_s_fmt__(x, s(end,:));
+%! s = __v4l2_handler_enum_framesizes__(x, "RGB24");
+%! __v4l2_handler_s_fmt__(x, "RGB24", s(end,:));
 %! ctrls = __v4l2_handler_queryctrl__(x);
 %!   if (isfield(ctrls, "brightness"))
 %!   min_brightness = ctrls.brightness.min;

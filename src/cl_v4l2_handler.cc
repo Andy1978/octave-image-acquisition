@@ -15,6 +15,8 @@
 
 #include "cl_v4l2_handler.h"
 
+#define ARRAY_SIZE(a)	(sizeof(a)/sizeof((a)[0]))
+
 static std::string
 num2s (unsigned num) //taken from v4l2-ctl.cpp
 {
@@ -55,16 +57,90 @@ buftype2s (int type) //taken from v4l2-ctl.cpp
     }
 }
 
-static std::string
-fcc2s (unsigned int val) //taken from v4l2-ctl.cpp
-{
-  std::string s;
+static struct { //taken from yavta Copyright (C) 2005-2010 Laurent Pinchart
+  const char *name;
+  unsigned int fourcc;
+} pixel_formats[] = {
+  { "RGB332", V4L2_PIX_FMT_RGB332 },
+  { "RGB555", V4L2_PIX_FMT_RGB555 },
+  { "RGB565", V4L2_PIX_FMT_RGB565 },
+  { "RGB555X", V4L2_PIX_FMT_RGB555X },
+  { "RGB565X", V4L2_PIX_FMT_RGB565X },
+  { "BGR24", V4L2_PIX_FMT_BGR24 },
+  { "RGB24", V4L2_PIX_FMT_RGB24 },
+  { "BGR32", V4L2_PIX_FMT_BGR32 },
+  { "RGB32", V4L2_PIX_FMT_RGB32 },
+  { "Y8", V4L2_PIX_FMT_GREY },
+  { "Y10", V4L2_PIX_FMT_Y10 },
+  { "Y12", V4L2_PIX_FMT_Y12 },
+  { "Y16", V4L2_PIX_FMT_Y16 },
+  { "UYVY", V4L2_PIX_FMT_UYVY },
+  { "VYUY", V4L2_PIX_FMT_VYUY },
+  { "YUYV", V4L2_PIX_FMT_YUYV },
+  { "YVYU", V4L2_PIX_FMT_YVYU },
+  { "NV12", V4L2_PIX_FMT_NV12 },
+  { "NV21", V4L2_PIX_FMT_NV21 },
+  { "NV16", V4L2_PIX_FMT_NV16 },
+  { "NV61", V4L2_PIX_FMT_NV61 },
+//  { "NV24", V4L2_PIX_FMT_NV24 },
+//  { "NV42", V4L2_PIX_FMT_NV42 },
+  { "SBGGR8", V4L2_PIX_FMT_SBGGR8 },
+  { "SGBRG8", V4L2_PIX_FMT_SGBRG8 },
+  { "SGRBG8", V4L2_PIX_FMT_SGRBG8 },
+  { "SRGGB8", V4L2_PIX_FMT_SRGGB8 },
+//  { "SBGGR10_DPCM8", V4L2_PIX_FMT_SBGGR10DPCM8 },
+//  { "SGBRG10_DPCM8", V4L2_PIX_FMT_SGBRG10DPCM8 },
+  { "SGRBG10_DPCM8", V4L2_PIX_FMT_SGRBG10DPCM8 },
+//  { "SRGGB10_DPCM8", V4L2_PIX_FMT_SRGGB10DPCM8 },
+  { "SBGGR10", V4L2_PIX_FMT_SBGGR10 },
+  { "SGBRG10", V4L2_PIX_FMT_SGBRG10 },
+  { "SGRBG10", V4L2_PIX_FMT_SGRBG10 },
+  { "SRGGB10", V4L2_PIX_FMT_SRGGB10 },
+  { "SBGGR12", V4L2_PIX_FMT_SBGGR12 },
+  { "SGBRG12", V4L2_PIX_FMT_SGBRG12 },
+  { "SGRBG12", V4L2_PIX_FMT_SGRBG12 },
+  { "SRGGB12", V4L2_PIX_FMT_SRGGB12 },
+  { "DV", V4L2_PIX_FMT_DV },
+  { "MJPEG", V4L2_PIX_FMT_MJPEG },
+  { "MPEG", V4L2_PIX_FMT_MPEG },
+};
 
-  s += val & 0xff;
-  s += (val >> 8) & 0xff;
-  s += (val >> 16) & 0xff;
-  s += (val >> 24) & 0xff;
-  return s;
+static std::string v4l2_fourcc_name(unsigned int fourcc)
+{
+  static char name[5];
+  for (int i = 0; i < 4; ++i) {
+    name[i] = fourcc & 0xff;
+    fourcc >>= 8;
+  }
+  name[4] = '\0';
+  return string(name);
+}
+
+static std::string v4l2_format_name(unsigned int fourcc)
+{
+  for (unsigned int i = 0; i < ARRAY_SIZE(pixel_formats); ++i) {
+    if (pixel_formats[i].fourcc == fourcc)
+      return string(pixel_formats[i].name);
+  }
+  return v4l2_fourcc_name(fourcc);
+}
+
+static unsigned int v4l2_format_code(const char *name)
+{
+  unsigned int i;
+
+  for (i = 0; i < ARRAY_SIZE(pixel_formats); ++i) {
+    if (strcasecmp(pixel_formats[i].name, name) == 0)
+      return pixel_formats[i].fourcc;
+  }
+
+  //try fourcc format
+  unsigned int fourcc = 0;
+  for (int i = 3; i >=0; i--) {
+    fourcc <<= 8;
+    fourcc += name[i];
+  }
+  return fourcc;
 }
 
 DEFINE_OCTAVE_ALLOCATOR(v4l2_handler);
@@ -130,7 +206,7 @@ v4l2_handler::open (string d)
   fd = v4l2_open(d.c_str(), O_RDWR | O_NONBLOCK, 0);
   if (fd < 0)
     {
-      error("Cannot open device %s. Error %d, %s\n", d.c_str(), errno, strerror(errno));
+      error("Cannot open device '%s'. Error %d, '%s'\n", d.c_str(), errno, strerror(errno));
     }
   else
     {
@@ -242,7 +318,8 @@ v4l2_handler::enum_fmt (enum v4l2_buf_type type)
       octave_scalar_map sm;
       sm.assign ("type", buftype2s(fmt.type));
       sm.assign ("description", std::string((const char*)fmt.description));
-      sm.assign ("pixelformat", fcc2s(fmt.pixelformat));
+      sm.assign ("pixelformat", std::string(v4l2_format_name(fmt.pixelformat)));
+      sm.assign ("fourcc", std::string(v4l2_fourcc_name(fmt.pixelformat)));
       sm.assign ("flags_compressed", fmt.flags == V4L2_FMT_FLAG_COMPRESSED);
       sm.assign ("flags_emulated", fmt.flags == V4L2_FMT_FLAG_EMULATED);
 
@@ -255,17 +332,18 @@ v4l2_handler::enum_fmt (enum v4l2_buf_type type)
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enum-framesizes.html
  * see also v4l2-ctl --list-formats-ext
- * \param pixel_format constant e.g. V4L2_PIX_FMT_RGB24
+ * \param pixel_format e.g. 'RGB24'
  * \return Nx2 Matrix with width, height
  * \sa enum_frameintervals
  */
 Matrix
-v4l2_handler::enum_framesizes (__u32 pixel_format)
+v4l2_handler::enum_framesizes (string pixelformat)
 {
   Matrix ret;
+  __u32 pfcode = v4l2_format_code(pixelformat.c_str());
   struct v4l2_frmsizeenum frmsize;
   CLEAR(frmsize);
-  frmsize.pixel_format = pixel_format;
+  frmsize.pixel_format = pfcode;
   frmsize.index = 0;
   while (v4l2_ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmsize) >= 0)
     {
@@ -285,19 +363,20 @@ v4l2_handler::enum_framesizes (__u32 pixel_format)
 /*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enum-frameintervals.html
  * see also v4l2-ctl --list-formats-ext
- * \param pixel_format constant e.g. V4L2_PIX_FMT_RGB24
+ * \param pixel_format e.g. 'RGB24'
  * \param width in px
  * \param height in px
  * \return Nx2 matrix with frame interval numerator, denominator
  * \sa enum_framesizes
  */
 Matrix
-v4l2_handler::enum_frameintervals (__u32 pixel_format, __u32 width, __u32 height)
+v4l2_handler::enum_frameintervals (string pixelformat, __u32 width, __u32 height)
 {
   Matrix ret;
+  __u32 pfcode = v4l2_format_code(pixelformat.c_str());
   struct v4l2_frmivalenum frmival;
   CLEAR(frmival);
-  frmival.pixel_format = pixel_format;
+  frmival.pixel_format = pfcode;
   frmival.width = width;
   frmival.height = height;
   frmival.index = 0;
@@ -488,13 +567,14 @@ v4l2_handler::s_ctrl (int id, int value)
 /*!
  * \param xres the width of the image
  * \param yres the height of the image
+ * \param fmt pixelformat
  *
- * The used libv4l2 pixelformat is set to V4L2_PIX_FMT_RGB24, V4L2_FIELD_INTERLACED
+ * The used libv4l2 pixelformat is set to fmt, V4L2_FIELD_INTERLACED
  */
 void
-v4l2_handler::s_fmt (__u32 xres, __u32 yres)
+v4l2_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
 {
-  if(streaming)
+  if (streaming)
     {
       error("v4l2_handler::s_fmt you have to stop streaming first");
     }
@@ -510,12 +590,17 @@ v4l2_handler::s_fmt (__u32 xres, __u32 yres)
           fmt.fmt.pix.width       = xres;
           fmt.fmt.pix.height      = yres;
         }
-      fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
+      unsigned int fmt_code = 0;
+      if (!fmtstr.empty())
+        {
+          fmt_code = v4l2_format_code(fmtstr.c_str());
+          fmt.fmt.pix.pixelformat = fmt_code;
+        }
       fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
       xioctl(fd, VIDIOC_S_FMT, &fmt);
-      if (fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_RGB24)
+      if (fmt_code && fmt.fmt.pix.pixelformat != fmt_code)
         {
-          error("Libv4l didn't accept RGB24 format. Can't proceed.\n");
+          error("Libv4l didn't accept format. Can't proceed.\n");
         }
       if (xres && yres && ((fmt.fmt.pix.width != xres) || (fmt.fmt.pix.height != yres)))
         warning("driver is sending image at %dx%d but %dx%d was requested",
@@ -523,16 +608,20 @@ v4l2_handler::s_fmt (__u32 xres, __u32 yres)
     }
 }
 
-Matrix
+octave_scalar_map
 v4l2_handler::g_fmt ()
 {
   struct v4l2_format fmt;
   CLEAR(fmt);
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   xioctl(fd, VIDIOC_G_FMT, &fmt);
-  Matrix ret(1,2);
-  ret(0) = fmt.fmt.pix.width;
-  ret(1) = fmt.fmt.pix.height;
+  Matrix s(1,2);
+  s(0) = fmt.fmt.pix.width;
+  s(1) = fmt.fmt.pix.height;
+
+  octave_scalar_map ret;
+  ret.assign ("size", s);
+  ret.assign ("pixelformat", std::string(v4l2_format_name(fmt.fmt.pix.pixelformat)));
   return ret;
 }
 
@@ -618,9 +707,6 @@ v4l2_handler::capture (int nargout, int preview)
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   xioctl(fd, VIDIOC_G_FMT, &fmt);
 
-  dim_vector dv (3, fmt.fmt.pix.width, fmt.fmt.pix.height);
-  uint8NDArray img (dv);
-
   struct v4l2_buffer buf;
 
   fd_set fds;
@@ -657,20 +743,39 @@ v4l2_handler::capture (int nargout, int preview)
   double dt = (last_timestamp)? timestamp - last_timestamp: -1;
   last_timestamp = timestamp;
 
-  // check buffer sizes
-  if(img.numel() != int(buf.bytesused))
-    error("v4l2_handler::capture size mismatch, please file a bug report");
-
-  unsigned char* p=reinterpret_cast<unsigned char*>(img.fortran_vec());
-  memcpy(p, buffers[buf.index].start, buf.bytesused);
-  if (nargout > 0)
+  unsigned char* p = NULL;
+  if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_RGB24)
     {
+      dim_vector dv (3, fmt.fmt.pix.width, fmt.fmt.pix.height);
+      uint8NDArray img (dv);
+      // check buffer sizes
+      if(img.numel() != int(buf.bytesused))
+        error("v4l2_handler::capture RGB24 size mismatch, please file a bug report");
+
+      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+      memcpy(p, buffers[buf.index].start, buf.bytesused);
+
       // permute RGB24 byte order to octave RGB image format
       Matrix per(3,1);
       per(0) = 2;
       per(1) = 1;
       per(2) = 0;
       ret(0) = octave_value(img.permute(per));
+    }
+  else
+    {
+      //return raw data as vector
+      dim_vector dv (buf.bytesused, 1);
+      uint8NDArray img (dv);
+      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+      memcpy(p, buffers[buf.index].start, buf.bytesused);
+      ret(0) = octave_value(img);
+      //no preview possible
+      if (preview)
+        {
+          error("v4l2_handler::capture preview is only available if VideoFormat is 'RGB3' aka 'RGB24' (V4L2_PIX_FMT_RGB24)");
+          preview = false;
+        }
     }
 
   if (nargout > 1)
@@ -749,7 +854,7 @@ v4l2_handler::capture_to_ppm (const char *fn)
   FILE *fout = fopen (fn, "w");
   if (!fout)
     {
-      error("v4l2_handler::capture_to_ppm cannot open file %s", fn);
+      error("v4l2_handler::capture_to_ppm cannot open file '%s'", fn);
     }
   fprintf (fout, "P6\n%d %d 255\n",
            img.dim2(), img.dim3());
@@ -758,7 +863,6 @@ v4l2_handler::capture_to_ppm (const char *fn)
 }
 
 /*!
- * - Set pixelformat to V4L2_PIX_FMT_RGB24
  * - Set field to V4L2_FIELD_INTERLACED
  * - Requests buffers
  * - mmap the buffers
@@ -775,7 +879,7 @@ v4l2_handler::streamon (unsigned int n)
   else
     {
       // set needed pixelformat and field
-      s_fmt(0, 0);
+      s_fmt("", 0, 0);
       // request buffers
       reqbufs(n);
       // mmap the buffers

@@ -1,13 +1,9 @@
-12.01.2014 Andreas Weber
-
 dependencies on Debian GNU/Linux 7.2 (wheezy)
 
-* libv4l-dev libfltk1.3-dev
+* libv4l-dev libfltk1.1-dev
 
 suggested:
-* v4l-utils (for v4l2-ctl in imaqhwinfo.m) and v4l-utils-1.0.0.tar.bz2 
-
-26.12.2013 Andreas Weber
+* v4l-utils for v4l2-ctl and v4l-utils-1.0.0.tar.bz2
 
 I bought a 046d:0825 Logitech, Inc. Webcam C270 for testing
 $ dmesg

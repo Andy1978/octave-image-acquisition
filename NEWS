@@ -1,3 +1,11 @@
+ Summary of important changes for image-acquisition 0.1.3 (2014/03/06):
+------------------------------------------------------------------------
+
+ ** new setter/getter for VideoFormat. This internally sets the pixelformat,
+    see http://www.linuxtv.org/downloads/v4l-dvb-apis/pixfmt.html.
+    You can use the short 4 char FOURCC format ('RGB3', 'YUYV', 'MJPG' etc.)
+    or the long format, for example 'SGRBG12' instead of 'BA12'.
+
  Summary of minor changes for image-acquisition 0.1.2 (2014/01/28):
 ------------------------------------------------------------------------
  ** Use of autoconf

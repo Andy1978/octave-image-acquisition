@@ -67,12 +67,12 @@ function val = get (vi, prop)
         val = __v4l2_handler_querycap__(vi.imaqh);
       case "VideoInput"
         val = __v4l2_handler_g_input__(vi.imaqh);
-      case "VideoResolution"
-        val = __v4l2_handler_g_fmt__(vi.imaqh);
       case "VideoFrameInterval"
         val = __v4l2_handler_g_parm__(vi.imaqh);
+      case "VideoResolution"
+        val = __v4l2_handler_g_fmt__(vi.imaqh).size;
       case "VideoFormat"
-        error("TODO not implemented");
+        val = __v4l2_handler_g_fmt__(vi.imaqh).pixelformat;
       otherwise
         # get controls
         ctrls = __v4l2_handler_queryctrl__(vi.imaqh);

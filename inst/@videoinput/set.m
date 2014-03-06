@@ -72,7 +72,7 @@ function ret = set (vi, varargin)
         switch prop
           case 'VideoResolution'
             if (isvector (val) && isreal (val) && length (val) == 2)
-              __v4l2_handler_s_fmt__(vi.imaqh, val);
+              __v4l2_handler_s_fmt__(vi.imaqh, "", val);
             else
               error ('set VideoResolution: expects a real vector [width height]');
             endif
@@ -89,7 +89,9 @@ function ret = set (vi, varargin)
               error ('set VideoFrameInterval: expecting a 1x2 matrix with [numerator, denominator]');
             endif
           case 'VideoFormat'
-            error('not implemented (fixed to V4L2_PIX_FMT_RGB24')
+            if (ischar (val))
+              __v4l2_handler_s_fmt__(vi.imaqh, val, [0 0]);
+            endif
           otherwise
             if (!__is_read_only_property__(prop))
               # could be a v4l2 control
@@ -120,11 +122,11 @@ function ret = __list_range__ (vi, prop)
           ret = __v4l2_handler_enuminput__ (vi.imaqh);
         case 'VideoResolution'
           # enumerate possible framerates
-          ret = __v4l2_handler_enum_framesizes__ (vi.imaqh);
+          ret = __v4l2_handler_enum_framesizes__ (vi.imaqh, "RGB24");
         case 'VideoFrameInterval'
           # return possible frameintervals for currently selected framesize
-          current_frame_size = __v4l2_handler_g_fmt__ (vi.imaqh);
-          ret = __v4l2_handler_enum_frameintervals__ (vi.imaqh, current_frame_size);
+          current_frame_size = __v4l2_handler_g_fmt__ (vi.imaqh).size;
+          ret = __v4l2_handler_enum_frameintervals__ (vi.imaqh, current_frame_size, "RGB24");
         case 'VideoFormat'
           ret = __v4l2_handler_enum_fmt__ (vi.imaqh);
         otherwise ## perhaps a v4l2 control?
@@ -168,11 +170,15 @@ endfunction
 %!error set(obj, "SelectedSourceName")
 %!error set(obj, "DeviceCapabilities")
 
-%!xtest
+%!test
+%! obj = videoinput ("v4l2", __test__device__);
+%! set (obj, 'VideoFormat', 'RGB24');
+
+%!test
 %! obj = videoinput ("v4l2", __test__device__);
 %! fmts = set (obj, 'VideoFormat');
-%! set (obj, 'VideoFormat', 'RGB3');
-%! set (obj, 'VideoFormat', fmts(2).pixelformat);
+%! set (obj, 'VideoFormat', fmts(end).pixelformat);
+%! set (obj, 'VideoFormat', 'RGB24');
 
 %!test
 %! obj = videoinput ("v4l2", __test__device__);
