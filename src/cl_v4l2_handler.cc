@@ -600,7 +600,9 @@ v4l2_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
       xioctl(fd, VIDIOC_S_FMT, &fmt);
       if (fmt_code && fmt.fmt.pix.pixelformat != fmt_code)
         {
-          error("Libv4l didn't accept format. Can't proceed.\n");
+          warning("Libv4l changed the pixelformat from\n         '%s'(0x%x) to '%s'(0x%x)",
+                  v4l2_format_name(fmt_code).c_str(), fmt_code,
+                  v4l2_format_name(fmt.fmt.pix.pixelformat).c_str(), fmt.fmt.pix.pixelformat);
         }
       if (xres && yres && ((fmt.fmt.pix.width != xres) || (fmt.fmt.pix.height != yres)))
         warning("driver is sending image at %dx%d but %dx%d was requested",
@@ -765,11 +767,28 @@ v4l2_handler::capture (int nargout, int preview)
   else
     {
       //return raw data as vector
-      dim_vector dv (buf.bytesused, 1);
-      uint8NDArray img (dv);
-      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
-      memcpy(p, buffers[buf.index].start, buf.bytesused);
-      ret(0) = octave_value(img);
+      if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10 
+          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG10
+          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB10
+          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR12
+          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG12
+          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG12
+          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB12 )
+        {
+          dim_vector dv (buf.bytesused/2, 1);
+          uint16NDArray img (dv);
+          p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+          memcpy(p, buffers[buf.index].start, buf.bytesused);
+          ret(0) = octave_value(img);
+        }
+      else
+        {
+          dim_vector dv (buf.bytesused, 1);
+          uint8NDArray img (dv);
+          p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+          memcpy(p, buffers[buf.index].start, buf.bytesused);
+          ret(0) = octave_value(img);
+        }
       //no preview possible
       if (preview)
         {
