@@ -35,7 +35,9 @@
 
 function vi = videoinput (adaptorname, device, format)
   # defaults
-  vidata = struct ("SelectedSourceName", "/dev/video0");
+  vidata = struct ("SelectedSourceName", "/dev/video0",
+                   "ReturnedColorSpace", "blabla",
+                   "BayerSensorAlignment", "grbg");
 
   if (nargin == 0 || nargin==1 || nargin>3)
     print_usage();

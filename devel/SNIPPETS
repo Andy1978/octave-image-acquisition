@@ -5,77 +5,22 @@ dependencies on Debian GNU/Linux 7.2 (wheezy)
 suggested:
 * v4l-utils for v4l2-ctl and v4l-utils-1.0.0.tar.bz2
 
-I bought a 046d:0825 Logitech, Inc. Webcam C270 for testing
-$ dmesg
-  [24933.496204] usb 1-3: new high-speed USB device number 3 using ehci_hcd
-  [24933.845162] usb 1-3: New USB device found, idVendor=046d, idProduct=0825
-  [24933.845174] usb 1-3: New USB device strings: Mfr=0, Product=0, SerialNumber=2
-  [24933.845181] usb 1-3: SerialNumber: 4696B550
-  [24933.940350] Linux media interface: v0.10
-  [24933.967697] Linux video capture interface: v2.00
-  [24935.016203] 3:3:2: cannot get freq at ep 0x86
-  [24935.169234] usb_audio: Warning! Unlikely big volume range (=6144), cval->res is probably wrong.
-  [24935.169246] usb_audio: [5] FU [Mic Capture Volume] ch = 1, val = 1536/7680/1
-  [24935.170208] usbcore: registered new interface driver snd-usb-audio
-  [24935.170282] uvcvideo: Found UVC 1.00 device <unnamed> (046d:0825)
-  [24935.185658] input: UVC Camera (046d:0825) as /devices/pci0000:00/0000:00:12.2/usb1/1-3/1-3:1.0/input/input6
-  [24935.185893] usbcore: registered new interface driver uvcvideo
-  [24935.185898] USB Video Class driver (1.1.1)
+Query devices:
+$ v4l2-ctl --all
 
-v4l2-ctl --all
-Driver Info (not using libv4l2):
-	Driver name   : uvcvideo
-	Card type     : UVC Camera (046d:0825)
-	Bus info      : usb-0000:00:12.2-3
-	Driver version: 3.2.51
-	Capabilities  : 0x04000001
-		Video Capture
-		Streaming
-Format Video Capture:
-	Width/Height  : 640/480
-	Pixel Format  : 'YUYV'
-	Field         : None
-	Bytes per Line: 1280
-	Size Image    : 614400
-	Colorspace    : SRGB
-Crop Capability Video Capture:
-	Bounds      : Left 0, Top 0, Width 640, Height 480
-	Default     : Left 0, Top 0, Width 640, Height 480
-	Pixel Aspect: 1/1
-Video input : 0 (Camera 1: ok)
-Streaming Parameters Video Capture:
-	Capabilities     : timeperframe
-	Frames per second: 30.000 (30/1)
-	Read buffers     : 0
-
+Query controls:
 $ v4l2-ctl -d /dev/video0 -L
-                     brightness (int)    : min=0 max=255 step=1 default=128 value=128
-                       contrast (int)    : min=0 max=255 step=1 default=32 value=32
-                     saturation (int)    : min=0 max=255 step=1 default=32 value=32
- white_balance_temperature_auto (bool)   : default=1 value=1
-                           gain (int)    : min=0 max=255 step=1 default=0 value=32
-           power_line_frequency (menu)   : min=0 max=2 default=2 value=2
-				0: Disabled
-				1: 50 Hz
-				2: 60 Hz
-      white_balance_temperature (int)    : min=0 max=10000 step=10 default=4000 value=2090
-                      sharpness (int)    : min=0 max=255 step=1 default=24 value=0
-         backlight_compensation (int)    : min=0 max=1 step=1 default=1 value=1
-                  exposure_auto (menu)   : min=0 max=3 default=3 value=1
-				1: Manual Mode
-				3: Aperture Priority Mode
-              exposure_absolute (int)    : min=1 max=10000 step=1 default=166 value=100
-         exposure_auto_priority (bool)   : default=0 value=1
+
+Set controls (for example exposure)
+$ v4l2-ctl --set-ctrl=exposure_absolute=100
 
 Live Image:
-mplayer tv:// -tv driver=v4l2:device=/dev/video0
+$ mplayer tv:// -tv driver=v4l2:device=/dev/video0
 
 Capture Video:
-ffmpeg -f v4l2 -r 25 -s 640x480 -i /dev/video0 out.avi
-
-v4l2-ctl --set-ctrl=exposure_absolute=100
+$ ffmpeg -f v4l2 -r 25 -s 640x480 -i /dev/video0 out.avi
 
 Loopback
-sudo modprobe v4l2loopback
-gst-launch-0.10 videotestsrc ! v4l2sink device=/dev/video0
+$ sudo modprobe v4l2loopback
+$ gst-launch-0.10 videotestsrc ! v4l2sink device=/dev/video0
 

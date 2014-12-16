@@ -27,11 +27,17 @@
 ## get (obj) @result{}
 ##  @{
 ##    [1,1] = SelectedSourceName
-##    [2,1] = DeviceCapabilities
-##    [3,1] = VideoInput
-##    [4,1] = VideoResolution
-##    [5,1] = brightness
-##    [6,1] = saturation
+##    [2,1] = ReturnedColorSpace
+##    [3,1] = BayerSensorAlignment
+##    [4,1] = DeviceCapabilities
+##    [5,1] = VideoInput
+##    [6,1] = VideoResolution
+##    [7,1] = VideoFrameInterval
+##    [8,1] = VideoFormat
+##    [9,1] = brightness
+##    [10,1] = contrast
+##    [11,1] = saturation
+##    [12,1] = white_balance_temperature_auto
 ##  @}
 ## @end group
 ## @end example
@@ -63,6 +69,10 @@ function val = get (vi, prop)
     switch (prop)
       case "SelectedSourceName"
         val = vi.SelectedSourceName;
+      case "ReturnedColorSpace"
+        val = vi.ReturnedColorSpace;
+      case "BayerSensorAlignment"
+        val = vi.BayerSensorAlignment;
       case "DeviceCapabilities"
         val = __v4l2_handler_querycap__(vi.imaqh);
       case "VideoInput"

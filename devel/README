@@ -1,3 +1,4 @@
 This directory contains functions that have been used to develop some of
-the image acquisition functions in the parent directory. This files are
-not needed at runtime for them to work, so they are not installed.
+the image acquisition functions in the parent directory. These files are
+not needed at runtime for them to work, so they are not installed or
+distributed.

@@ -750,23 +750,15 @@ v4l2_handler::capture (int nargout, int preview)
     {
       dim_vector dv (3, fmt.fmt.pix.width, fmt.fmt.pix.height);
       uint8NDArray img (dv);
-      // check buffer sizes
-      if(img.numel() != int(buf.bytesused))
-        error("v4l2_handler::capture RGB24 size mismatch, please file a bug report");
+      assert(img.numel() == int(buf.bytesused));
 
       p=reinterpret_cast<unsigned char*>(img.fortran_vec());
       memcpy(p, buffers[buf.index].start, buf.bytesused);
-
-      // permute RGB24 byte order to octave RGB image format
-      Matrix per(3,1);
-      per(0) = 2;
-      per(1) = 1;
-      per(2) = 0;
-      ret(0) = octave_value(img.permute(per));
+      ret(0) = octave_value(img);
     }
   else
     {
-      //return raw data as vector
+warning("debug: %d %d %d", fmt.fmt.pix.width, fmt.fmt.pix.height, buf.bytesused);
       if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10 
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG10
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB10
@@ -774,14 +766,32 @@ v4l2_handler::capture (int nargout, int preview)
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG12
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG12
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB12 )
+        // RAW Bayer, 2 bytes per pixel
         {
-          dim_vector dv (buf.bytesused/2, 1);
+          dim_vector dv (fmt.fmt.pix.width, fmt.fmt.pix.height);
           uint16NDArray img (dv);
+          assert(img.numel()*2 == int(buf.bytesused));
           p=reinterpret_cast<unsigned char*>(img.fortran_vec());
           memcpy(p, buffers[buf.index].start, buf.bytesused);
-          ret(0) = octave_value(img);
+          ret(0) = octave_value(img);  
+        }
+      else if ( fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR8 
+             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG8
+             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG8
+             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB8 )
+        // RAW Bayer, 1 byte per pixel
+        {
+
+          dim_vector dv (fmt.fmt.pix.width, fmt.fmt.pix.height);
+          uint8NDArray img (dv);
+          assert(img.numel() == int(buf.bytesused));
+          p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+          memcpy(p, buffers[buf.index].start, buf.bytesused);
+          ret(0) = octave_value(img);          
         }
       else
+        // something different, for example MJPEG?
+        // just return the bytes in this case.
         {
           dim_vector dv (buf.bytesused, 1);
           uint8NDArray img (dv);

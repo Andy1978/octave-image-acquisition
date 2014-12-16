@@ -1,0 +1,97 @@
+## 16.12.2014 Andreas Weber
+
+These scripts and tests are intended for a BeagleBoard-xM Rev C
+with LI-5M03CS camera module from Leopard Imaging with Aptina mt9p031 sensor.
+
+$ grep -i mt9p /boot/config-3.7.10-x13 
+CONFIG_VIDEO_MT9P031=y
+
+Then I added (as root) "camera=li5m03" to /boot/uboot/uEnv.txt
+echo "camera=li5m03" >> /boot/uboot/uEnv.txt
+
+After reboot I connected via ssh and checked if the camera is detected
+$ dmesg |grep -i mt9
+[    3.785797] Beagle camera: MT9P031 init
+[    3.835418] mt9p031 2-0048: MT9P031 detected at address 0x48
+
+In /boot/uboot/tools/pkgs you'll find aptina specific tools
+andy@host:/boot/uboot/tools/pkgs$ ./aptina-media-ctl-n-yavta.sh
+
+This create ~/git in your home folder and clones media-ctl and yavta
+
+andy@host:/dev$ ls -la media0 
+crw------- 1 root root 253, 0 Jan  1 01:00 media0
+andy@host:/dev$ ls -la video*
+crw-rw---T 1 root video 81, 0 Jan  1 01:00 video0
+crw-rw---T 1 root video 81, 1 Jan  1 01:00 video1
+crw-rw---T 1 root video 81, 2 Jan  1 01:00 video2
+crw-rw---T 1 root video 81, 3 Jan  1 01:00 video3
+crw-rw---T 1 root video 81, 4 Jan  1 01:00 video4
+crw-rw---T 1 root video 81, 5 Jan  1 01:00 video5
+crw-rw---T 1 root video 81, 6 Jan  1 01:00 video6
+andy@host:/dev$ ls -la v4l*
+crw-rw---T 1 root video 81,  7 Jan  1 01:00 v4l-subdev0
+crw-rw---T 1 root video 81,  8 Jan  1 01:00 v4l-subdev1
+crw-rw---T 1 root video 81,  9 Jan  1 01:00 v4l-subdev2
+crw-rw---T 1 root video 81, 10 Jan  1 01:00 v4l-subdev3
+crw-rw---T 1 root video 81, 11 Jan  1 01:00 v4l-subdev4
+crw-rw---T 1 root video 81, 12 Jan  1 01:00 v4l-subdev5
+crw-rw---T 1 root video 81, 13 Jan  1 01:00 v4l-subdev6
+crw-rw---T 1 root video 81, 14 Jan  1 01:00 v4l-subdev7
+crw-rw---T 1 root video 81, 15 Jan  1 01:00 v4l-subdev8
+
+andy@host:/dev$ v4l2-ctl -d /dev/video5 -D
+Driver Info (not using libv4l2):
+	Driver name   : ispvideo
+	Card type     : OMAP3 ISP resizer input
+	Bus info      : media
+	Driver version: 3.7.10
+	Capabilities  : 0x04000002
+		Video Output
+		Streaming
+andy@IUASBeagle:/dev$ v4l2-ctl -d /dev/video6 -D
+Driver Info (not using libv4l2):
+	Driver name   : ispvideo
+	Card type     : OMAP3 ISP resizer output
+	Bus info      : media
+	Driver version: 3.7.10
+	Capabilities  : 0x04000001
+		Video Capture
+		Streaming
+
+########### ISP preview ##########
+andy@host:~$ /usr/sbin/yavta --list-controls /dev/v4l-subdev3
+Device /dev/v4l-subdev3 opened.
+--- User Controls (class 0x00980001) ---
+control 0x00980900 `Brightness' min 0 max 255 step 1 default 0 current 0.
+control 0x00980901 `Contrast' min 0 max 255 step 1 default 16 current 16.
+2 controls found.
+
+andy@host:~$ /usr/sbin/yavta --list-controls /dev/v4l-subdev8
+Device /dev/v4l-subdev8 opened.
+--- User Controls (class 0x00980001) ---
+control 0x00980911 `Exposure' min 1 max 1048575 step 1 default 1943 current 1943.
+control 0x00980913 `Gain' min 8 max 1024 step 1 default 8 current 8.
+control 0x00980914 `Horizontal Flip' min 0 max 1 step 1 default 0 current 0.
+control 0x00980915 `Vertical Flip' min 0 max 1 step 1 default 0 current 0.
+control 0x00981902 `BLC, Auto' min 0 max 1 step 1 default 1 current 1.
+control 0x00981903 `BLC Target Level' min 0 max 4095 step 1 default 168 current 168.
+control 0x00981904 `BLC Analog Offset' min -255 max 255 step 1 default 32 current 32.
+control 0x00981905 `BLC Digital Offset' min -2048 max 2047 step 1 default 40 current 40.
+--- Image Processing Controls (class 0x009f0001) ---
+control 0x009f0902 `Pixel Rate' min 0 max 0 step 0 default 0 current 0.
+control 0x009f0903 `Test Pattern' min 0 max 9 step 1 default 0 current 0.
+  0: Disabled (*)
+  1: Color Field
+  2: Horizontal Gradient
+  3: Vertical Gradient
+  4: Diagonal Gradient
+  5: Classic Test Pattern
+  6: Walking 1s
+  7: Monochrome Horizontal Bars
+  8: Monochrome Vertical Bars
+  9: Vertical Color Bars
+10 controls found.
+
+######## Testpattern
+$ yavta -w "0x009f0903 1" /dev/v4l-subdev8 

@@ -51,7 +51,8 @@
 ## Time between frames in seconds as [numerator, denominator]. Conceptually fps=1/frame_interval.
 ##
 ## @item 'VideoFormat'
-## TODO: not implemented, see set(obj, 'VideoFormat')
+## Set the VideoFormat using FOURCC code (for example RGB3) or long name (RGB24).
+## See set(obj, "VideoFormat") for a list.
 ## @end table
 ##
 ## @seealso{@@videoinput/get}
@@ -70,6 +71,32 @@ function ret = set (vi, varargin)
       varargin(1:2) = [];
       if(ischar (prop))
         switch prop
+          case 'ReturnedColorSpace'
+            if (ischar (val))
+              l = __list_range__ (vi, prop);
+              if (any ( strcmp (l, val)))
+                vi.ReturnedColorSpace = val;
+                val
+                vi.ReturnedColorSpace
+              else
+                error ('option out of valid range');
+              endif
+            else
+              error ('set ReturnedColorSpace: expecting a string');
+            endif
+          case 'BayerSensorAlignment'
+            if (ischar (val))
+              l = __list_range__ (vi, prop);
+              if (any ( strcmp (l, val)))
+                vi.BayerSensorAlignment = val;
+                val
+                vi.BayerSensorAlignment
+              else
+                error ('option out of valid range');
+              endif
+            else
+              error ('set BayerSensorAlignment: expecting a string');
+            endif
           case 'VideoResolution'
             if (isvector (val) && isreal (val) && length (val) == 2)
               __v4l2_handler_s_fmt__(vi.imaqh, "", val);
@@ -91,6 +118,8 @@ function ret = set (vi, varargin)
           case 'VideoFormat'
             if (ischar (val))
               __v4l2_handler_s_fmt__(vi.imaqh, val, [0 0]);
+            else
+              error ('set VideoFormat: expecting a string');
             endif
           otherwise
             if (!__is_read_only_property__(prop))
@@ -117,16 +146,22 @@ function ret = __list_range__ (vi, prop)
   if (prop)
     if (!__is_read_only_property__ (prop))
       switch prop
+        case 'ReturnedColorSpace'
+          ret = {"rgb", "ycbcr", "grayscale", "bayer"};
+        case 'BayerSensorAlignment'
+          ret = {"gbrg", "grbg", "bggr", "rggb"};
         case 'VideoInput'
           # enumerate available inputs
           ret = __v4l2_handler_enuminput__ (vi.imaqh);
         case 'VideoResolution'
           # enumerate possible framerates
-          ret = __v4l2_handler_enum_framesizes__ (vi.imaqh, "RGB24");
+          fmt = __v4l2_handler_g_fmt__(vi.imaqh).pixelformat;
+          ret = __v4l2_handler_enum_framesizes__ (vi.imaqh, fmt);
         case 'VideoFrameInterval'
           # return possible frameintervals for currently selected framesize
+          fmt = __v4l2_handler_g_fmt__(vi.imaqh).pixelformat;
           current_frame_size = __v4l2_handler_g_fmt__ (vi.imaqh).size;
-          ret = __v4l2_handler_enum_frameintervals__ (vi.imaqh, current_frame_size, "RGB24");
+          ret = __v4l2_handler_enum_frameintervals__ (vi.imaqh, current_frame_size, fmt);
         case 'VideoFormat'
           ret = __v4l2_handler_enum_fmt__ (vi.imaqh);
         otherwise ## perhaps a v4l2 control?

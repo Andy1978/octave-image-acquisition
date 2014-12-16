@@ -488,7 +488,7 @@ Get a snapshot from v4l2_handler @var{h}\n\
         preview = args(1).int_value ();
       if (!error_state)
         {
-          retval = octave_value(imgh->capture (nargout, preview));
+          retval = imgh->capture (nargout, preview);
         }
     }
   return retval;

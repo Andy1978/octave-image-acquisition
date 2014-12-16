@@ -20,6 +20,8 @@
 
 function [props] = __property_names__ ()
   props = {"SelectedSourceName";
+           "ReturnedColorSpace";
+           "BayerSensorAlignment";
            "DeviceCapabilities";
            "VideoInput";
            "VideoResolution";

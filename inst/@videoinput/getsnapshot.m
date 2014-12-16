@@ -43,6 +43,19 @@ function [img, seq, timestamp] = getsnapshot (vi, pv=0)
     print_usage();
   endif
   [img, seq, timestamp] = __v4l2_handler_capture__(vi.imaqh, pv);
+  fmt = __v4l2_handler_g_fmt__(vi.imaqh).pixelformat;
+  switch (resize(fmt, 1, 5))
+    case "RGB24"
+      img = permute(img, [3 2 1]);
+    case "YUYV" #TODO: testen....
+      img = ycbcr2rgb(img);
+    case "SGRBG"
+    # TODO, alles testen und überlegen wie man das mit reinbrigt
+    # ReturnedColorSpace rgb, ycbcr, grayscale, bayer
+    # BayerSensorAlignment gbrg, grbg, bggr, rggb
+    # http://www.mathworks.de/de/help/imaq/working-with-image-data-in-the-matlab-workspace.html#btms8v8
+      img = img';
+  endswitch
 endfunction
 
 %!test

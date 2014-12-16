@@ -17,7 +17,8 @@
     field: 1 bytesperline: 1920 imagesize921600
     colorspace: 8, priv: 0
 
-  Asked on the linux-media@vger.kernel.org mailing list, waiting for answer.
+  Asked on the linux-media@vger.kernel.org mailing list:
+  https://www.mail-archive.com/linux-media@vger.kernel.org/msg70417.html
 
 * Should I modify get(obj) so that it returns a struct with current values?
   Also consider properties like "DeviceCapabilities" which return a struct.
