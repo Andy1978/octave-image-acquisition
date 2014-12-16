@@ -1,0 +1,1 @@
+system("cd ../src/ && make")
