@@ -72,31 +72,9 @@ function ret = set (vi, varargin)
       if(ischar (prop))
         switch prop
           case 'ReturnedColorSpace'
-            if (ischar (val))
-              l = __list_range__ (vi, prop);
-              if (any ( strcmp (l, val)))
-                vi.ReturnedColorSpace = val;
-                val
-                vi.ReturnedColorSpace
-              else
-                error ('option out of valid range');
-              endif
-            else
-              error ('set ReturnedColorSpace: expecting a string');
-            endif
+            error ("Use set (VI, 'VideoFormat', FMT) to specify the returned image format");
           case 'BayerSensorAlignment'
-            if (ischar (val))
-              l = __list_range__ (vi, prop);
-              if (any ( strcmp (l, val)))
-                vi.BayerSensorAlignment = val;
-                val
-                vi.BayerSensorAlignment
-              else
-                error ('option out of valid range');
-              endif
-            else
-              error ('set BayerSensorAlignment: expecting a string');
-            endif
+            error ("Use set (VI, 'VideoFormat', FMT) to specify the returned image format");
           case 'VideoResolution'
             if (isvector (val) && isreal (val) && length (val) == 2)
               __v4l2_handler_s_fmt__(vi.imaqh, "", val);
@@ -147,9 +125,9 @@ function ret = __list_range__ (vi, prop)
     if (!__is_read_only_property__ (prop))
       switch prop
         case 'ReturnedColorSpace'
-          ret = {"rgb", "ycbcr", "grayscale", "bayer"};
+          error ("Use set (VI, 'VideoFormat') to get a list of supported formats.")
         case 'BayerSensorAlignment'
-          ret = {"gbrg", "grbg", "bggr", "rggb"};
+          error ("Use set (VI, 'VideoFormat') to get a list of supported formats.")
         case 'VideoInput'
           # enumerate available inputs
           ret = __v4l2_handler_enuminput__ (vi.imaqh);

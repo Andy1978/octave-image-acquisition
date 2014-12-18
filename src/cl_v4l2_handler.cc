@@ -746,7 +746,16 @@ v4l2_handler::capture (int nargout, int preview)
   last_timestamp = timestamp;
 
   unsigned char* p = NULL;
+
+  if ((fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_RGB24) && preview)
+    {
+      error("v4l2_handler::capture preview is only available if VideoFormat is 'RGB3' aka 'RGB24' (V4L2_PIX_FMT_RGB24)");
+      preview = false;
+    }
+
   if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_RGB24)
+    // RGB3 aka RGB24
+    // return [height x width x 3] uint8 matrix
     {
       dim_vector dv (3, fmt.fmt.pix.width, fmt.fmt.pix.height);
       uint8NDArray img (dv);
@@ -754,57 +763,125 @@ v4l2_handler::capture (int nargout, int preview)
 
       p=reinterpret_cast<unsigned char*>(img.fortran_vec());
       memcpy(p, buffers[buf.index].start, buf.bytesused);
-      ret(0) = octave_value(img);
+
+      Array<octave_idx_type> perm (dim_vector (3, 1));
+      perm(0) = 2;
+      perm(1) = 1;
+      perm(2) = 0;
+
+      ret(0) = octave_value(img.permute (perm));
     }
-  else
-    {
-warning("debug: %d %d %d", fmt.fmt.pix.width, fmt.fmt.pix.height, buf.bytesused);
-      if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10 
+  else if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG10
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB10
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR12
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG12
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG12
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB12 )
-        // RAW Bayer, 2 bytes per pixel
+    // RAW Bayer, 2 bytes per pixel
+    // return [height * width] uint16 matrix
+    {
+      dim_vector dv (fmt.fmt.pix.width, fmt.fmt.pix.height);
+      uint16NDArray img (dv);
+      assert(img.numel()*2 == int(buf.bytesused));
+      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+      memcpy(p, buffers[buf.index].start, buf.bytesused);
+      ret(0) = octave_value(img. transpose ());
+    }
+  else if ( fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR8
+         || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG8
+         || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG8
+         || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB8 )
+    // RAW Bayer, 1 byte per pixel
+    // return [height * width] uint8 matrix
+    {
+      dim_vector dv (fmt.fmt.pix.width, fmt.fmt.pix.height);
+      uint8NDArray img (dv);
+      assert(img.numel() == int(buf.bytesused));
+      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+      memcpy(p, buffers[buf.index].start, buf.bytesused);
+      ret(0) = octave_value(img.transpose ());
+    }
+  else if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV)
+    // YUYV aka YUV 4:2:2
+    // http://www.linuxtv.org/downloads/v4l-dvb-apis/V4L2-PIX-FMT-YUYV.html
+    // return struct with fields Y, Cb, Cr
+    {
+      dim_vector dvy  (fmt.fmt.pix.width, fmt.fmt.pix.height);
+      dim_vector dvc (fmt.fmt.pix.width/2, fmt.fmt.pix.height);
+      uint8NDArray y (dvy);
+      uint8NDArray cb (dvc);
+      uint8NDArray cr (dvc);
+      unsigned int i;
+      unsigned char* s = reinterpret_cast<unsigned char*>(buffers[buf.index].start);
+      p = reinterpret_cast<unsigned char*>(y.fortran_vec());
+      for (i=0; i < buf.bytesused; i+=2)
+        y(i/2) = s[i];
+      for (i=1; i < buf.bytesused; i+=4)
         {
-          dim_vector dv (fmt.fmt.pix.width, fmt.fmt.pix.height);
-          uint16NDArray img (dv);
-          assert(img.numel()*2 == int(buf.bytesused));
-          p=reinterpret_cast<unsigned char*>(img.fortran_vec());
-          memcpy(p, buffers[buf.index].start, buf.bytesused);
-          ret(0) = octave_value(img);  
+          cb(i/4 + 1) = s[i];
+          cr(i/4 + 3) = s[i + 2];
         }
-      else if ( fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR8 
-             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG8
-             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG8
-             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB8 )
-        // RAW Bayer, 1 byte per pixel
-        {
 
-          dim_vector dv (fmt.fmt.pix.width, fmt.fmt.pix.height);
-          uint8NDArray img (dv);
-          assert(img.numel() == int(buf.bytesused));
-          p=reinterpret_cast<unsigned char*>(img.fortran_vec());
-          memcpy(p, buffers[buf.index].start, buf.bytesused);
-          ret(0) = octave_value(img);          
+      octave_scalar_map img;
+      img.assign ("Y", y.transpose ());
+      img.assign ("Cb", cb.transpose ());
+      img.assign ("Cr", cr.transpose ());
+      ret(0) = octave_value(img);
+    }
+  else if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YVU420
+           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUV420)
+    // YVU420 aka YV12
+    // http://www.linuxtv.org/downloads/v4l-dvb-apis/re23.html
+    {
+      dim_vector dvy  (fmt.fmt.pix.width, fmt.fmt.pix.height);
+      dim_vector dvc (fmt.fmt.pix.width/2, fmt.fmt.pix.height/2);
+      uint8NDArray y (dvy);
+      uint8NDArray c1 (dvc);
+      uint8NDArray c2 (dvc);
+
+      // Y
+      p = reinterpret_cast<unsigned char*>(y.fortran_vec());
+      memcpy(p, buffers[buf.index].start, y.numel ());
+
+      // C1
+      p = reinterpret_cast<unsigned char*>(c1.fortran_vec());
+      memcpy(p, (unsigned char*)buffers[buf.index].start + y.numel (), c1.numel ());
+
+      // C2
+      p = reinterpret_cast<unsigned char*>(c2.fortran_vec());
+      memcpy(p, (unsigned char*)buffers[buf.index].start + y.numel () + c1.numel (), c2.numel ());
+
+      octave_scalar_map img;
+      img.assign ("Y", y.transpose ());
+      if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUV420)
+        {
+          img.assign ("Cb", c1.transpose ());
+          img.assign ("Cr", c2.transpose ());
         }
       else
-        // something different, for example MJPEG?
-        // just return the bytes in this case.
+        // V4L2_PIX_FMT_YVU420
         {
-          dim_vector dv (buf.bytesused, 1);
-          uint8NDArray img (dv);
-          p=reinterpret_cast<unsigned char*>(img.fortran_vec());
-          memcpy(p, buffers[buf.index].start, buf.bytesused);
-          ret(0) = octave_value(img);
+          img.assign ("Cb", c2.transpose ());
+          img.assign ("Cr", c1.transpose ());
         }
-      //no preview possible
-      if (preview)
-        {
-          error("v4l2_handler::capture preview is only available if VideoFormat is 'RGB3' aka 'RGB24' (V4L2_PIX_FMT_RGB24)");
-          preview = false;
-        }
+
+      ret(0) = octave_value(img);
+    }
+  else
+    // No conversion for this format
+    // http://www.linuxtv.org/downloads/v4l-dvb-apis/ch02s10.html
+    // Just return the bytes as vector in this case.
+    {
+      //octave_stdout << "INFO: No conversion for "
+      //              << v4l2_format_name(fmt.fmt.pix.pixelformat)
+      //              << " implemented, returning raw stream..." << endl;
+
+      dim_vector dv (buf.bytesused, 1);
+      uint8NDArray img (dv);
+      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+      memcpy(p, buffers[buf.index].start, buf.bytesused);
+      ret(0) = octave_value(img);
     }
 
   if (nargout > 1)
@@ -823,7 +900,6 @@ warning("debug: %d %d %d", fmt.fmt.pix.width, fmt.fmt.pix.height, buf.bytesused)
     {
       if (buf.flags & V4L2_BUF_FLAG_TIMECODE)
         {
-          octave_stdout << "this buffer has a frame timecode" << endl;
           octave_scalar_map timecode;
           timecode.assign ("type", int(buf.timecode.type));
           timecode.assign ("flags", int(buf.timecode.flags));
@@ -832,11 +908,11 @@ warning("debug: %d %d %d", fmt.fmt.pix.width, fmt.fmt.pix.height, buf.bytesused)
           timecode.assign ("minutes", int(buf.timecode.minutes));
           timecode.assign ("hours", int(buf.timecode.hours));
           ret(3) = octave_value(timecode);
-          return ret;
         }
       else
         {
-          error("v4l2_handler::capture timecode not available");
+          warning("v4l2_handler::capture timecode not available");
+          ret(3) = octave_value();
         }
     }
 
