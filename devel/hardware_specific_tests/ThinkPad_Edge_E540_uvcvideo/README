@@ -1,0 +1,70 @@
+16.12.2014 Andreas Weber
+Lenovo ThinkPad Edge E540, model 20C60043GE with builtin camera.
+
+$ dmesg
+
+[    1.923097] usb 1-12: New USB device found, idVendor=04f2, idProduct=b398
+[    1.923099] usb 1-12: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[    1.923100] usb 1-12: Product: Integrated Camera
+[    1.923101] usb 1-12: Manufacturer: Vimicro corp.
+...
+[    1.942217] Linux video capture interface: v2.00
+[    1.946663] uvcvideo: Found UVC 1.00 device Integrated Camera (04f2:b398)
+[    1.947385] input: Integrated Camera as /devices/pci0000:00/0000:00:14.0/usb1/1-12/1-12:1.0/input/input11
+[    1.947452] usbcore: registered new interface driver uvcvideo
+
+$ lsusb
+Bus 001 Device 005: ID 04f2:b398 Chicony Electronics Co., Ltd
+
+$ v4l2-ctl --all
+Driver Info (not using libv4l2):
+  Driver name   : uvcvideo
+  Card type     : Integrated Camera
+  Bus info      : usb-0000:00:14.0-12
+  Driver version: 3.16.7
+  Capabilities  : 0x84000001
+    Video Capture
+    Streaming
+    Device Capabilities
+  Device Caps   : 0x04000001
+    Video Capture
+    Streaming
+Priority: 2
+Video input : 0 (Camera 1: ok)
+Format Video Capture:
+  Width/Height  : 640/480
+  Pixel Format  : 'YUYV'
+  Field         : None
+  Bytes per Line: 1280
+  Size Image    : 614400
+  Colorspace    : SRGB
+Crop Capability Video Capture:
+  Bounds      : Left 0, Top 0, Width 640, Height 480
+  Default     : Left 0, Top 0, Width 640, Height 480
+  Pixel Aspect: 1/1
+Streaming Parameters Video Capture:
+  Capabilities     : timeperframe
+  Frames per second: 30.000 (30/1)
+  Read buffers     : 0
+                     brightness (int)    : min=-10 max=10 step=1 default=0 value=0
+                       contrast (int)    : min=0 max=20 step=1 default=10 value=10
+                     saturation (int)    : min=0 max=10 step=1 default=5 value=5
+                            hue (int)    : min=-5 max=5 step=1 default=0 value=0
+                          gamma (int)    : min=100 max=200 step=1 default=150 value=150
+                           gain (int)    : min=32 max=48 step=1 default=32 value=32
+           power_line_frequency (menu)   : min=0 max=2 default=1 value=1
+                      sharpness (int)    : min=0 max=10 step=1 default=5 value=5
+         backlight_compensation (int)    : min=0 max=2 step=1 default=1 value=1
+                  exposure_auto (menu)   : min=0 max=3 default=3 value=3
+              exposure_absolute (int)    : min=156 max=5000 step=1 default=512 value=512 flags=inactive
+         exposure_auto_priority (bool)   : default=0 value=1
+                  zoom_absolute (int)    : min=0 max=10 step=1 default=0 value=0
+                     brightness (int)    : min=-10 max=10 step=1 default=0 value=0
+                       contrast (int)    : min=0 max=20 step=1 default=10 value=10
+                     saturation (int)    : min=0 max=10 step=1 default=5 value=5
+                            hue (int)    : min=-5 max=5 step=1 default=0 value=0
+                          gamma (int)    : min=100 max=200 step=1 default=150 value=150
+                           gain (int)    : min=32 max=48 step=1 default=32 value=32
+           power_line_frequency (menu)   : min=0 max=2 default=1 value=1
+                      sharpness (int)    : min=0 max=10 step=1 default=5 value=5
+         backlight_compensation (int)    : min=0 max=2 step=1 default=1 value=1
