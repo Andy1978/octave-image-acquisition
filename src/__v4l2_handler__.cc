@@ -610,7 +610,7 @@ Return preview_window->shown().\n\
 
 /* open same video device twice
  * not all devices return an error, for example the v4l2loopback device doesn't
-%!test
+%!xtest
 %! fail = 0;
 %! x1 = __v4l2_handler_open__(__test__device__());
 %! s = __v4l2_handler_enum_framesizes__(x1, "RGB24");
@@ -622,7 +622,8 @@ Return preview_window->shown().\n\
 %! catch ERR
 %!   # this error is expected because streaming is still enabled
 %!   # or some driver forbids opening the same device twice
-%!   disp("INFO: this error is expected because /dev/video0 is still streaming")
+%!   disp("INFO: this error is expected because /dev/video0 is still streaming\
+%!while we tried to open it a second time.")
 %!   fail = 1;
 %! end_try_catch
 %! if (!strcmp(__v4l2_handler_querycap__(x1).driver, "v4l2 loopback"))

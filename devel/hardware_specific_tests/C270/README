@@ -1,4 +1,7 @@
-I bought a 046d:0825 Logitech, Inc. Webcam C270 for testing
+I bought a 046d:0825 Logitech, Inc. Webcam C270 for testing.
+
+The scripts in this directory test various features of this cam.
+Below some output from dmesg and v4l2-ctl.
 
 $ dmesg
   [24933.496204] usb 1-3: new high-speed USB device number 3 using ehci_hcd

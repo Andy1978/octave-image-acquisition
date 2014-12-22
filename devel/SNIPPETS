@@ -1,11 +1,6 @@
-dependencies on Debian GNU/Linux 7.2 (wheezy)
+Some snippets which may be helpful. See README for needed packages
 
-* libv4l-dev libfltk1.1-dev
-
-suggested:
-* v4l-utils for v4l2-ctl and v4l-utils-1.0.0.tar.bz2
-
-Query devices:
+Query v4l devices:
 $ v4l2-ctl --all
 
 Query controls:

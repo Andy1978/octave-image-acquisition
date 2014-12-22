@@ -2,3 +2,9 @@ This directory contains functions that have been used to develop some of
 the image acquisition functions in the parent directory. These files are
 not needed at runtime for them to work, so they are not installed or
 distributed.
+
+dependencies on Debian GNU/Linux 7.2 (wheezy)
+* libv4l-dev libfltk1.1-dev
+
+strongly suggested (for v4l2-ctl):
+* v4l-utils

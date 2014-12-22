@@ -1,3 +1,14 @@
+ Summary of important changes for image-acquisition 0.2.0 (2014/12/19):
+------------------------------------------------------------------------
+
+ ** Support for VideoFormats
+    - RAW Bayer SBGGR8, SGBRG8, SGRBG8, SRGGB8, SBGGR10, SGRBG10,
+      SRGGB10, SBGGR12, SGBRG12, SGBRG12, SGRBG12, SRGGB12
+     
+    - YVU420 aka YV12, YUV420 aka YV12, YUYV aka YUV 4:2:2
+    
+    - MJPEG (use conversion function save_mjpeg_as_jpg.m)
+     
  Summary of important changes for image-acquisition 0.1.3 (2014/03/06):
 ------------------------------------------------------------------------
 

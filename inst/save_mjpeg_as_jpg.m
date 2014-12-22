@@ -1,6 +1,28 @@
-## 18.12.2014 Andreas Weber
-## Based on mjpeg2jpeg.py from Laurent Pinchart and Luc Saillard
-## https://github.com/TimSC/mjpeg/blob/master/mjpeg2jpeg.py
+## Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
+##
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
+##
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http:##www.gnu.org/licenses/>.
+##
+## This script is based on mjpeg2jpeg.py from Laurent Pinchart and Luc Saillard.
+## https://github.com/TimSC/mjpeg/blob/master/mjpeg2jpeg.py has a copy
+
+## -*- texinfo -*-
+## @deftypefn {Function File} save_mjpeg_as_jpg (@var {fn}, @var{mjpeg})
+## Add a huffman table to the MPJEG capture and save it as JPG.
+## Useful if you have set VideoFormat of videoinput to MJPEG and want
+## to convert the result from getsnapshot to JPG.
+## @seealso{@@videoinput/getsnapshot}
+## @end deftypefn
 
 function save_mjpeg_as_jpg (fn, mjpeg)
 
@@ -56,7 +78,7 @@ function save_mjpeg_as_jpg (fn, mjpeg)
   mjpeg(1:2) = [];
 
   if (hdr != [0xFF; 0xD8])
-    error ("img header (first two bytes) not valid")
+    error ("img header (first two bytes) not valid. [0x%2x 0x%2x]", hdr)
   endif
 
   fwrite (fid, uint8(hdr));
@@ -65,8 +87,6 @@ function save_mjpeg_as_jpg (fn, mjpeg)
   while (! has_dht)
     hdr = mjpeg(1:4);
     mjpeg(1:4) = [];
-
-    #dec2hex (hdr)
 
     if (hdr(1) != 0xFF)
       error ("img header not valid")
@@ -79,8 +99,7 @@ function save_mjpeg_as_jpg (fn, mjpeg)
     endif
 
     # Skip to the next marker.
-    s = typecast (uint8(hdr(4:-1:3)), "uint16");
-    #s = hdr(3) * 2^8 + hdr(4);
+    s = hdr(3) * 2^8 + hdr(4);
     fwrite (fid, uint8(hdr));
     fwrite (fid, mjpeg(1:s-2));
     mjpeg(1:s-2) = [];

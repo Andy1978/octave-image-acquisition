@@ -29,11 +29,9 @@ function display (vi)
   fmt = get(vi, "VideoFormat");
   printf("%sVideoFormat          = %s\n", sp, fmt);
 
-  ## not supported by all devices. TODO what should we do?
-  #T = get(vi, "VideoFrameInterval");
-  #printf("%sVideoFrameInterval   = %d/%d s (%.1f fps)\n", sp, T(1), T(2), T(2)/T(1));
-
-  printf("%sReturnedColorSpace   = %s\n", sp, get(vi, "ReturnedColorSpace"));
-  printf("%sBayerSensorAlignment = %s\n", sp, get(vi, "BayerSensorAlignment"));
+  # not supported by all devices (for example media interfaces subdefs)
+  # FIXME what should we do?
+  # T = get(vi, "VideoFrameInterval");
+  # printf("%sVideoFrameInterval   = %d/%d s (%.1f fps)\n", sp, T(1), T(2), T(2)/T(1));
 
 endfunction

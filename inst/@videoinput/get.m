@@ -27,8 +27,6 @@
 ## get (obj) @result{}
 ##  @{
 ##    [1,1] = SelectedSourceName
-##    [2,1] = ReturnedColorSpace
-##    [3,1] = BayerSensorAlignment
 ##    [4,1] = DeviceCapabilities
 ##    [5,1] = VideoInput
 ##    [6,1] = VideoResolution
@@ -69,10 +67,6 @@ function val = get (vi, prop)
     switch (prop)
       case "SelectedSourceName"
         val = vi.SelectedSourceName;
-      case "ReturnedColorSpace"
-        val = vi.ReturnedColorSpace;
-      case "BayerSensorAlignment"
-        val = vi.BayerSensorAlignment;
       case "DeviceCapabilities"
         val = __v4l2_handler_querycap__(vi.imaqh);
       case "VideoInput"
