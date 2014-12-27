@@ -1,14 +1,18 @@
- Summary of important changes for image-acquisition 0.2.0 (2014/12/19):
+ Summary of important changes for image-acquisition 0.2.1 (2014/12/27):
 ------------------------------------------------------------------------
 
  ** Support for VideoFormats
     - RAW Bayer SBGGR8, SGBRG8, SGRBG8, SRGGB8, SBGGR10, SGRBG10,
       SRGGB10, SBGGR12, SGBRG12, SGBRG12, SGRBG12, SRGGB12
-     
+
     - YVU420 aka YV12, YUV420 aka YV12, YUYV aka YUV 4:2:2
-    
-    - MJPEG (use conversion function save_mjpeg_as_jpg.m)
-     
+
+    - MJPEG
+
+ ** New functions:
+    save_mjpeg_as_jpg.m: save MJPEG capture as JPEG
+    SGRBGtoRGB.m: Convert RAW Bayer SGRBG to RGB without interpolation
+
  Summary of important changes for image-acquisition 0.1.3 (2014/03/06):
 ------------------------------------------------------------------------
 
@@ -20,17 +24,17 @@
  Summary of minor changes for image-acquisition 0.1.2 (2014/01/28):
 ------------------------------------------------------------------------
  ** Use of autoconf
- 
+
  ** Fix to build with fltk1.1
- 
+
  ** Some fixes for tests with different cams
- 
+
  ** Print warning if driver limits set values
 
  Summary of important changes for image-acquisition 0.1.0 (2014/01/18):
 ------------------------------------------------------------------------
 
- ** Initial release. 
+ ** Initial release.
     Most of the functions which are required to get/set properties,
     start/stop streaming, preview and capture images are implemented
     for v4l2 devices.

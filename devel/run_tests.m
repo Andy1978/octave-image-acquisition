@@ -23,7 +23,7 @@
 ## - sn9c20x 3.2.51 USB20 Camera, Trust 14830
 
 run ('../PKG_ADD')
-addpath('../inst')
+addpath (canonicalize_file_name ('../inst'))
 
 fns = { '../src/__v4l2_handler__.cc';
         '@videoinput/videoinput';

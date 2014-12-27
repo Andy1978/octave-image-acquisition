@@ -26,8 +26,6 @@ function img = getdata (vi, num)
   endif
   s = get(obj ,"VideoResolution");
   img = getsnapshot(vi);
-  
-  ## TODO
-  #getsnapshot bringt ja unterschiedliche rückgabe... hm, drüber nachdenken!!!
-  
+
+  ## FIXME: implement and move to ../inst/@videoinput/
 endfunction

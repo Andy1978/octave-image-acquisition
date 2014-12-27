@@ -1,4 +1,4 @@
-This is a copy of http://wiki.octave.org/image_acquisition_package.html
+This is a copy of http://wiki.octave.org/Image_acquisition_package
 intended for users without internet connection or offline reading.
 
 The {{Forge|image-acquisition}} package is part of the [[Octave Forge]] project.
@@ -12,74 +12,69 @@ If you want to report a bug: [[Image_acquisition_package#Reporting_bugs]]
 
 == Example session ==
 
-Lines starting with octave> are executed on the octave prompt.
+Lines starting with "octave:>" are executed on the octave prompt.
 
 === Load the package and list available hardware ===
 
- octave> pkg load image-acquisition
- octave> imaqhwinfo
+ octave:> pkg load image-acquisition
+ octave:> imaqhwinfo
  ans =
- 
   scalar structure containing the fields:
- 
     driver = uvcvideo
     card = UVC Camera (046d:0825)
-    bus_info = usb-0000:00:16.2-2
-    version = 3.2.51
-    capabilities =  83886081
+    bus_info = usb-0000:00:12.2-4
+    version = 3.16.7
+    capabilities =    2.2314e+09
     device = /dev/video0
 
 === Open the v4l2 device and output the result ===
- octave> obj = videoinput("v4l2", "/dev/video0")
+
+ octave:> obj = videoinput("v4l2", "/dev/video0")
  obj = videoinput for v4l2
-      device             = /dev/video0
-      driver             = uvcvideo
-      card               = UVC Camera (046d:0825)
-      VideoInput         = 0
-      VideoResolution    = 320 x 240 px
-      VideoFrameInterval = 1/30 s (30.0 fps)
+      device               = /dev/video0
+      driver               = uvcvideo
+      card                 = UVC Camera (046d:0825)
+      VideoInput           = 0
+      VideoResolution      = 320 x 240 px
+      VideoFormat          = YUYV
 
 === Query which properties are available for the used device ===
-The first 6 ones, starting with an upper letter are fixed, the other specific to the used v4l2 device.
- octave> get(obj)
- ans = 
+
+The first 8 ones, starting with an upper letter are fixed, the other specific to the used v4l2 device.
+ octave:> get(obj)
+ ans =
  {
   [1,1] = SelectedSourceName
-  [2,1] = DeviceCapabilities
-  [3,1] = VideoInput
-  [4,1] = VideoResolution
-  [5,1] = VideoFrameInterval
-  [6,1] = VideoFormat
-  [7,1] = brightness
-  [8,1] = contrast
-  [9,1] = saturation
-  [10,1] = white_balance_temperature_auto
-  [11,1] = gain
-  [12,1] = power_line_frequency
-  [13,1] = white_balance_temperature
-  [14,1] = sharpness
-  [15,1] = backlight_compensation
-  [16,1] = exposure_auto
-  [17,1] = exposure_absolute
-  [18,1] = exposure_auto_priority
+  [2,1] = ReturnedColorSpace
+  [3,1] = BayerSensorAlignment
+  [4,1] = DeviceCapabilities
+  [5,1] = VideoInput
+  [6,1] = VideoResolution
+  [7,1] = VideoFrameInterval
+  [8,1] = VideoFormat
+  [9,1] = brightness
+  [10,1] = contrast
+  [11,1] = saturation
+  [12,1] = white_balance_temperature_auto
+  [13,1] = gain
+  [14,1] = power_line_frequency
+  [15,1] = white_balance_temperature
+  [16,1] = sharpness
+  [17,1] = backlight_compensation
+  [18,1] = exposure_auto
+  [19,1] = exposure_absolute
+  [20,1] = exposure_auto_priority
  }
 
-=== Get device capabilities ===
- octave> get(obj, "DeviceCapabilities")
- ans =
- 
-  scalar structure containing the fields:
- 
-    driver = uvcvideo
-    card = UVC Camera (046d:0825)
-    bus_info = usb-0000:00:16.2-2
-    version = 3.2.51
-    capabilities =  83886081
+=== Set VideoFormat to RGB3 aka RGB24 ===
+
+ octave:> set(obj, "VideoFormat", "RGB3");
 
 === List available video resolutions ===
- octave> set(obj, "VideoResolution")
+
+ octave:> set(obj, "VideoResolution")
  ans =
- 
+
     640    480
     160    120
     176    144
@@ -102,54 +97,63 @@ The first 6 ones, starting with an upper letter are fixed, the other specific to
 
 === Set the video resolution to 320x240px ===
 
- octave> set(obj, "VideoResolution", [320 240])
+ octave:> set(obj, "VideoResolution", [320 240])
 
 === Get the current brightness value ===
- octave> get(obj, "brightness")
+
+ octave:> get(obj, "brightness")
  ans =  100
 
 === Query possible range for brightness ===
- octave> set(obj, "brightness")
+
+ octave:> set(obj, "brightness")
  ans =
- 
+
   scalar structure containing the fields:
- 
+
     min = 0
     max =  255
     step =  1
     default =  128
 
 === Set a new value for brightness ===
- octave> set(obj, "brightness", 100)
+
+ octave:> set(obj, "brightness", 100)
 
 === Start preview ===
- octave> preview(obj)
+
+ octave:> preview(obj)
+
 Close it with CTRL+C or with [X] on the preview window
 
 === Use higher resolution and start streaming with 2 buffers ===
- octave> set(obj, "VideoResolution", [640 480]);
- octave> start(obj, 2)
+
+ octave:> set(obj, "VideoResolution", [640 480]);
+ octave:> start(obj, 2)
 
 === Get an image from the buffers, view and save it ===
- octave> img = getsnapshot(obj);
- octave> image(img)
- octave> imwrite(img, "ex1_a.png")
- octave> [img, seq, t] = getsnapshot(obj);
- octave> seq
-  seq =  1
- octave> t
-  t =
- 
+
+ octave:> img = getsnapshot(obj);
+ octave:> image(img)
+ octave:> imwrite(img, "ex1_a.png")
+
+ octave:> [img, seq, t] = getsnapshot(obj);
+ octave:> seq
+ seq =  1
+ octave:> t
+ t =
+
   scalar structure containing the fields:
- 
-    tv_sec =  19618
-    tv_usec =  346553
+
+    tv_sec =  10281
+    tv_usec =  779303
 
 === Stop streaming ===
- octave> stop(obj)
+
+ octave:> stop(obj)
 
 == Using v4l2loopback for tests ==
-If you don't have a v4l2 device but test the package you could create a loopback device:
+If you don't have a v4l2 device but want to test the package you could create a loopback device:
  modprobe v4l2loopback
  gst-launch-0.10 videotestsrc ! v4l2sink device=/dev/video0
 
@@ -194,26 +198,22 @@ Get the source here [http://sourceforge.net/p/octave/image-acquisition/ci/defaul
  octave:>> pkg install -verbose image-acquisition.tar.gz
 
 == make check ==
+
 If you have cloned the hg repo you can also run the test scripts to see if all works.
 
  $ cd octave-image-acquisition/devel
  $ make check
 
  octave -q run_tests.m
- INFO: this error is expected because /dev/video0 is still streaming
- ../src/__v4l2_handler__.cc........................ PASS 4/4 
- libv4l2: error getting capabilities: Inappropriate ioctl for device
- @videoinput/videoinput............................ PASS 3/3 
- @videoinput/get................................... PASS 4/4 
- warning: V4L2_CAP_TIMEPERFRAME is not supported
- warning: V4L2_CAP_TIMEPERFRAME is not supported
- @videoinput/set................................... PASS 6/6 
- @videoinput/getsnapshot........................... PASS 1/1 
- imaqhwinfo........................................ PASS 1/1 
- 
+ ../src/__v4l2_handler__.cc........................ PASS 3/3
+ @videoinput/videoinput............................ PASS 1/1
+ @videoinput/get................................... PASS 4/4
+ @videoinput/set................................... PASS 7/7
+ @videoinput/getsnapshot........................... PASS 4/4
+ imaqhwinfo........................................ PASS 1/1
+
  Summary:
- 
-   PASS  19
+   PASS  20
    FAIL   0
 
-The two errors are expected, see test scripts. If there are tests which FAIL, then please have a look at the generated fntest.log and add it to your bug report.
+If there are tests which FAIL, then please have a look at the generated fntest.log and add it to your bug report.

@@ -1,6 +1,6 @@
-## Quick & dirty check different pixelformats
-## RGB3, YUYV, YV12, YU12, MJPEG
-## Y (luminance) is always decimated to fit C
+## 27.12.2014 Andreas Weber
+## Check different pixelformats RGB3, YUYV, YV12, YU12 and MJPEG-
+## YUYV and MJPG are supported by the C270 camera, other emulated from libv4l2
 
 pkg unload all
 run ("../../../PKG_ADD")
@@ -11,6 +11,7 @@ obj = videoinput ("v4l2", "/dev/video0");
 #set(obj,"VideoFormat").pixelformat
 #set(obj,"VideoFormat").description
 #set(obj,"VideoFormat").fourcc
+#set(obj,"VideoFormat").flags_emulated
 
 ##### RGB3 aka RGB24
 
@@ -89,16 +90,12 @@ endif
 ##### MJPEG aka MJPG
 
 if (1)
-  jpg_outdir = "out";
-  if (! exist (jpg_outdir, "dir"))
-    mkdir (jpg_outdir);
-  endif
   set(obj,"VideoFormat","MJPG")
   start(obj)
 
   for k=1:10
     img = getsnapshot(obj);
-    fn = fullfile (jpg_outdir, sprintf ("%03i.jpg", k));
+    fn = sprintf ("MJPG_%03i.jpg", k);
     save_mjpeg_as_jpg (fn, img);
   endfor
 

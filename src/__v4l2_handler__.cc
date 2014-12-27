@@ -569,18 +569,18 @@ Return preview_window->shown().\n\
 %!demo
 %! disp("open /dev/video0 and show live images with 2 different formats")
 %! vi = __v4l2_handler_open__("/dev/video0");
-%! s = __v4l2_handler_enum_framesizes__(vi, "RGB24");   # get available frame sizes
-%! __v4l2_handler_s_fmt__(vi, "RGB24", s(1,:));         # use the default framesize
-%! __v4l2_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
+%! s = __v4l2_handler_enum_framesizes__(vi, "RGB24"); # get available frame sizes
+%! __v4l2_handler_s_fmt__(vi, "RGB24", s(1,:));       # use the default framesize
+%! __v4l2_handler_streamon__(vi, 2);                  # enable streaming with 2 buffers
 %! l = 200;
 %! for i=1:l
-%!   __v4l2_handler_capture__(vi, 1);          # capture 200 frames and show preview
+%!   __v4l2_handler_capture__(vi, 1);                 # capture 200 frames and show preview
 %! endfor
-%! __v4l2_handler_streamoff__(vi);             # diable streaming
-%! __v4l2_handler_s_fmt__(vi, "RGB24", s(2,:));         # use smales available format
+%! __v4l2_handler_streamoff__(vi);                    # diable streaming
+%! __v4l2_handler_s_fmt__(vi, "RGB24", s(2,:));       # use smales available format
 %! disp("The image size is now")
 %! disp(__v4l2_handler_g_fmt__(vi))
-%! __v4l2_handler_streamon__(vi, 2);           # enable streaming with 2 buffers
+%! __v4l2_handler_streamon__(vi, 2);                  # enable streaming with 2 buffers
 %! for i=1:l
 %!   __v4l2_handler_capture__(vi, 1);
 %! endfor
@@ -606,29 +606,6 @@ Return preview_window->shown().\n\
 %! __v4l2_handler_streamon__(x, 2);
 %! [img, seq, timestamp] = __v4l2_handler_capture__(x);
 %! assert(size(img), [default_size(2), default_size(1), 3]);
-*/
-
-/* open same video device twice
- * not all devices return an error, for example the v4l2loopback device doesn't
-%!xtest
-%! fail = 0;
-%! x1 = __v4l2_handler_open__(__test__device__());
-%! s = __v4l2_handler_enum_framesizes__(x1, "RGB24");
-%! __v4l2_handler_s_fmt__(x1, "RGB24", s(1,:));
-%! __v4l2_handler_streamon__(x1, 3);
-%! try
-%!   x2 = __v4l2_handler_open__(__test__device__());
-%!   __v4l2_handler_s_fmt__(x2, "RGB24", s(end,:));
-%! catch ERR
-%!   # this error is expected because streaming is still enabled
-%!   # or some driver forbids opening the same device twice
-%!   disp("INFO: this error is expected because /dev/video0 is still streaming\
-%!while we tried to open it a second time.")
-%!   fail = 1;
-%! end_try_catch
-%! if (!strcmp(__v4l2_handler_querycap__(x1).driver, "v4l2 loopback"))
-%!   assert (fail, 1);
-%! endif
 */
 
 /*  change controls

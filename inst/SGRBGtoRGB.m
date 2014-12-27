@@ -18,7 +18,7 @@
 ## Convert RAW bayer image with SGRBG filter alignment to RGB image
 ## without interpolation.
 ##
-## FIXME: We should implement "demosaic" instead and you this.
+## FIXME: We should implement "demosaic" instead and use this.
 ## @end deftypefn
 
 function rgb = SGRBGtoRGB(img)

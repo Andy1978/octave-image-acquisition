@@ -1,0 +1,2 @@
+To debug the generated OCT files run "make debug".
+This will compile image-acquisition with debugging flags and launch gdb.

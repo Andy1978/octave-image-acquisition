@@ -7,6 +7,8 @@
   see https://sourceforge.net/p/octave/image/ci/default/tree/src/imerode.cc lines 679 and 680
   for example
 
+* Decode get(obj, "DeviceCapabilities").capabilities
+
 * Is there a way to tell libv4l2 which native source format it should select?
   For example my uvcvideo webcam supports natively YUYV and MJPG (v4l2-ctl --list-formats)
 
@@ -33,3 +35,28 @@
       bus_info = usb-0000:00:13.5-9
       version = 3.2.51
       capabilities =  83886081
+
+* ReturnedColorSpace rgb, ycbcr, grayscale, bayer
+  and BayerSensorAlignment gbrg, grbg, bggr, rggb
+  isn't implemented because libv4l2 works differently. I think getsnapshot and
+  getdata should return the captured data as "low-level" as convenience.
+
+* Have a look at these functions, perhaps some may be useful or not yet implemented
+
+  http://octave.sourceforge.net/image/overview.html image formats
+  ycbcr2rgb
+  rgb2ycbcr
+
+  core:
+  hsv2rgb
+  rgb2hsv
+  ntsc2rgb
+  rgb2ntsc
+
+  Not implemented in octave-forge image:
+  whitepoint http://www.mathworks.de/de/help/images/ref/whitepoint.html
+             https://en.wikipedia.org/wiki/Standard_illuminant
+
+  xyz2uint16 https://en.wikipedia.org/wiki/CIEXYZ und zurück?
+  imapprox
+  demosaic

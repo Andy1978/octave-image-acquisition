@@ -418,7 +418,7 @@ v4l2_handler::g_parm ()
         }
       else
         {
-          warning("V4L2_CAP_TIMEPERFRAME is not supported");
+          warning("v4l2_handler::g_parm: V4L2_CAP_TIMEPERFRAME is not supported");
           return Matrix(0,0);
         }
     }
@@ -434,22 +434,23 @@ v4l2_handler::s_parm (Matrix timeperframe)
   struct v4l2_streamparm sparam;
   CLEAR(sparam);
   sparam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  sparam.parm.capture.timeperframe.numerator = timeperframe(0);
-  sparam.parm.capture.timeperframe.denominator = timeperframe(1);
-  xioctl(fd, VIDIOC_S_PARM, &sparam);
-  struct v4l2_fract *tf = &sparam.parm.capture.timeperframe;
-  if(sparam.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
+  xioctl(fd, VIDIOC_G_PARM, &sparam);
+  if (sparam.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
     {
+      sparam.parm.capture.timeperframe.numerator = timeperframe(0);
+      sparam.parm.capture.timeperframe.denominator = timeperframe(1);
+      xioctl(fd, VIDIOC_S_PARM, &sparam);
+      struct v4l2_fract *tf = &sparam.parm.capture.timeperframe;
       if (!tf->denominator || !tf->numerator)
-        error("Invalid framerate");
+        error("v4l2_handler::s_parm: Invalid framerate");
 
       if (tf->numerator != __u32(timeperframe(0)) || tf->denominator != __u32(timeperframe(1)))
-        warning("driver is using %d/%d as timeperframe but %d/%d was requested",
+        warning("v4l2_handler::s_parm: driver is using %d/%d as timeperframe but %d/%d was requested",
                 tf->numerator, tf->denominator, __u32(timeperframe(0)), __u32(timeperframe(1)));
     }
   else
     {
-       warning("V4L2_CAP_TIMEPERFRAME is not supported");
+       warning("v4l2_handler::s_parm: V4L2_CAP_TIMEPERFRAME is not supported");
     }
 }
 
@@ -576,7 +577,7 @@ v4l2_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
 {
   if (streaming)
     {
-      error("v4l2_handler::s_fmt you have to stop streaming first");
+      error("v4l2_handler::s_fmt: you have to stop streaming first");
     }
   else
     {
@@ -600,12 +601,12 @@ v4l2_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
       xioctl(fd, VIDIOC_S_FMT, &fmt);
       if (fmt_code && fmt.fmt.pix.pixelformat != fmt_code)
         {
-          warning("Libv4l changed the pixelformat from\n         '%s'(0x%x) to '%s'(0x%x)",
+          warning("v4l2_handler::s_fmt: Libv4l changed the pixelformat from\n         '%s'(0x%x) to '%s'(0x%x)",
                   v4l2_format_name(fmt_code).c_str(), fmt_code,
                   v4l2_format_name(fmt.fmt.pix.pixelformat).c_str(), fmt.fmt.pix.pixelformat);
         }
       if (xres && yres && ((fmt.fmt.pix.width != xres) || (fmt.fmt.pix.height != yres)))
-        warning("driver is sending image at %dx%d but %dx%d was requested",
+        warning("v4l2_handler::s_fmt: Driver is sending image at %dx%d although %dx%d was requested",
                 fmt.fmt.pix.width, fmt.fmt.pix.height, xres, yres);
     }
 }
@@ -643,7 +644,7 @@ v4l2_handler::reqbufs (unsigned int n)
       req.memory = V4L2_MEMORY_MMAP;
       xioctl(fd, VIDIOC_REQBUFS, &req);
       if (req.count<n)
-        error("init_buffers VIDIOC_REQBUFS: running out of free memory\n");
+        error("v4l2_handler::reqbufs: VIDIOC_REQBUFS: running out of free memory\n");
       n_buffer = req.count;
     }
 }
@@ -669,7 +670,7 @@ v4l2_handler::mmap ()
 
       if (buffers[i].start == MAP_FAILED)
         {
-          error("init_buffers mmap failed %s", strerror(errno));
+          error("v4l2_handler::mmap: MAP_FAILED %s", strerror(errno));
         }
     }
 }
@@ -701,7 +702,7 @@ v4l2_handler::capture (int nargout, int preview)
 
   if(!streaming)
     {
-      error("v4l2_handler::capture streaming wasn't enabled. Please use 'start(obj)'");
+      error("v4l2_handler::capture: Streaming wasn't enabled. Please use 'start(obj)'");
       return octave_value();
     }
   struct v4l2_format fmt;
@@ -729,7 +730,7 @@ v4l2_handler::capture (int nargout, int preview)
   while ((r == -1 && (errno == EINTR)));
   if (r == -1)
     {
-      error("v4l2_handler::capture select failed.");
+      error("v4l2_handler::capture: Select failed.");
       return octave_value();
     }
 
@@ -745,11 +746,14 @@ v4l2_handler::capture (int nargout, int preview)
   double dt = (last_timestamp)? timestamp - last_timestamp: -1;
   last_timestamp = timestamp;
 
-  unsigned char* p = NULL;
+  //debug output
+  //octave_stdout << "INFO: pixelformat = " << v4l2_format_name(fmt.fmt.pix.pixelformat) << endl;
+  //octave_stdout << "INFO: width = " << fmt.fmt.pix.width << ", height = " << fmt.fmt.pix.height << endl;
+  //octave_stdout << "INFO: Bytes captured = " << buf.bytesused << endl;
 
   if ((fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_RGB24) && preview)
     {
-      error("v4l2_handler::capture preview is only available if VideoFormat is 'RGB3' aka 'RGB24' (V4L2_PIX_FMT_RGB24)");
+      error("v4l2_handler::capture: Preview is only available if VideoFormat is 'RGB3' aka 'RGB24' (V4L2_PIX_FMT_RGB24)");
       preview = false;
     }
 
@@ -761,7 +765,7 @@ v4l2_handler::capture (int nargout, int preview)
       uint8NDArray img (dv);
       assert(img.numel() == int(buf.bytesused));
 
-      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+      unsigned char *p = reinterpret_cast<unsigned char*>(img.fortran_vec());
       memcpy(p, buffers[buf.index].start, buf.bytesused);
 
       Array<octave_idx_type> perm (dim_vector (3, 1));
@@ -771,7 +775,7 @@ v4l2_handler::capture (int nargout, int preview)
 
       ret(0) = octave_value(img.permute (perm));
     }
-  else if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10
+  else if (  fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG10
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB10
           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR12
@@ -784,7 +788,7 @@ v4l2_handler::capture (int nargout, int preview)
       dim_vector dv (fmt.fmt.pix.width, fmt.fmt.pix.height);
       uint16NDArray img (dv);
       assert(img.numel()*2 == int(buf.bytesused));
-      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+      unsigned char *p = reinterpret_cast<unsigned char*>(img.fortran_vec());
       memcpy(p, buffers[buf.index].start, buf.bytesused);
       ret(0) = octave_value(img. transpose ());
     }
@@ -798,7 +802,7 @@ v4l2_handler::capture (int nargout, int preview)
       dim_vector dv (fmt.fmt.pix.width, fmt.fmt.pix.height);
       uint8NDArray img (dv);
       assert(img.numel() == int(buf.bytesused));
-      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+      unsigned char *p = reinterpret_cast<unsigned char*>(img.fortran_vec());
       memcpy(p, buffers[buf.index].start, buf.bytesused);
       ret(0) = octave_value(img.transpose ());
     }
@@ -812,15 +816,15 @@ v4l2_handler::capture (int nargout, int preview)
       uint8NDArray y (dvy);
       uint8NDArray cb (dvc);
       uint8NDArray cr (dvc);
+      assert ((y.numel() + cb.numel() + cr.numel()) == int(buf.bytesused));
       unsigned int i;
-      unsigned char* s = reinterpret_cast<unsigned char*>(buffers[buf.index].start);
-      p = reinterpret_cast<unsigned char*>(y.fortran_vec());
-      for (i=0; i < buf.bytesused; i+=2)
-        y(i/2) = s[i];
-      for (i=1; i < buf.bytesused; i+=4)
+      unsigned char *s = reinterpret_cast<unsigned char*>(buffers[buf.index].start);
+      for (i=0; i < (fmt.fmt.pix.width * fmt.fmt.pix.height); ++i)
+        y(i) = s[2 * i];
+      for (i=0; i < (fmt.fmt.pix.width * fmt.fmt.pix.height / 2); ++i)
         {
-          cb(i/4 + 1) = s[i];
-          cr(i/4 + 3) = s[i + 2];
+          cb(i) = s[4 * i + 1];
+          cr(i) = s[4 * i + 3];
         }
 
       octave_scalar_map img;
@@ -839,9 +843,10 @@ v4l2_handler::capture (int nargout, int preview)
       uint8NDArray y (dvy);
       uint8NDArray c1 (dvc);
       uint8NDArray c2 (dvc);
+      assert ((y.numel() + c1.numel() + c2.numel()) == int(buf.bytesused));
 
       // Y
-      p = reinterpret_cast<unsigned char*>(y.fortran_vec());
+      unsigned char *p = reinterpret_cast<unsigned char*>(y.fortran_vec());
       memcpy(p, buffers[buf.index].start, y.numel ());
 
       // C1
@@ -879,7 +884,7 @@ v4l2_handler::capture (int nargout, int preview)
 
       dim_vector dv (buf.bytesused, 1);
       uint8NDArray img (dv);
-      p=reinterpret_cast<unsigned char*>(img.fortran_vec());
+      unsigned char *p = reinterpret_cast<unsigned char*>(img.fortran_vec());
       memcpy(p, buffers[buf.index].start, buf.bytesused);
       ret(0) = octave_value(img);
     }
@@ -911,12 +916,10 @@ v4l2_handler::capture (int nargout, int preview)
         }
       else
         {
-          warning("v4l2_handler::capture timecode not available");
+          warning("v4l2_handler::capture: Timecode not available");
           ret(3) = octave_value();
         }
     }
-
-  xioctl(fd, VIDIOC_QBUF, &buf);
 
   // use preview window?
   if (preview)
@@ -930,8 +933,21 @@ v4l2_handler::capture (int nargout, int preview)
         {
           if(preview == 1 && !preview_window->shown())
             preview_window->show();
-          preview_window->copy_img(p, fmt.fmt.pix.width, fmt.fmt.pix.height, 1); //until now only RGB is supported
-          preview_window->custom_label(dev.c_str(), buf.sequence, 1.0/dt);
+
+          // We can only use preview for RGB24 aka RGB3
+          if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_RGB24)
+            {
+              // octave_stdout << "Bytes captured = " << buf.bytesused << endl;
+              // sanity checks
+              if (buf.bytesused != (3 *  fmt.fmt.pix.width * fmt.fmt.pix.height))
+                error ("v4l2_handler::capture: Returned size of buffer doesn't match 3 * width * height");
+              else
+                {
+                  preview_window->copy_img(reinterpret_cast<unsigned char*>(buffers[buf.index].start),
+                                           fmt.fmt.pix.width, fmt.fmt.pix.height, 1);
+                  preview_window->custom_label(dev.c_str(), buf.sequence, 1.0/dt);
+                }
+            }
         }
     }
   else if (preview_window)
@@ -939,6 +955,8 @@ v4l2_handler::capture (int nargout, int preview)
       delete preview_window;
       preview_window = 0;
     }
+
+  xioctl(fd, VIDIOC_QBUF, &buf);
   return ret;
 }
 
@@ -959,7 +977,7 @@ v4l2_handler::capture_to_ppm (const char *fn)
   FILE *fout = fopen (fn, "w");
   if (!fout)
     {
-      error("v4l2_handler::capture_to_ppm cannot open file '%s'", fn);
+      error("v4l2_handler::capture_to_ppm: Cannot open file '%s'", fn);
     }
   fprintf (fout, "P6\n%d %d 255\n",
            img.dim2(), img.dim3());
@@ -979,7 +997,7 @@ v4l2_handler::streamon (unsigned int n)
 {
   if(streaming)
     {
-      warning("v4l2_handler::streamon streaming already enabled. Buffer size unchanged.");
+      warning("v4l2_handler::streamon: Streaming already enabled. Buffer size unchanged.");
     }
   else
     {
@@ -1058,7 +1076,7 @@ get_v4l2_handler_from_ov (octave_value ov)
 
   if (ov.type_id() != v4l2_handler::static_type_id())
     {
-      error("get_v4l2_handler_from_ov: not a valid v4l2_handler");
+      error("get_v4l2_handler_from_ov: Not a valid v4l2_handler");
       return 0;
     }
 

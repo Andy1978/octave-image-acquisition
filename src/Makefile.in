@@ -4,9 +4,12 @@ OCT := __v4l2_handler__.oct
 OBJ := cl_v4l2_handler.o cl_img_win.o
 
 MKOCTFILE  ?= mkoctfile
-MKOCTFLAGS = -g -Wall -v
+MKOCTFLAGS ?= -Wall -v
 
 all: $(OBJ) $(OCT)
+
+debug : MKOCTFLAGS += -g
+debug : all
 
 %.o: %.cc %.h
 	$(MKOCTFILE) $(MKOCTFLAGS) -c $<

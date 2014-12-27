@@ -2,10 +2,9 @@
 .PHONY:clean
 
 all:
-	octave -q check.m
-	octave -q try_different_pixelformats.m
+	octave -q check_VideoFormat.m
+	octave -q check_VideoResolution.m
 
 clean:
-	rm -f *.png
-	rm -rf out
+	rm -f *.png *.jpg
 	rm -f octave-core octave-workspace

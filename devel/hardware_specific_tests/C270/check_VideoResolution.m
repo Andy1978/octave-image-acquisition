@@ -20,16 +20,16 @@ set (obj, "VideoFormat", "RGB24")
 res = set (obj, "VideoResolution");
 
 ## Try all possible resolutions
-%~ for k=1:rows (res)
-  %~ printf ("trying to set resolution to %ix%i...\n", res(k, 1), res(k, 2));
-  %~ set (obj, "VideoResolution", res(k, :));
-  %~ start (obj);
-  %~ [img, seq, t] = getsnapshot (obj, 0);
-  %~ printf ("size of returned image is %ix%ix%i\n", size (img));
-  %~ assert (size(img)([2 1]), res(k, :));
-  %~ stop (obj);
-  %~ fflush (stdout);
-%~ endfor
+for k=1:rows (res)
+  printf ("trying to set resolution to %ix%i...\n", res(k, 1), res(k, 2));
+  set (obj, "VideoResolution", res(k, :));
+  start (obj);
+  [img, seq, t] = getsnapshot (obj, 0);
+  printf ("size of returned image is %ix%ix%i\n", size (img));
+  assert (size(img)([2 1]), res(k, :));
+  stop (obj);
+  fflush (stdout);
+endfor
 
 ## Select default
 set (obj, "VideoResolution", res(1, :));

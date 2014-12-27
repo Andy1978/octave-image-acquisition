@@ -4,7 +4,7 @@
 ## FIXME: the first captured image is brighter than the following.
 
 ## possible values: 8, 10, 12
-num_bits = 8;
+num_bits = 12;
 set_mt9p031_SGRBG_bitdepth (num_bits);
 
 pkg unload all
@@ -28,4 +28,4 @@ stop (obj)
 img = SGRBGtoRGB(img);
 img = uint8(img/2**(num_bits-8));
 
-imwrite (img, "out.jpg")
+imwrite (img, sprintf ("out%i.jpg", num_bits))

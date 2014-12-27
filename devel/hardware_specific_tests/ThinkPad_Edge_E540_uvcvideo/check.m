@@ -43,5 +43,5 @@ for k=1:10
  fflush (stdout);
  save_mjpeg_as_jpg (fn, img);
 endfor
-    
+
 stop (obj)
