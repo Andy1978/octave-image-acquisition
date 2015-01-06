@@ -19,3 +19,10 @@ Loopback
 $ sudo modprobe v4l2loopback
 $ gst-launch-0.10 videotestsrc ! v4l2sink device=/dev/video0
 
+vgrabbj (available as debian package)
+$ vgrabbj -d /dev/video0 -D7 -f out.jpg
+
+fswebcam (available as debian package and here https://github.com/fsphil/fswebcam)
+$ fswebcam -r 640x480 output1.jpeg
+
+Another capture tool: streamer (debian package)
