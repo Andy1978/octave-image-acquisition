@@ -17,7 +17,7 @@
 ## https://github.com/TimSC/mjpeg/blob/master/mjpeg2jpeg.py has a copy
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} save_mjpeg_as_jpg (@var {fn}, @var{mjpeg})
+## @deftypefn {Function File} save_mjpeg_as_jpg (@var{fn}, @var{mjpeg})
 ## Add a huffman table to the MPJEG capture and save it as JPG.
 ## Useful if you have set VideoFormat of videoinput to MJPEG and want
 ## to convert the result from getsnapshot to JPG.
