@@ -143,7 +143,6 @@ static unsigned int v4l2_format_code(const char *name)
   return fourcc;
 }
 
-DEFINE_OCTAVE_ALLOCATOR(v4l2_handler);
 DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(v4l2_handler, "v4l2_handler", "v4l2_handler");
 
 v4l2_handler::v4l2_handler ()
