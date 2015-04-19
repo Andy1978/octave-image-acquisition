@@ -22,9 +22,6 @@
 ## - uvcvideo 3.2.51 UVC Camera (046d:0825), Logitech, Inc. Webcam C270
 ## - sn9c20x 3.2.51 USB20 Camera, Trust 14830
 
-run ('../PKG_ADD')
-addpath (canonicalize_file_name ('../inst'))
-
 fns = { '../src/__v4l2_handler__.cc';
         '@videoinput/videoinput';
         '@videoinput/get';

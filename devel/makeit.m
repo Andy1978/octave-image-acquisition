@@ -1,1 +1,0 @@
-system("cd ../src/ && make")

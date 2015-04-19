@@ -8,7 +8,7 @@ MKOCTFLAGS ?= -Wall -v
 
 all: $(OBJ) $(OCT)
 
-debug : MKOCTFLAGS += -g
+debug : MKOCTFLAGS += -ggdb -O0
 debug : all
 
 %.o: %.cc %.h

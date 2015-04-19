@@ -20,6 +20,8 @@
 
 static bool type_loaded = false;
 
+// PKG_ADD: autoload ("__v4l2_handler_open__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_open__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_open__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{h} =} __v4l2_handler_open__ (@var{device})\n\
@@ -51,6 +53,8 @@ Creates an instance of v4l2_handler for a v4l2 device and opens it.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_querycap__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_querycap__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_querycap__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{c} = } __v4l2_handler_querycap__ (@var{h})\n\
@@ -75,6 +79,8 @@ Query device capabilities, driver name, card type etc. from v4l2_handler @var{h}
 }
 // INPUTS
 
+// PKG_ADD: autoload ("__v4l2_handler_enuminput__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_enuminput__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_enuminput__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{inputs} = } __v4l2_handler_enuminput__ (@var{h})\n\
@@ -99,6 +105,8 @@ Returns a struct with informations for all avaliable v4l2 inputs.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_g_input__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_g_input__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_g_input__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{N} =} __v4l2_handler_g_input__ (@var{h})\n\
@@ -121,6 +129,8 @@ Query the current video input from v4l2_handler @var{h}.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_s_input__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_s_input__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_s_input__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {} __v4l2_handler_s_input__ (@var{h}, @var{n})\n\
@@ -149,6 +159,8 @@ Select video input @var{n} from v4l2_handler @var{h}.\n\
 }
 // FORMAT
 
+// PKG_ADD: autoload ("__v4l2_handler_enum_fmt__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_enum_fmt__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_enum_fmt__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{formats} = } __v4l2_handler_enum_fmt__ (@var{h})\n\
@@ -173,6 +185,8 @@ Returns a struct with informations for all avaliable v4l2 formats.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_enum_framesizes__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_enum_framesizes__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_enum_framesizes__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{sizes} = } __v4l2_handler_enum_framesizes__ (@var{h}, @var{format})\n\
@@ -197,6 +211,8 @@ Enumerate available frame sizes from v4l2_handler @var{h}.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_enum_frameintervals__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_enum_frameintervals__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_enum_frameintervals__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{T} = } __v4l2_handler_enum_frameintervals__ (@var{h}, @var{size}, @var{format})\n\
@@ -229,6 +245,8 @@ Return a Nx2 matrix with numerator, denominator.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_g_parm__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_g_parm__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_g_parm__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{T} = } __v4l2_handler_g_parm__ (@var{h})\n\
@@ -252,6 +270,8 @@ Return current frame interval as numerator, denominator.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_s_parm__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_s_parm__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_s_parm__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{T} = } __v4l2_handler_s_parm__ (@var{h}, @var{s})\n\
@@ -275,6 +295,8 @@ Set frame interval numerator and denominator.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_g_fmt__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_g_fmt__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_g_fmt__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} @var{fmt} = __v4l2_handler_g_fmt__ (@var{h})\n\
@@ -298,6 +320,8 @@ Get format pixelformat, size[width height].\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_s_fmt__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_s_fmt__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_s_fmt__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} __v4l2_handler_s_fmt__ (@var{h}, @var{fmt}, @var{size})\n\
@@ -329,6 +353,8 @@ Set format @var{fmt}, @var{size} (V4L2_FIELD_INTERLACED).\n\
 }
 // CONTROLS
 
+// PKG_ADD: autoload ("__v4l2_handler_queryctrl__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_queryctrl__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_queryctrl__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{controls} = } __v4l2_handler_queryctrl__ (@var{h})\n\
@@ -354,6 +380,8 @@ Use the field id for calls to __v4l2_handler_s_ctrl__.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_g_ctrl__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_g_ctrl__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_g_ctrl__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{value} =} __v4l2_handler_g_ctrl__ (@var{h}, @var{id})\n\
@@ -383,6 +411,8 @@ Use the field id from __v4l2_handler_queryctrl__.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_s_ctrl__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_s_ctrl__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_s_ctrl__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {} __v4l2_handler_s_ctrl__ (@var{h}, @var{id}, @var{value})\n\
@@ -414,6 +444,8 @@ Use the field id from __v4l2_handler_queryctrl__.\n\
 }
 // STREAMING
 
+// PKG_ADD: autoload ("__v4l2_handler_streamoff__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_streamoff__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_streamoff__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} __v4l2_handler_streamoff__ (@var{h})\n\
@@ -436,6 +468,8 @@ Stop streaming.\n\
   return retval;
 }
 
+// PKG_ADD: autoload ("__v4l2_handler_streamon__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_streamon__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_streamon__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} __v4l2_handler_streamon__ (@var{h}, @var{n})\n\
@@ -465,6 +499,8 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
 }
 // CAPTURES
 
+// PKG_ADD: autoload ("__v4l2_handler_capture__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_handler_capture__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_capture__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{f} =} __v4l2_handler_capture__ (@var{h}, [@var{preview}])\n\
@@ -504,6 +540,8 @@ static bool is_v4l_dev(const char *name)
     !memcmp(name, "v4l-subdev", 10);
 }
 
+// PKG_ADD: autoload ("__v4l2_list_devices__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_list_devices__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_list_devices__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{l} =} __v4l2_list_devices__ ()\n\
@@ -544,6 +582,8 @@ Use '$ v4l2-ctl --list-devices' for more details.\n\
   return octave_value (retval);
 }
 
+// PKG_ADD: autoload ("__v4l2_preview_window_is_shown__", which ("__v4l2_handler__.oct"));
+// PKG_DEL: autoload ("__v4l2_preview_window_is_shown__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_preview_window_is_shown__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{l} =} __v4l2_preview_window_is_shown__ (@var{h})\n\

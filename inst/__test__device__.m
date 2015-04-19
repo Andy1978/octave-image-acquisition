@@ -35,3 +35,5 @@ function dev = __test__device__()
     dev = l.device;
   endif
 endfunction
+
+%!assert (1)
