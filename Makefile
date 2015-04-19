@@ -55,6 +55,12 @@ $(HTML_DIR): install
 	  --eval "pkg load $(PACKAGE);" \
 	  --eval 'generate_package_html ("${PACKAGE}", "$@", "octave-forge");'
 	chmod -R a+rX,u+w,go-w $@
+	@echo "###############################################################"
+	@echo "#                  BIG FAT PRIVACY WARNING:                   #"
+	@echo "# The demo code, which is used for generating the HTML docs,  #"
+	@echo "# makes a snapshot on your video hardware and includes it in  #"
+	@echo "# the generated tarball. Make sure this is what you want.     #"
+	@echo "###############################################################"
 
 $(HTML_TARBALL): $(HTML_DIR)
 	tar cf - --posix "$<" | gzip -9n > "$@"
