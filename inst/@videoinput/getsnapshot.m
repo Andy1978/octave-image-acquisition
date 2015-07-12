@@ -41,8 +41,9 @@
 ##   frame to frame due to compression. You can save this as JPEG (add a huffman table) with
 ##   @example
 ##   @group
-##     set (obj, "VideoFormat", "MJPG")
-##     start (obj)
+##     obj = videoinput("v4l2", "/dev/video0");
+##     set (obj, "VideoFormat", "MJPG");
+##     start (obj);
 ##     img = getsnapshot (obj);
 ##     save_mjpeg_as_jpg ("capture.jpg", img);
 ##   @end group

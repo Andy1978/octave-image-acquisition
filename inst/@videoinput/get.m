@@ -24,9 +24,13 @@
 ##
 ## @example
 ## @group
-## get (obj) @result{}
+## obj = videoinput ("v4l2", "/dev/video0");
+## get (obj)
+## @result{}
 ##  @{
 ##    [1,1] = SelectedSourceName
+##    [2,1] = ReturnedColorSpace
+##    [3,1] = BayerSensorAlignment
 ##    [4,1] = DeviceCapabilities
 ##    [5,1] = VideoInput
 ##    [6,1] = VideoResolution
@@ -36,12 +40,21 @@
 ##    [10,1] = contrast
 ##    [11,1] = saturation
 ##    [12,1] = white_balance_temperature_auto
+##    [13,1] = gain
+##    [14,1] = power_line_frequency
+##    [15,1] = white_balance_temperature
+##    [16,1] = sharpness
+##    [17,1] = backlight_compensation
+##    [18,1] = exposure_auto
+##    [19,1] = exposure_absolute
+##    [20,1] = exposure_auto_priority
 ##  @}
 ## @end group
 ## @end example
 ##
 ## @example
 ## @group
+## obj = videoinput("v4l2", "/dev/video0");
 ## get (obj, "SelectedSourceName")
 ##   @result{} /dev/video0
 ## @end group
@@ -49,8 +62,10 @@
 ##
 ## @example
 ## @group
+## obj = videoinput ("v4l2", "/dev/video0");
+## set(obj, "VideoResolution", [640 480]);
 ## get (obj, "VideoResolution")
-##   @result{}    320   240
+##   @result{}    640   480
 ## @end group
 ## @end example
 ## @seealso{@@videoinput/set}

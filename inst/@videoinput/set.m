@@ -23,7 +23,8 @@
 ##
 ## @example
 ## @group
-## set(obj, 'brightness')
+## obj = videoinput("v4l2", "/dev/video0");
+## set (obj, 'brightness')
 ## @result{} scalar structure containing the fields:
 ##
 ##    min = 0
@@ -43,8 +44,9 @@
 ## adjust the values if the size requested is unavailable.
 ##
 ## @example
+## obj = videoinput("v4l2", "/dev/video0");
 ## set(obj, "VideoResolution", [960 700])
-## @result{} warning: driver is sending image at 960x544 but 960x700 was requested
+## @result{} warning: v4l2_handler::s_fmt: Driver is sending image at 960x720 although 960x700 was requested
 ## @end example
 ##
 ## @item 'VideoFrameInterval'

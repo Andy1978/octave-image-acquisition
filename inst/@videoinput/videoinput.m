@@ -20,14 +20,14 @@
 ##
 ## @group
 ## @example
-## octave:> obj = videoinput("v4l2", "/dev/video0")
+## obj = videoinput("v4l2", "/dev/video0")
 ## @result{} obj = videoinput for v4l2
 ##      device             = /dev/video0
 ##      driver             = uvcvideo
 ##      card               = UVC Camera (046d:0825)
 ##      VideoInput         = 0
-##      VideoResolution    = 1280 x 960 px
-##      VideoFrameInterval = 1/30 s (30.0 fps)
+##      VideoResolution    = 960 x 720 px
+##      VideoFormat = MJPEG
 ## @end example
 ## @end group
 ## @seealso{@@videoinput/getsnapshot}
