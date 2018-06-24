@@ -85,7 +85,7 @@ DEFUN_DLD(__v4l2_handler_enuminput__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{inputs} = } __v4l2_handler_enuminput__ (@var{h})\n\
 Enumerate video inputs from v4l2_handler @var{h}.\n\
-Returns a struct with informations for all avaliable v4l2 inputs.\n\
+Returns a struct with information for all available v4l2 inputs.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -165,7 +165,7 @@ DEFUN_DLD(__v4l2_handler_enum_fmt__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{formats} = } __v4l2_handler_enum_fmt__ (@var{h})\n\
 Enumerate image formats from v4l2_handler @var{h}.\n\
-Returns a struct with informations for all avaliable v4l2 formats.\n\
+Returns a struct with information for all available v4l2 formats.\n\
 @end deftypefn")
 {
   octave_value_list retval;

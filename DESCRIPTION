@@ -4,7 +4,7 @@ Date: 2015-04-19
 Author: Andreas Weber <andy.weber.aw@gmail.com>
 Maintainer: Andreas Weber <andy.weber.aw@gmail.com>
 Title: Image Acquisition
-Description: The Octave-forge Image Aquisition package provides functions
+Description: The Octave-forge Image Acquisition package provides functions
  to capture images from connected devices. Currently only v4l2
  (which is GNU/Linux only) is supported. There is no windoze support yet.
 Depends: octave (>= 3.8.0)
