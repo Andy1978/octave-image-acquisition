@@ -1,0 +1,5 @@
+Almost all links to linuxtv.org are outdated, for example
+
+http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-reqbufs.html
+is now
+https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/vidioc-reqbufs.html
