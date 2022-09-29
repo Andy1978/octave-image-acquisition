@@ -226,17 +226,16 @@ v4l2_handler::querycap ()
   xioctl (fd, VIDIOC_QUERYCAP, &cap);
 
   octave_scalar_map st;
-  if (!error_state)
-    {
-      st.assign ("driver",    std::string((const char*)cap.driver));
-      st.assign ("card",      std::string((const char*)cap.card));
-      st.assign ("bus_info",  std::string((const char*)cap.bus_info));
+    
+  st.assign ("driver",    std::string((const char*)cap.driver));
+  st.assign ("card",      std::string((const char*)cap.card));
+  st.assign ("bus_info",  std::string((const char*)cap.bus_info));
 
-      char tmp[15];
-      snprintf (tmp, 15, "%u.%u.%u", (cap.version >> 16) & 0xFF, (cap.version >> 8) & 0xFF, cap.version & 0xFF);
-      st.assign ("version",   std::string(tmp));
-      st.assign ("capabilities", (unsigned int)(cap.capabilities));
-    }
+  char tmp[15];
+  snprintf (tmp, 15, "%u.%u.%u", (cap.version >> 16) & 0xFF, (cap.version >> 8) & 0xFF, cap.version & 0xFF);
+  st.assign ("version",   std::string(tmp));
+  st.assign ("capabilities", (unsigned int)(cap.capabilities));
+    
   return octave_value (st);
 }
 
@@ -407,19 +406,16 @@ v4l2_handler::g_parm ()
   CLEAR(sparam);
   sparam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   xioctl(fd, VIDIOC_G_PARM, &sparam);
-  if(!error_state)
+  if(sparam.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
     {
-      if(sparam.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
-        {
-          const struct v4l2_fract &tf = sparam.parm.capture.timeperframe;
-          ret(0) = tf.numerator;
-          ret(1) = tf.denominator;
-        }
-      else
-        {
-          warning("v4l2_handler::g_parm: V4L2_CAP_TIMEPERFRAME is not supported");
-          return Matrix(0,0);
-        }
+      const struct v4l2_fract &tf = sparam.parm.capture.timeperframe;
+      ret(0) = tf.numerator;
+      ret(1) = tf.denominator;
+    }
+  else
+    {
+      warning("v4l2_handler::g_parm: V4L2_CAP_TIMEPERFRAME is not supported");
+      return Matrix(0,0);
     }
   return ret;
 }
@@ -979,7 +975,7 @@ v4l2_handler::capture_to_ppm (const char *fn)
       error("v4l2_handler::capture_to_ppm: Cannot open file '%s'", fn);
     }
   fprintf (fout, "P6\n%d %d 255\n",
-           img.dim2(), img.dim3());
+           (int)img.dim2(), (int)img.dim3());
   fwrite (p, img.numel(), 1, fout);
   fclose (fout);
 }
@@ -1012,8 +1008,7 @@ v4l2_handler::streamon (unsigned int n)
       enum   v4l2_buf_type type;
       type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       xioctl(fd, VIDIOC_STREAMON, &type);
-      if (!error_state)
-        streaming = 1;
+      streaming = 1;
     }
 }
 

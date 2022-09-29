@@ -43,13 +43,13 @@ Creates an instance of v4l2_handler for a v4l2 device and opens it.\n\
       v4l2_handler::register_type();
       type_loaded = true;
     }
+
   string device = args(0).string_value ();
-  if (! error_state)
-    {
-      v4l2_handler *h = new v4l2_handler ();
-      h->open (device.c_str ());
-      retval.append (octave_value (h));
-    }
+
+  v4l2_handler *h = new v4l2_handler ();
+  h->open (device.c_str ());
+  retval.append (octave_value (h));
+  
   return retval;
 }
 
@@ -149,11 +149,13 @@ Select video input @var{n} from v4l2_handler @var{h}.\n\
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      int num = args(1).int_value ();
-      if (!error_state)
-        imgh->s_input (num);
-      else
+      if (! args(1).isnumeric())
         error("N has to be a integer selecting the desired video input, starting from  0.");
+      else
+        {
+          int num = args(1).int_value ();
+          imgh->s_input (num);
+        }
     }
   return retval;
 }
@@ -232,15 +234,16 @@ Return a Nx2 matrix with numerator, denominator.\n\
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      Matrix s = args(1).matrix_value ();
-      unsigned int width = s(0);
-      unsigned int height = s(1);
-      if (error_state)
+      if (!args (1).is_matrix_type())
+        print_usage();
+      else
         {
-          print_usage();
+          Matrix s = args(1).matrix_value ();
+          unsigned int width = s(0);
+          unsigned int height = s(1);
+          string pixel_format = args(2).string_value ();
+          retval = octave_value(imgh->enum_frameintervals (pixel_format, width, height));
         }
-      string pixel_format = args(2).string_value ();
-      retval = octave_value(imgh->enum_frameintervals (pixel_format, width, height));
     }
   return retval;
 }
@@ -336,6 +339,11 @@ Set format @var{fmt}, @var{size} (V4L2_FIELD_INTERLACED).\n\
       print_usage ();
       return retval;
     }
+  if (!args (1).is_string() || !args (2).is_matrix_type())
+    {
+      print_usage();
+      return retval;
+    }
 
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
@@ -344,10 +352,8 @@ Set format @var{fmt}, @var{size} (V4L2_FIELD_INTERLACED).\n\
       Matrix s = args(2).matrix_value ();
       unsigned int xres = s(0);
       unsigned int yres = s(1);
-      if (! error_state)
-        {
-          imgh->s_fmt (fmt, xres, yres);
-        }
+
+      imgh->s_fmt (fmt, xres, yres);
     }
   return retval;
 }
@@ -398,15 +404,17 @@ Use the field id from __v4l2_handler_queryctrl__.\n\
       print_usage ();
       return retval;
     }
+  if (!args (1).isnumeric())
+    {
+      error("ID has to be an integer value");
+      return retval;
+    }
 
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
       unsigned int id = args(1).int_value ();
-      if (!error_state)
-        retval = octave_value(imgh->g_ctrl (id));
-      else
-        error("ID has to be an integer value");
+      retval = octave_value(imgh->g_ctrl (id));
     }
   return retval;
 }
@@ -429,16 +437,17 @@ Use the field id from __v4l2_handler_queryctrl__.\n\
       print_usage ();
       return retval;
     }
-
+  if (!args (1).isnumeric() || !args (2).isnumeric())
+    {
+      error("ID and VALUE has to be integer values");
+      return retval;
+    }
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
       unsigned int id = args(1).int_value ();
       unsigned int value = args(2).int_value ();
-      if (!error_state)
-        imgh->s_ctrl (id, value);
-      else
-        error("ID and VALUE has to be integer values");
+      imgh->s_ctrl (id, value);
     }
   return retval;
 }
@@ -485,15 +494,16 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
       print_usage ();
       return retval;
     }
+  if (!args (1).isnumeric())
+    {
+      return retval;
+    }
 
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
       unsigned int n_buffers = args(1).int_value ();
-      if (! error_state)
-        {
-          imgh->streamon (n_buffers);
-        }
+      imgh->streamon (n_buffers);
     }
   return retval;
 }
@@ -515,6 +525,10 @@ Get a snapshot from v4l2_handler @var{h}\n\
       print_usage ();
       return retval;
     }
+  if (nargin > 1 && !args (1).isnumeric())
+    {
+      return retval;
+    }
 
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
@@ -522,10 +536,7 @@ Get a snapshot from v4l2_handler @var{h}\n\
       int preview = 0;
       if (nargin==2)
         preview = args(1).int_value ();
-      if (!error_state)
-        {
-          retval = imgh->capture (nargout, preview);
-        }
+      retval = imgh->capture (nargout, preview);
     }
   return retval;
 }
