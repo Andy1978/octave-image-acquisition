@@ -790,15 +790,21 @@ v4l2_handler::capture (int nargout, int preview)
       FD_ZERO(&fds);
       FD_SET(fd, &fds);
 
-      // 2s Timeout TODO: make this configurable
-      tv.tv_sec = 2;
+      // 3s Timeout TODO: make this configurable
+      tv.tv_sec = 3;
       tv.tv_usec = 0;
       r = select(fd + 1, &fds, NULL, NULL, &tv);
     }
   while ((r == -1 && (errno == EINTR)));
   if (r == -1)
     {
-      error("v4l2_handler::capture: Select failed.");
+      error("v4l2_handler::capture: Select returned code %i (%s)", errno, strerror(errno));
+      return octave_value();
+    }
+
+  if (r == 0)
+    {
+      error("v4l2_handler::capture: Select timeout");
       return octave_value();
     }
 
