@@ -114,6 +114,7 @@ public:
 
 private:
   v4l2_handler (const v4l2_handler& m);
+  static bool type_loaded;
 
   int fd;
   string dev;

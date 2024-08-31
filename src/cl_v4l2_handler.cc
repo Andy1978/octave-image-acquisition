@@ -145,12 +145,19 @@ static unsigned int v4l2_format_code(const char *name)
 
 DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(v4l2_handler, "v4l2_handler", "v4l2_handler");
 
+bool v4l2_handler::type_loaded = false;
+
 v4l2_handler::v4l2_handler ()
   : octave_base_value(),
     fd(-1), n_buffer(0), buffers(0), streaming(0),
     preview_window(0), _is_video_capture (0), _is_meta_capture(0)
 {
-  //octave_stdout << "v4l2_handler C'Tor " << endl;
+  //octave_stdout << "v4l2_handler C'Tor, type_loaded = " << type_loaded << endl;
+  if (!type_loaded)
+    {
+      type_loaded = true;
+      v4l2_handler::register_type();
+    }
 }
 
 v4l2_handler::v4l2_handler (const v4l2_handler& m)
@@ -1127,13 +1134,6 @@ v4l2_handler::close ()
 v4l2_handler*
 get_v4l2_handler_from_ov (octave_value ov)
 {
-  static bool type_loaded = false;
-  if (!type_loaded)
-    {
-      v4l2_handler::register_type();
-      type_loaded = true;
-    }
-
   if (ov.type_id() != v4l2_handler::static_type_id())
     {
       error("get_v4l2_handler_from_ov: Not a valid v4l2_handler");

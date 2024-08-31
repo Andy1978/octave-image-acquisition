@@ -18,8 +18,6 @@
 #include <dirent.h>
 #include "cl_v4l2_handler.h"
 
-static bool type_loaded = false;
-
 // PKG_ADD: autoload ("__v4l2_handler_open__", which ("__v4l2_handler__.oct"));
 // PKG_DEL: autoload ("__v4l2_handler_open__", which ("__v4l2_handler__.oct"), "remove");
 DEFUN_DLD(__v4l2_handler_open__, args, nargout,
@@ -36,12 +34,6 @@ Creates an instance of v4l2_handler for a v4l2 device and opens it.\n\
     {
       print_usage();
       return retval;
-    }
-
-  if (!type_loaded)
-    {
-      v4l2_handler::register_type();
-      type_loaded = true;
     }
 
   string device = args(0).string_value ();
