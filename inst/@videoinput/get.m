@@ -117,7 +117,7 @@ endfunction
 %! obj = videoinput("v4l2", __test__device__);
 %! T = get(obj, "VideoFrameInterval");
 
-%!xtest
+%!test
 %! obj = videoinput("v4l2", __test__device__);
 %! f = get(obj, "VideoFormat");
 

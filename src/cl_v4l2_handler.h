@@ -73,13 +73,13 @@ public:
 
   ~v4l2_handler (void);
 
-  void open (string d);       //!< open a v4l2 device e.g. /dev/video0
+  octave_scalar_map open (string d, bool quiet); //!< open a v4l2 device e.g. /dev/video0
   void print (std::ostream& os, bool pr_as_read_syntax) const;  //!< print itself on ostream
-  octave_value querycap ();  //!< Query device capabilities
+  octave_value querycap ();        //!< Query device capabilities
 
-  octave_value enuminput (); //!< Enumerate video inputs
-  int g_input ();            //!< Query the current video input
-  void s_input (int index);  //!< Select video input
+  octave_value enuminput ();       //!< Enumerate video inputs
+  int g_input ();                  //!< Query the current video input
+  void s_input (int index);        //!< Select video input
 
   octave_value enum_fmt (enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE); //!< Enumerate image formats
   Matrix enum_framesizes (string pixelformat);     //!< Enumerate frame sizes
@@ -109,6 +109,9 @@ public:
     return (preview_window)? preview_window->shown() : false;
   }
 
+  bool is_video_capture () {return _is_video_capture;}
+  bool is_meta_capture () {return _is_meta_capture;}
+
 private:
   v4l2_handler (const v4l2_handler& m);
 
@@ -118,6 +121,8 @@ private:
   struct buffer *buffers;
   bool streaming;
   img_win *preview_window;
+  bool _is_video_capture;
+  bool _is_meta_capture;
 
   // Properties
   bool is_constant (void) const
@@ -135,6 +140,7 @@ private:
   void mmap ();
   void qbuf ();
   void munmap ();
+  octave_scalar_map expand_cap (unsigned int cap);
 
   DECLARE_OV_TYPEID_FUNCTIONS_AND_DATA
 };

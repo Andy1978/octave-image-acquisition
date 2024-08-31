@@ -148,7 +148,7 @@ DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(v4l2_handler, "v4l2_handler", "v4l2_handler"
 v4l2_handler::v4l2_handler ()
   : octave_base_value(),
     fd(-1), n_buffer(0), buffers(0), streaming(0),
-    preview_window(0)
+    preview_window(0), _is_video_capture (0), _is_meta_capture(0)
 {
   //octave_stdout << "v4l2_handler C'Tor " << endl;
 }
@@ -199,9 +199,10 @@ v4l2_handler::xioctl_name (int fh, unsigned long int request, void *arg, const c
     }
 }
 
-void
-v4l2_handler::open (string d)
+octave_scalar_map
+v4l2_handler::open (string d, bool quiet)
 {
+  octave_scalar_map ret;
   fd = v4l2_open(d.c_str(), O_RDWR | O_NONBLOCK, 0);
   if (fd < 0)
     {
@@ -209,12 +210,62 @@ v4l2_handler::open (string d)
     }
   else
     {
-      dev = d;
+      dev = d; // store device path for later info output
+	  ret = querycap ().scalar_map_value ();
+
+	  if (!quiet && is_meta_capture ())
+	    warning ("Device '%s' is a metadata interface device", d.c_str());
     }
+  return ret;
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-querycap.html
+ * Convert bitfield to scalar struct
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-querycap.html#device-capabilities
+ * See also videodev2.h
+ */
+octave_scalar_map
+v4l2_handler::expand_cap (unsigned int cap)
+{
+  octave_scalar_map ret;
+  ret.assign ("raw", cap);
+  #define CHECK_DEVICE_CAPABILITIES_FIELD(X) ret.assign (#X, (bool)(cap & X))
+
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_CAPTURE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_OUTPUT);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_OVERLAY);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VBI_CAPTURE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VBI_OUTPUT);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_SLICED_VBI_CAPTURE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_SLICED_VBI_OUTPUT);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_RDS_CAPTURE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_OUTPUT_OVERLAY);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_HW_FREQ_SEEK);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_RDS_OUTPUT);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_CAPTURE_MPLANE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_OUTPUT_MPLANE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_M2M_MPLANE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_M2M);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_TUNER);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_AUDIO);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_RADIO);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_MODULATOR);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_SDR_CAPTURE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_EXT_PIX_FORMAT);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_SDR_OUTPUT);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_META_CAPTURE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_READWRITE);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_STREAMING);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_META_OUTPUT);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_TOUCH);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_IO_MC);
+  CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_DEVICE_CAPS);
+
+  return ret;
+}
+
+/*!
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-querycap.html
  * v4l2-ctl -D
  * \return octave_scalar_map with device capabilities
  */
@@ -226,16 +277,31 @@ v4l2_handler::querycap ()
   xioctl (fd, VIDIOC_QUERYCAP, &cap);
 
   octave_scalar_map st;
-    
+
   st.assign ("driver",    std::string((const char*)cap.driver));
   st.assign ("card",      std::string((const char*)cap.card));
   st.assign ("bus_info",  std::string((const char*)cap.bus_info));
 
   char tmp[15];
   snprintf (tmp, 15, "%u.%u.%u", (cap.version >> 16) & 0xFF, (cap.version >> 8) & 0xFF, cap.version & 0xFF);
-  st.assign ("version",   std::string(tmp));
-  st.assign ("capabilities", (unsigned int)(cap.capabilities));
-    
+  st.assign ("version", std::string(tmp));
+
+  st.assign ("capabilities", expand_cap (cap.capabilities));
+
+  // The driver fills the device_caps field. This capability can only
+  // appear in the capabilities field and never in the device_caps field.
+  if (cap.capabilities & V4L2_CAP_DEVICE_CAPS)
+  {
+    st.assign ("device_caps", expand_cap (cap.device_caps));
+    _is_video_capture = cap.device_caps & V4L2_CAP_VIDEO_CAPTURE;
+    _is_meta_capture  = cap.device_caps & V4L2_CAP_META_CAPTURE;
+  }
+  else
+  {
+    _is_video_capture = cap.capabilities & V4L2_CAP_VIDEO_CAPTURE;
+    _is_meta_capture  = cap.capabilities & V4L2_CAP_META_CAPTURE;
+  }
+
   return octave_value (st);
 }
 
@@ -624,13 +690,13 @@ v4l2_handler::g_fmt ()
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-reqbufs.html
+ * https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/vidioc-reqbufs.html
  * \param n number of buffers to initiate. A count value of zero frees all buffers.
  */
 void
 v4l2_handler::reqbufs (unsigned int n)
 {
-  if (fd>=0)
+  if (fd >= 0 && (n > 0 || n_buffer > 0))
     {
       struct v4l2_requestbuffers req;
       CLEAR(req);
@@ -638,7 +704,7 @@ v4l2_handler::reqbufs (unsigned int n)
       req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       req.memory = V4L2_MEMORY_MMAP;
       xioctl(fd, VIDIOC_REQBUFS, &req);
-      if (req.count<n)
+      if (req.count < n)
         error("v4l2_handler::reqbufs: VIDIOC_REQBUFS: running out of free memory\n");
       n_buffer = req.count;
     }

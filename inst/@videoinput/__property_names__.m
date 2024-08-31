@@ -18,7 +18,7 @@
 ## Return the list of fixed properties for class videoinput.
 ## @end deftypefn
 
-function [props] = __property_names__ ()
+function [props] = __property_names__ (vi)
   props = {"SelectedSourceName";
            "ReturnedColorSpace";
            "BayerSensorAlignment";

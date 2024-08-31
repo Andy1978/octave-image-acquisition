@@ -47,9 +47,9 @@ Creates an instance of v4l2_handler for a v4l2 device and opens it.\n\
   string device = args(0).string_value ();
 
   v4l2_handler *h = new v4l2_handler ();
-  h->open (device.c_str ());
+  h->open (device.c_str (), false);
   retval.append (octave_value (h));
-  
+
   return retval;
 }
 
@@ -569,7 +569,6 @@ Use '$ v4l2-ctl --list-devices' for more details.\n\
   DIR *dp;
   struct dirent *ep;
   dev_vec files;
-
   dp = opendir("/dev");
   if (dp == NULL) {
     error ("Couldn't open /dev/ directory");
@@ -584,11 +583,18 @@ Use '$ v4l2-ctl --list-devices' for more details.\n\
   for (dev_vec::iterator iter = files.begin();
       iter != files.end(); ++iter)
     {
+      //printf ("trying '%s'...\n", iter->c_str());
+      //fflush(stdout);
       v4l2_handler h;
-      h.open(iter->c_str());
-      octave_scalar_map caps = h.querycap ().scalar_map_value();
-      caps.assign ("device", *iter);
-      retval.assign(i++, caps);
+      octave_scalar_map caps = h.open(iter->c_str(), true);
+
+      if (! h.is_meta_capture ())
+      {
+        caps.assign ("device", *iter);
+        retval.assign(i++, caps);
+      }
+      //else
+        //printf ("INFO: list device ignores metadata interface '%s'...\n", iter->c_str());
     }
   return octave_value (retval);
 }
