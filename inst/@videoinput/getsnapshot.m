@@ -92,7 +92,7 @@ endfunction
 %! set (obj, 'VideoFormat', 'RGB24');
 %! start (obj, 2)
 %! img = getsnapshot (obj);
-%! img = getsnapshot (obj, 1);
+%! img = getsnapshot (obj, !isempty(getenv("DISPLAY"))); # preview only if there is a display
 %! [img, seq] = getsnapshot (obj, 1);
 %! # The v4l2 loopback device doesn't support the seqence numbering and returns always 0
 %! if (!strcmp(get(obj, "DeviceCapabilities").driver, "v4l2 loopback"))
