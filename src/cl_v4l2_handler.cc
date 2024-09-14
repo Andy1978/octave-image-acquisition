@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License along with
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
+#include <cassert>
 #include "cl_v4l2_handler.h"
 
 #define ARRAY_SIZE(a)	(sizeof(a)/sizeof((a)[0]))
