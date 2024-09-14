@@ -512,22 +512,23 @@ Get a snapshot from v4l2_handler @var{h}\n\
   octave_value_list retval;
   int nargin = args.length ();
 
-  if (nargin < 1 || nargin>2)
+  if (nargin < 1 || nargin > 2)
     {
       print_usage ();
       return retval;
     }
-  if (nargin > 1 && !args (1).isnumeric())
+  if (nargin > 1 && !args(1).isnumeric () && ! args(1).is_bool_scalar ())
     {
+      print_usage ();
       return retval;
     }
 
   v4l2_handler* imgh = get_v4l2_handler_from_ov (args(0));
   if (imgh)
     {
-      int preview = 0;
-      if (nargin==2)
-        preview = args(1).int_value ();
+      bool preview = false;
+      if (nargin == 2)
+        preview = args(1).bool_value ();
       retval = imgh->capture (nargout, preview);
     }
   return retval;
