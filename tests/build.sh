@@ -8,6 +8,9 @@ docker build -f Dockerfile_debian_bullseye -t debian_bullseye .
 ## Debian bookworm
 docker build -f Dockerfile_debian_bookworm -t debian_bookworm .
 
+## Debian bookworm and default branch (aka development)
+docker build -f Dockerfile_debian_bookworm_default_branch -t debian_bookworm_default .
+
 ## Fedora 31
 docker build -f Dockerfile_fedora31 -t fedora31 .
 

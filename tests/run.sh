@@ -12,6 +12,7 @@ do_run () {
 
 do_run debian_bullseye
 do_run debian_bookworm
+do_run debian_bookworm_default
 do_run fedora31
 do_run fedora33
 do_run fedora38
