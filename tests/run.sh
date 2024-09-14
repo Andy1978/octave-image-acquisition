@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-OCMD='pkg load image-acquisition; system ("head -n2 /etc/os-release"); printf ("OCTAVE_VERSION = %s\n", OCTAVE_VERSION); test @videoinput/videoinput;test @videoinput/get;test @videoinput/set;test imaqhwinfo;'
+OCMD='pkg load image-acquisition; system ("head -n2 /etc/os-release"); ver; test @videoinput/videoinput;test @videoinput/get;test @videoinput/set;test @videoinput/getsnapshot;test imaqhwinfo;'
 echo "octave command: ${OCMD}"
 echo
 
