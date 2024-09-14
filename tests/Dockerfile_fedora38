@@ -1,0 +1,14 @@
+FROM fedora:38
+
+WORKDIR /app
+
+RUN dnf -y install octave octave-devel
+RUN dnf -y install fltk-devel libv4l-devel
+RUN dnf -y install make patch redhat-rpm-config
+
+COPY ./image-acquisition-*.tar.gz /app/
+RUN octave --eval "pkg install -verbose image-acquisition-*.tar.gz"
+
+CMD ["/bin/bash"]
+
+

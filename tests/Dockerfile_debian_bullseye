@@ -1,0 +1,16 @@
+FROM debian:bullseye-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y g++ make\
+  libpcre3-dev libblas-dev liblapack-dev gfortran libtool libreadline-dev wget lzip mercurial automake
+
+RUN apt-get update && apt-get --no-install-recommends install -y pkg-config octave liboctave-dev patch
+
+RUN apt-get update && apt-get --no-install-recommends install -y pkg-config libv4l-dev libfltk1.1-dev 
+
+COPY ./image-acquisition-*.tar.gz /app/
+
+RUN octave --eval "pkg install -verbose image-acquisition-*.tar.gz"
+
+CMD ["/usr/local/bin/octave"]

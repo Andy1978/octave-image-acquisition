@@ -1,0 +1,84 @@
+build docker containers and run tests in them.
+/dev/video0 is exported to the docker conatianers via --device
+
+Usage:
+$ [sudo] ./build.sh
+$ [sudo] ./run.sh
+
+expected output:
+
+PRETTY_NAME="Debian GNU/Linux 11 (bullseye)"
+NAME="Debian GNU/Linux"
+OCTAVE_VERSION = 6.2.0
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 1 out of 1 test
+---
+PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
+NAME="Debian GNU/Linux"
+OCTAVE_VERSION = 7.3.0
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 1 out of 1 test
+error: ignoring const execution_exception& while preparing to exit
+---
+NAME=Fedora
+VERSION="31 (Container Image)"
+OCTAVE_VERSION = 5.1.0
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 1 out of 1 test
+---
+NAME=Fedora
+VERSION="33 (Container Image)"
+OCTAVE_VERSION = 5.2.0
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 1 out of 1 test
+---
+NAME="Fedora Linux"
+VERSION="38 (Container Image)"
+OCTAVE_VERSION = 7.3.0
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 1 out of 1 test
+error: ignoring const execution_exception& while preparing to exit
+---
+NAME="Ubuntu"
+VERSION="20.04.6 LTS (Focal Fossa)"
+OCTAVE_VERSION = 5.2.0
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 1 out of 1 test
+---
+PRETTY_NAME="Ubuntu 22.04.4 LTS"
+NAME="Ubuntu"
+OCTAVE_VERSION = 6.4.0
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 1 out of 1 test
+---
+PRETTY_NAME="Ubuntu 23.04"
+NAME="Ubuntu"
+OCTAVE_VERSION = 7.3.0
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 1 out of 1 test
+error: ignoring const execution_exception& while preparing to exit
+---
+PRETTY_NAME="Ubuntu 24.04 LTS"
+NAME="Ubuntu"
+OCTAVE_VERSION = 8.4.0
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 1 out of 1 test
+
