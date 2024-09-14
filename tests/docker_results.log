@@ -1,0 +1,165 @@
+octave command: pkg load image-acquisition; system ("head -n2 /etc/os-release"); ver; test @videoinput/videoinput;test @videoinput/get;test @videoinput/set;test @videoinput/getsnapshot;test imaqhwinfo;
+
+PRETTY_NAME="Debian GNU/Linux 11 (bullseye)"
+NAME="Debian GNU/Linux"
+----------------------------------------------------------------------
+GNU Octave Version: 6.2.0 (hg id: 5cfdf97c5350)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+---
+PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
+NAME="Debian GNU/Linux"
+----------------------------------------------------------------------
+GNU Octave Version: 7.3.0 (hg id: 2c037ce00450)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+error: ignoring const execution_exception& while preparing to exit
+---
+PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
+NAME="Debian GNU/Linux"
+----------------------------------------------------------------------
+GNU Octave Version: 10.0.0 (hg id: b2816ce46619)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+---
+NAME=Fedora
+VERSION="31 (Container Image)"
+----------------------------------------------------------------------
+GNU Octave Version: 5.1.0 (hg id: d05d6eebde10)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+---
+NAME=Fedora
+VERSION="33 (Container Image)"
+----------------------------------------------------------------------
+GNU Octave Version: 5.2.0 (hg id: eb46a9f47164)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+---
+NAME="Fedora Linux"
+VERSION="38 (Container Image)"
+----------------------------------------------------------------------
+GNU Octave Version: 7.3.0 (hg id: 2c037ce00450)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+error: ignoring const execution_exception& while preparing to exit
+---
+NAME="Ubuntu"
+VERSION="20.04.6 LTS (Focal Fossa)"
+----------------------------------------------------------------------
+GNU Octave Version: 5.2.0 (hg id: eb46a9f47164)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+---
+PRETTY_NAME="Ubuntu 22.04.4 LTS"
+NAME="Ubuntu"
+----------------------------------------------------------------------
+GNU Octave Version: 6.4.0 (hg id: 8d7671609955)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+---
+PRETTY_NAME="Ubuntu 23.04"
+NAME="Ubuntu"
+----------------------------------------------------------------------
+GNU Octave Version: 7.3.0 (hg id: 2c037ce00450)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+error: ignoring const execution_exception& while preparing to exit
+---
+PRETTY_NAME="Ubuntu 24.04 LTS"
+NAME="Ubuntu"
+----------------------------------------------------------------------
+GNU Octave Version: 8.4.0 (hg id: 78c13a2594f3)
+GNU Octave License: GNU General Public License
+Operating System: Linux 6.1.0-23-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.99-1 (2024-07-15) x86_64
+----------------------------------------------------------------------
+Package Name       | Version | Installation directory
+-------------------+---------+-----------------------
+image-acquisition *|   0.2.6 | .../share/octave/packages/image-acquisition-0.2.6
+PASSES 1 out of 1 test
+PASSES 4 out of 4 tests
+PASSES 7 out of 7 tests
+PASSES 4 out of 4 tests
+PASSES 1 out of 1 test
+---
