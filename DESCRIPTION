@@ -1,12 +1,12 @@
 Name: image-acquisition
-Version: 0.2.6
-Date: 2024-08-31
+Version: 0.2.7
+Date: 2024-09-14
 Author: Andreas Weber <andy.weber.aw@gmail.com>
 Maintainer: Andreas Weber <andy.weber.aw@gmail.com>
 Title: Image Acquisition
 Description: The Octave-forge Image Acquisition package provides functions
  to capture images from connected devices. Currently only v4l2
  (which is GNU/Linux only) is supported. There is no windoze support yet.
-Depends: octave (>= 3.8.0)
-BuildRequires: libv4l-dev (>= 0.8.8), libfltk1.1-dev (>= 1.1.0)
+Depends: octave (>= 5.1.0)
+BuildRequires: libv4l-dev (>= 0.8.8), libfltk1.1-dev (>= 1.1.0) or libfltk1.3-dev
 License: GPLv3+
