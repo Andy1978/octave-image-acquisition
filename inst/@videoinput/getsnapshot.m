@@ -75,11 +75,11 @@ function [img, seq, timestamp, timecode] = getsnapshot (vi, pv=0)
     print_usage();
   endif
   if (nargout <= 3)
-    [img, seq, timestamp] = __v4l2_handler_capture__(vi.imaqh, pv);
+    [img, seq, timestamp] = __imaq_handler_capture__(vi.imaqh, pv);
   else
-    [img, seq, timestamp, timecode] = __v4l2_handler_capture__(vi.imaqh, pv);
+    [img, seq, timestamp, timecode] = __imaq_handler_capture__(vi.imaqh, pv);
   endif
-  #fmt = __v4l2_handler_g_fmt__(vi.imaqh).pixelformat;
+  #fmt = __imaq_handler_g_fmt__(vi.imaqh).pixelformat;
   #printf ("pixelformat = -%s-\n", fmt);
 
 endfunction

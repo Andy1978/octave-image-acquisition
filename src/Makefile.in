@@ -1,7 +1,7 @@
 .PHONY: all clean distclean realclean
 
-OCT := __v4l2_handler__.oct
-OBJ := cl_v4l2_handler.o cl_img_win.o
+OCT := __imaq_handler__.oct
+OBJ := cl_imaq_handler.o cl_v4l2_handler.o cl_mf_handler.o cl_img_win.o
 
 MKOCTFILE  ?= mkoctfile
 MKOCTFLAGS ?= -Wall -v

@@ -23,7 +23,7 @@ function start (vi, n = 2)
   if (nargin > 2 || nargin < 1)
     print_usage();
   endif
-  __v4l2_handler_streamon__(vi.imaqh, n);
+  __imaq_handler_streamon__(vi.imaqh, n);
 endfunction
 
 # already tested in getsnapshot

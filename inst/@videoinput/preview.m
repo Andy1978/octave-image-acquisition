@@ -24,15 +24,15 @@ function preview (vi)
     print_usage();
   endif
   unwind_protect
-    __v4l2_handler_streamon__(vi.imaqh, 2);
+    __imaq_handler_streamon__(vi.imaqh, 2);
     disp("Hit CTRL+C to exit")
     fflush(stdout);
     # Show preview window if it's not already shown
-    __v4l2_handler_capture__(vi.imaqh, 1);
+    __imaq_handler_capture__(vi.imaqh, 1);
     while(__v4l2_preview_window_is_shown__(vi.imaqh))
-      __v4l2_handler_capture__(vi.imaqh, 2);
+      __imaq_handler_capture__(vi.imaqh, 2);
     endwhile
   unwind_protect_cleanup
-    __v4l2_handler_streamoff__(vi.imaqh);
+    __imaq_handler_streamoff__(vi.imaqh);
   end_unwind_protect
 endfunction

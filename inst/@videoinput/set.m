@@ -46,7 +46,7 @@
 ## @example
 ## obj = videoinput("v4l2", "/dev/video0");
 ## set(obj, "VideoResolution", [960 700])
-## @result{} warning: v4l2_handler::s_fmt: Driver is sending image at 960x720 although 960x700 was requested
+## @result{} warning: imaq_handler::s_fmt: Driver is sending image at 960x720 although 960x700 was requested
 ## @end example
 ##
 ## @item 'VideoFrameInterval'
@@ -79,35 +79,35 @@ function ret = set (vi, varargin)
             error ("Use set (VI, 'VideoFormat', FMT) to specify the returned image format");
           case 'VideoResolution'
             if (isvector (val) && isreal (val) && length (val) == 2)
-              __v4l2_handler_s_fmt__(vi.imaqh, "", val);
+              __imaq_handler_s_fmt__(vi.imaqh, "", val);
             else
               error ('set VideoResolution: expects a real vector [width height]');
             endif
           case 'VideoInput'
             if (isscalar (val) && isreal (val))
-              __v4l2_handler_s_input__(vi.imaqh, val);
+              __imaq_handler_s_input__(vi.imaqh, val);
             else
               error ('set VideoInput: expecting the value to be a scalar integer');
             endif
           case 'VideoFrameInterval'
             if (ismatrix (val) && isreal (val) && numel (val) == 2)
-              __v4l2_handler_s_parm__(vi.imaqh, val);
+              __imaq_handler_s_parm__(vi.imaqh, val);
             else
               error ('set VideoFrameInterval: expecting a 1x2 matrix with [numerator, denominator]');
             endif
           case 'VideoFormat'
             if (ischar (val))
-              __v4l2_handler_s_fmt__(vi.imaqh, val, [0 0]);
+              __imaq_handler_s_fmt__(vi.imaqh, val, [0 0]);
             else
               error ('set VideoFormat: expecting a string');
             endif
           otherwise
             if (!__is_read_only_property__(prop))
               # could be a v4l2 control
-              ctrls = __v4l2_handler_queryctrl__(vi.imaqh);
+              ctrls = __imaq_handler_queryctrl__(vi.imaqh);
               if (isfield(ctrls, prop))
-                __v4l2_handler_s_ctrl__(vi.imaqh, ctrls.(prop).id, val);
-                v = __v4l2_handler_g_ctrl__(vi.imaqh, ctrls.(prop).id);
+                __imaq_handler_s_ctrl__(vi.imaqh, ctrls.(prop).id, val);
+                v = __imaq_handler_g_ctrl__(vi.imaqh, ctrls.(prop).id);
                 if ( val != v)
                   warning("v4l2 driver limited set value %d to %d", val, v);
                 endif
@@ -132,20 +132,20 @@ function ret = __list_range__ (vi, prop)
           error ("Use set (VI, 'VideoFormat') to get a list of supported formats.")
         case 'VideoInput'
           # enumerate available inputs
-          ret = __v4l2_handler_enuminput__ (vi.imaqh);
+          ret = __imaq_handler_enuminput__ (vi.imaqh);
         case 'VideoResolution'
           # enumerate possible framerates
-          fmt = __v4l2_handler_g_fmt__(vi.imaqh).pixelformat;
-          ret = __v4l2_handler_enum_framesizes__ (vi.imaqh, fmt);
+          fmt = __imaq_handler_g_fmt__(vi.imaqh).pixelformat;
+          ret = __imaq_handler_enum_framesizes__ (vi.imaqh, fmt);
         case 'VideoFrameInterval'
           # return possible frameintervals for currently selected framesize
-          fmt = __v4l2_handler_g_fmt__(vi.imaqh).pixelformat;
-          current_frame_size = __v4l2_handler_g_fmt__ (vi.imaqh).size;
-          ret = __v4l2_handler_enum_frameintervals__ (vi.imaqh, current_frame_size, fmt);
+          fmt = __imaq_handler_g_fmt__(vi.imaqh).pixelformat;
+          current_frame_size = __imaq_handler_g_fmt__ (vi.imaqh).size;
+          ret = __imaq_handler_enum_frameintervals__ (vi.imaqh, current_frame_size, fmt);
         case 'VideoFormat'
-          ret = __v4l2_handler_enum_fmt__ (vi.imaqh);
+          ret = __imaq_handler_enum_fmt__ (vi.imaqh);
         otherwise ## perhaps a v4l2 control?
-          ctrls = __v4l2_handler_queryctrl__(vi.imaqh);
+          ctrls = __imaq_handler_queryctrl__(vi.imaqh);
           if (isfield(ctrls, prop))
             # yes, it is a v4l2 property
             ret = getfield(ctrls, prop);

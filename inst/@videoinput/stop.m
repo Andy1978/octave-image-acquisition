@@ -23,7 +23,7 @@ function stop (vi)
   if (nargin != 1)
     print_usage();
   endif
-  __v4l2_handler_streamoff__(vi.imaqh);
+  __imaq_handler_streamoff__(vi.imaqh);
 endfunction
 
 # already tested in getsnapshot

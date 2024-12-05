@@ -47,11 +47,12 @@ help:
 	@echo
 	@echo "   clean   - Remove releases, html documentation, and oct files"
 
-$(RELEASE_DIR): .hg/dirstate
+$(RELEASE_DIR):
 	@echo "Creating package version $(VERSION) release ..."
 	-rm -rf $@
-	hg archive --exclude ".hg*" --exclude "Makefile" --type files "$@"
-	cd "$@" && rm -rf "devel/" && cd "src/" && ./bootstrap && cd - && rm -rf "src/autom4te.cache"
+	#hg archive --exclude ".hg*" --exclude "Makefile" --type files "$@"
+	#TODO/FIXME
+	cd "$@" && rm -rf "devel/" && rm -rf "tests/" && cd "src/" && ./bootstrap && cd - && rm -rf "src/autom4te.cache"
 	chmod -R a+rX,u+w,go-w $@
 
 $(RELEASE_TARBALL): $(RELEASE_DIR)

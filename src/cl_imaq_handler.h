@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2014-2024 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -13,71 +13,54 @@
 // You should have received a copy of the GNU General Public License along with
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
-#ifndef _V4L2_HANDLER_
-#define _V4L2_HANDLER_
+#ifndef _IMAQ_HANDLER_
+#define _IMAQ_HANDLER_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/mman.h>
-#include <linux/videodev2.h>
-#include <libv4l2.h>
+//~ #include <stdio.h>
+//~ #include <stdlib.h>
+//~ #include <string.h>
+//~ #include <fcntl.h>
+//~ #include <errno.h>
+
+#include <iostream>
 
 #include <octave/oct.h>
 #include <octave/ov-struct.h>
 
-#include <octave/dMatrix.h>
-#include <iostream>
-#include "cl_imaq_handler.h"
+//#include <octave/dMatrix.h>
+
 #include "cl_img_win.h"
 
 using namespace std;
 
-#define CLEAR(x) memset(&(x), 0, sizeof(x))
-#define xioctl(n, r, p) xioctl_name(n, r, p, #r, __FILE__, __LINE__)
-
-//! buffers for mmap
-struct buffer
-{
-  void   *start;  //!< start of buffer
-  size_t length;  //!< length in bytes, e.g. 3*640*480 (nColors*width*height)
-};
-
-/*!
- * v4l2 wrapper for octave-image-acquisition
- *
- * A big help was the Video Grabber example using libv4l by Mauro Carvalho Cheha
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/v4l2grab-example.html
- */
-class v4l2_handler: public imaq_handler
+class imaq_handler: public octave_base_value
 {
 public:
 
-  v4l2_handler ();
+  imaq_handler ();
 
-  octave_base_value *clone (void) const // TODO: check if this is okay
-  {
-    octave_stdout << "v4l2_handler clone" << endl;
-    return new v4l2_handler (*this);
-  }
+  //~ octave_base_value *clone (void) const // TODO: check if this is okay
+  //~ {
+    //~ octave_stdout << "v4l2_handler clone" << endl;
+    //~ return new v4l2_handler (*this);
+  //~ }
 
-  octave_base_value *empty_clone (void) const // TODO: check if this is okay
-  {
-    octave_stdout << "v4l2_handler empty_clone" << endl;
-    return new v4l2_handler ();
-  }
+  //~ octave_base_value *empty_clone (void) const // TODO: check if this is okay
+  //~ {
+    //~ octave_stdout << "v4l2_handler empty_clone" << endl;
+    //~ return new v4l2_handler ();
+  //~ }
 
-  ~v4l2_handler (void);
+  ~imaq_handler (void);
   
   octave_map list_devices ();
 
-  octave_scalar_map open (string d, bool quiet); //!< open a v4l2 device e.g. /dev/video0
-  void print (std::ostream& os, bool pr_as_read_syntax) const;  //!< print itself on ostream
+  void print (std::ostream& os, bool pr_as_read_syntax);  //!< print itself on ostream
+
+  virtual octave_scalar_map open (string d, bool quiet);
+
+/*
+
   octave_value querycap ();        //!< Query device capabilities
 
   octave_value enuminput ();       //!< Enumerate video inputs
@@ -104,29 +87,38 @@ public:
   void streamon (unsigned int n);             //!< start streaming with n buffers
   void streamoff ();                          //!< stop streaming
 
-  void close ();                              //!< close v4l2 device
-/*
+  bool is_video_capture () {return _is_video_capture;}
+  bool is_meta_capture () {return _is_meta_capture;}
+
+*/
+
   bool preview_window_is_shown()
   {
     Fl::wait(0);
     return (preview_window)? preview_window->shown() : false;
   }
-*/
-  bool is_video_capture () {return _is_video_capture;}
-  bool is_meta_capture () {return _is_meta_capture;}
 
+  void close ();                              //!< close device
+
+protected:
+
+  img_win *preview_window;
+ 
 private:
-  v4l2_handler (const v4l2_handler& m);
+  imaq_handler (const imaq_handler& m);
   static bool type_loaded;
 
+/*
   int fd;
   string dev;
   unsigned int n_buffer;
   struct buffer *buffers;
   bool streaming;
-  //img_win *preview_window;
   bool _is_video_capture;
   bool _is_meta_capture;
+*/
+
+  
 
   // Properties
   bool is_constant (void) const
@@ -138,6 +130,7 @@ private:
     return true;
   }
 
+/*
   void xioctl_name (int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line);
   octave_scalar_map get_osm (struct v4l2_queryctrl queryctrl);
   void reqbufs (unsigned int n);  //!< Initiate Memory Mapping or User Pointer I/O
@@ -145,10 +138,11 @@ private:
   void qbuf ();
   void munmap ();
   octave_scalar_map expand_cap (unsigned int cap);
+*/
 
-  //DECLARE_OV_TYPEID_FUNCTIONS_AND_DATA
+  DECLARE_OV_TYPEID_FUNCTIONS_AND_DATA
 };
 
-//v4l2_handler* get_v4l2_handler_from_ov (octave_value ov);
+imaq_handler* get_imaq_handler_from_ov (octave_value ov);
 
 #endif

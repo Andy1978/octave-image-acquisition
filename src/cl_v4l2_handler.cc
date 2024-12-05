@@ -14,6 +14,8 @@
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <cassert>
+#include <dirent.h>
+//#include <sys/types.h>
 #include "cl_v4l2_handler.h"
 
 #define ARRAY_SIZE(a)	(sizeof(a)/sizeof((a)[0]))
@@ -144,25 +146,27 @@ static unsigned int v4l2_format_code(const char *name)
   return fourcc;
 }
 
-DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(v4l2_handler, "v4l2_handler", "v4l2_handler");
+//DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(v4l2_handler, "v4l2_handler", "v4l2_handler");
 
-bool v4l2_handler::type_loaded = false;
+//bool v4l2_handler::type_loaded = false;
 
 v4l2_handler::v4l2_handler ()
-  : octave_base_value(),
+  : imaq_handler(),
     fd(-1), n_buffer(0), buffers(0), streaming(0),
-    preview_window(0), _is_video_capture (0), _is_meta_capture(0)
+    _is_video_capture (0), _is_meta_capture(0)
 {
-  //octave_stdout << "v4l2_handler C'Tor, type_loaded = " << type_loaded << endl;
-  if (!type_loaded)
-    {
-      type_loaded = true;
-      v4l2_handler::register_type();
-    }
+  octave_stdout << "v4l2_handler C'Tor" << endl;
+  octave_stdout << "v4l2_handler C'Tor, type_id() = " << type_id() << std::endl;
+
+  //~ if (!type_loaded)
+    //~ {
+      //~ type_loaded = true;
+      //~ register_type();
+    //~ }
 }
 
 v4l2_handler::v4l2_handler (const v4l2_handler& m)
-  : octave_base_value()
+  : imaq_handler()
 {
   octave_stdout << "v4l2_handler: the copy constructor shouldn't be called" << std::endl;
 }
@@ -189,6 +193,60 @@ v4l2_handler::print (std::ostream& os, bool pr_as_read_syntax = false) const
   os << "dev = " << dev << ", fd = " << fd << ", n_buffer = " << n_buffer << ", streaming = " << ((streaming)? "true":"false") << endl;
 }
 
+typedef std::vector<std::string> dev_vec;
+
+static bool is_v4l_dev(const char *name)
+{
+  return !memcmp(name, "video", 5) ||
+    !memcmp(name, "radio", 5) ||
+    !memcmp(name, "vbi", 3) ||
+    !memcmp(name, "v4l-subdev", 10);
+}
+
+octave_map
+v4l2_handler::list_devices ()
+{
+  // Most of this code was taken from v4l2-ctl-common.cpp:list_devices()
+  // which is part of the v4l-utils (http://git.linuxtv.org/v4l-utils.git).
+  // Thanks to Kevin Thayer (Copyright (C) 2003-2004),
+  // Hans Verkuil (Copyright (C) 2004, 2006, 2007) and the linuxtv community.
+
+  octave_stdout << "Use '$ v4l2-ctl --list-devices' for more details." << std::endl;
+
+  octave_map retval;
+  DIR *dp;
+  struct dirent *ep;
+  dev_vec files;
+  dp = opendir("/dev");
+  if (dp == NULL) {
+    error ("Couldn't open /dev/ directory");
+    return octave_map();
+  }
+  while ((ep = readdir(dp)))
+    if (is_v4l_dev(ep->d_name))
+      files.push_back(std::string("/dev/") + ep->d_name);
+  closedir(dp);
+
+  octave_idx_type i=0;
+  for (dev_vec::iterator iter = files.begin();
+      iter != files.end(); ++iter)
+    {
+      //printf ("trying '%s'...\n", iter->c_str());
+      //fflush(stdout);
+      v4l2_handler h;
+      octave_scalar_map caps = h.open(iter->c_str(), true);
+
+      if (! h.is_meta_capture ())
+      {
+        caps.assign ("device", *iter);
+        retval.assign(i++, caps);
+      }
+      //else
+        //printf ("INFO: list device ignores metadata interface '%s'...\n", iter->c_str());
+    }
+  return retval;
+}
+
 // calls to xioctl should never fail.
 // If it fails something unexpected happened
 void
@@ -210,6 +268,8 @@ v4l2_handler::xioctl_name (int fh, unsigned long int request, void *arg, const c
 octave_scalar_map
 v4l2_handler::open (string d, bool quiet)
 {
+  octave_stdout << "v4l2_handler::open d = " << d << " called" << std::endl;
+
   octave_scalar_map ret;
   fd = v4l2_open(d.c_str(), O_RDWR | O_NONBLOCK, 0);
   if (fd < 0)
@@ -1140,17 +1200,17 @@ v4l2_handler::close ()
   fd = -1;
 }
 
-v4l2_handler*
-get_v4l2_handler_from_ov (octave_value ov)
-{
-  if (ov.type_id() != v4l2_handler::static_type_id())
-    {
-      error("get_v4l2_handler_from_ov: Not a valid v4l2_handler");
-      return 0;
-    }
+//~ v4l2_handler*
+//~ get_v4l2_handler_from_ov (octave_value ov)
+//~ {
+  //~ if (ov.type_id() != v4l2_handler::static_type_id())
+    //~ {
+      //~ error("get_v4l2_handler_from_ov: Not a valid v4l2_handler");
+      //~ return 0;
+    //~ }
 
-  v4l2_handler* imgh = 0;
-  const octave_base_value& rep = ov.get_rep();
-  imgh = &((v4l2_handler &)rep);
-  return imgh;
-}
+  //~ v4l2_handler* imgh = 0;
+  //~ const octave_base_value& rep = ov.get_rep();
+  //~ imgh = &((v4l2_handler &)rep);
+  //~ return imgh;
+//~ }
