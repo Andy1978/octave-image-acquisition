@@ -158,8 +158,8 @@ v4l2_handler::v4l2_handler ()
     fd(-1), n_buffer(0), buffers(0), streaming(0),
     _is_video_capture (0), _is_meta_capture(0)
 {
-  octave_stdout << "v4l2_handler C'Tor" << endl;
-  octave_stdout << "v4l2_handler C'Tor, type_id() = " << type_id() << std::endl;
+  //octave_stdout << "v4l2_handler C'Tor" << endl;
+  //octave_stdout << "v4l2_handler C'Tor, type_id() = " << type_id() << std::endl;
 
   //~ if (!type_loaded)
     //~ {
@@ -190,7 +190,7 @@ v4l2_handler::~v4l2_handler ()
 }
 
 void
-v4l2_handler::print (std::ostream& os, bool pr_as_read_syntax = false) const
+v4l2_handler::print (std::ostream& os, bool pr_as_read_syntax = false)
 {
   os << "This is class v4l2_handler" << endl;
   os << "dev = " << dev << ", fd = " << fd << ", n_buffer = " << n_buffer << ", streaming = " << ((streaming)? "true":"false") << endl;
@@ -207,14 +207,14 @@ static bool is_v4l_dev(const char *name)
 }
 
 octave_map
-v4l2_handler::list_devices ()
+v4l2_handler::enum_devices ()
 {
   // Most of this code was taken from v4l2-ctl-common.cpp:list_devices()
   // which is part of the v4l-utils (http://git.linuxtv.org/v4l-utils.git).
   // Thanks to Kevin Thayer (Copyright (C) 2003-2004),
   // Hans Verkuil (Copyright (C) 2004, 2006, 2007) and the linuxtv community.
 
-  octave_stdout << "Use '$ v4l2-ctl --list-devices' for more details." << std::endl;
+  //octave_stdout << "Use '$ v4l2-ctl --list-devices' for more details." << std::endl;
 
   octave_map retval;
   DIR *dp;
@@ -271,7 +271,7 @@ v4l2_handler::xioctl_name (int fh, unsigned long int request, void *arg, const c
 octave_scalar_map
 v4l2_handler::open (string d, bool quiet)
 {
-  octave_stdout << "v4l2_handler::open d = " << d << " called" << std::endl;
+  //octave_stdout << "v4l2_handler::open d = " << d << " called" << std::endl;
 
   octave_scalar_map ret;
   fd = v4l2_open(d.c_str(), O_RDWR | O_NONBLOCK, 0);
@@ -379,32 +379,12 @@ v4l2_handler::querycap ()
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
- */
-int
-v4l2_handler::g_input ()
-{
-  int index;
-  xioctl (fd, VIDIOC_G_INPUT, &index);
-  return index;
-}
-
-/*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
- */
-void
-v4l2_handler::s_input (int index)
-{
-  xioctl (fd, VIDIOC_S_INPUT, &index);
-}
-
-/*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enuminput.html
  * see also output from "v4l2-ctl -n"
  * \return octave_map with the enumeration of all inputs
  */
 octave_value
-v4l2_handler::enuminput ()
+v4l2_handler::enum_inputs ()
 {
   octave_map ret;
   struct v4l2_input inp;
@@ -438,18 +418,38 @@ v4l2_handler::enuminput ()
 }
 
 /*!
+ * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
+ */
+int
+v4l2_handler::get_input ()
+{
+  int index;
+  xioctl (fd, VIDIOC_G_INPUT, &index);
+  return index;
+}
+
+/*!
+ * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
+ */
+void
+v4l2_handler::set_input (int index)
+{
+  xioctl (fd, VIDIOC_S_INPUT, &index);
+}
+
+/*!
  * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enum-fmt.html
  * see also "v4l2-ctl -w --list-formats"
  * \return octave_map with available video formats
  */
 octave_value
-v4l2_handler::enum_fmt (enum v4l2_buf_type type)
+v4l2_handler::enum_formats ()
 {
   octave_map ret;
   struct v4l2_fmtdesc fmt;
   CLEAR(fmt);
   fmt.index = 0;
-  fmt.type = type;
+  fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   while (v4l2_ioctl (fd, VIDIOC_ENUM_FMT, &fmt) >= 0)
     {
       octave_scalar_map sm;

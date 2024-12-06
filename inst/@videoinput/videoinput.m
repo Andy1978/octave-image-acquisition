@@ -41,18 +41,18 @@ function vi = videoinput (adaptorname, device, format)
     print_usage();
   endif
   if (nargin == 2)
-    if (strcmp(adaptorname, "v4l2"))
+    #if (strcmp(adaptorname, "v4l2"))
       if (ischar(device))
         vidata.SelectedSourceName = device;
       else
         print_usage();
       endif
-    else
-      error("Only v4l2 adaptors are possible yet")
-    endif
+    #else
+    #  error("Only v4l2 adaptors are possible yet")
+    #endif
   endif
 
-  vidata.imaqh = __imaq_handler_open__(vidata.SelectedSourceName);
+  vidata.imaqh = __imaq_handler_open__(adaptorname, vidata.SelectedSourceName);
   vi = class (vidata, "videoinput");
 
   if (nargin == 3)
@@ -62,4 +62,4 @@ function vi = videoinput (adaptorname, device, format)
 endfunction
 
 %!test
-%! obj = videoinput("v4l2", __test__device__);
+%! obj = videoinput(__test__device__(){:});

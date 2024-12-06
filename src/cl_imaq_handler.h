@@ -52,40 +52,42 @@ public:
   //~ }
 
   ~imaq_handler (void);
-  
-  octave_map list_devices ();
 
-  void print (std::ostream& os, bool pr_as_read_syntax);  //!< print itself on ostream
+  virtual octave_map enum_devices ()   { return octave_map (); }
 
+  virtual octave_value enum_inputs ()  { return octave_value (); } //!< Enumerate video inputs
+  virtual int get_input ()             { return 0; }               //!< Query the current video input
+  virtual void set_input (int index)   {}                          //!< Select video input
+
+  virtual octave_value enum_formats () { return octave_value (); } //!< Enumerate image formats
+
+  virtual void print (std::ostream& os, bool pr_as_read_syntax);  //!< print itself on ostream
   virtual octave_scalar_map open (string d, bool quiet);
+
+  virtual octave_value querycap () { return octave_value (); } //!< Query device capabilities
+
+  virtual Matrix enum_framesizes (string pixelformat) { return Matrix (); } //!< Enumerate frame sizes
+  virtual octave_scalar_map g_fmt () {return octave_scalar_map (); }        //!< Get current format
+  virtual void s_fmt (string fmtstr, __u32 xres, __u32 yres) {}             //!< Set format
+
+  virtual Matrix enum_frameintervals (string pixelformat, __u32 width, __u32 height) { return Matrix (); } //!< Enumerate frame intervals
+  virtual Matrix g_parm () { return Matrix (); }  //!< Get streaming parameters (like frame interval)
+  virtual void s_parm (Matrix timeperframe) {}    //!< Set streaming parameters (like frame interval)
+
+  virtual octave_value queryctrl () { return octave_value (); } //!< Query controls
+  virtual int g_ctrl (int id) { return 0;}                      //!< Get control
+  virtual void s_ctrl (int id, int value) {}                    //!< Set control
+
+  virtual void streamon (unsigned int n) {}             //!< start streaming with n buffers
+  virtual void streamoff () {}                          //!< stop streaming
+
+  virtual octave_value_list capture (int nargout,
+                                     int preview=0) {return octave_value_list ();}  //!< Retrieve captured image from buffer
 
 /*
 
-  octave_value querycap ();        //!< Query device capabilities
-
-  octave_value enuminput ();       //!< Enumerate video inputs
-  int g_input ();                  //!< Query the current video input
-  void s_input (int index);        //!< Select video input
-
-  octave_value enum_fmt (enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE); //!< Enumerate image formats
-  Matrix enum_framesizes (string pixelformat);     //!< Enumerate frame sizes
-  octave_scalar_map g_fmt ();                      //!< Get current format
-  void s_fmt (string fmtstr, __u32 xres, __u32 yres); //!< Set format
-
-  Matrix enum_frameintervals (string pixelformat, __u32 width, __u32 height);     //!< Enumerate frame intervals
-  Matrix g_parm ();                    //!< Get streaming parameters (like frame interval)
-  void s_parm (Matrix timeperframe);   //!< Set streaming parameters (like frame interval)
-
-  octave_value queryctrl ();                  //!< Query controls
-  int g_ctrl (int id);                        //!< Get control
-  void s_ctrl (int id, int value);            //!< Set control
-
-  octave_value_list capture (int nargout,
-                             int preview=0);  //!< Retrieve captured image from buffer
   void capture_to_ppm (const char *fn);       //!< Retrieve captured image from buffer and save it as ppm
 
-  void streamon (unsigned int n);             //!< start streaming with n buffers
-  void streamoff ();                          //!< stop streaming
 
   bool is_video_capture () {return _is_video_capture;}
   bool is_meta_capture () {return _is_meta_capture;}
@@ -103,7 +105,7 @@ public:
 protected:
 
   img_win *preview_window;
- 
+
 private:
   imaq_handler (const imaq_handler& m);
   static bool type_loaded;
@@ -118,7 +120,7 @@ private:
   bool _is_meta_capture;
 */
 
-  
+
 
   // Properties
   bool is_constant (void) const

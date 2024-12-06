@@ -96,7 +96,7 @@ string GetAllocatedString (IMFActivate* device, REFGUID guidKey)
 }
 
 octave_map
-mf_handler::list_devices ()
+mf_handler::enum_devices ()
 {
   octave_map retval;
 
@@ -387,6 +387,29 @@ mf_handler::open (string d, bool quiet)
   CoUninitialize();
 
   return ret;
+}
+
+octave_value
+mf_handler::enum_formats ()
+{
+  // TODO: von oben verschieben
+  /*
+  octave_map ret;
+  while (0)
+    {
+      octave_scalar_map sm;
+      sm.assign ("type", buftype2s(fmt.type));
+      sm.assign ("description", std::string((const char*)fmt.description));
+      sm.assign ("pixelformat", std::string(v4l2_format_name(fmt.pixelformat)));
+      sm.assign ("fourcc", std::string(v4l2_fourcc_name(fmt.pixelformat)));
+      sm.assign ("flags_compressed", fmt.flags == V4L2_FMT_FLAG_COMPRESSED);
+      sm.assign ("flags_emulated", fmt.flags == V4L2_FMT_FLAG_EMULATED);
+
+      ret.assign(octave_idx_type(fmt.index), sm);
+      fmt.index++;
+    }
+  */
+  return octave_value(ret);
 }
 
 void

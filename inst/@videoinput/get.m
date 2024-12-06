@@ -85,7 +85,7 @@ function val = get (vi, prop)
       case "DeviceCapabilities"
         val = __imaq_handler_querycap__(vi.imaqh);
       case "VideoInput"
-        val = __imaq_handler_g_input__(vi.imaqh);
+        val = __imaq_handler_get_input__(vi.imaqh);
       case "VideoFrameInterval"
         val = __imaq_handler_g_parm__(vi.imaqh);
       case "VideoResolution"
@@ -96,7 +96,7 @@ function val = get (vi, prop)
         # get controls
         ctrls = __imaq_handler_queryctrl__(vi.imaqh);
         if (isfield(ctrls, prop))
-          val = __imaq_handler_g_ctrl__(vi.imaqh, ctrls.(prop).id);
+          val = __imaq_handler_get_ctrl__(vi.imaqh, ctrls.(prop).id);
         else
           error ("videoinput: get: invalid property name '%s'", prop);
         endif
@@ -106,19 +106,19 @@ function val = get (vi, prop)
 endfunction
 
 %!test
-%! obj = videoinput("v4l2", __test__device__);
+%! obj = videoinput(__test__device__{:});
 %! props = get(obj);
-%! assert(get(obj, "SelectedSourceName"), __test__device__);
+%! assert(get(obj, "SelectedSourceName"), __test__device__{2});
 %! caps = get(obj, "DeviceCapabilities");
 %! video_in = get(obj, "VideoInput");
 %! s = get(obj, "VideoResolution");
 
 %!test
-%! obj = videoinput("v4l2", __test__device__);
+%! obj = videoinput(__test__device__{:});
 %! T = get(obj, "VideoFrameInterval");
 
 %!test
-%! obj = videoinput("v4l2", __test__device__);
+%! obj = videoinput(__test__device__{:});
 %! f = get(obj, "VideoFormat");
 
 %!error get(obj, "there_is_no_such_property")

@@ -28,11 +28,28 @@
 
 using namespace std;
 
+// PKG_ADD: autoload ("__imaq_enum_devices__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_enum_devices__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_enum_devices__, args, nargout,
+          "-*- texinfo -*-\n\
+@deftypefn {Loadable Function} {@var{l} =} __imaq_enum_devices__ ()\n\
+List image capture devices.\n\
+@end deftypefn")
+{
+#ifdef HAVE_LIBV4L2_H
+  v4l2_handler imgh;
+#endif
+#ifdef HAVE_MFAPI_H
+  mf_handler imgh;
+#endif
+  return octave_value (imgh.enum_devices ());
+}
+
 // PKG_ADD: autoload ("__imaq_handler_open__", which ("__imaq_handler__.oct"));
 // PKG_DEL: autoload ("__imaq_handler_open__", which ("__imaq_handler__.oct"), "remove");
 DEFUN_DLD(__imaq_handler_open__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{h} =} __imaq_handler_open__ (@var{device})\n\
+@deftypefn {Loadable Function} {@var{h} =} __imaq_handler_open__ (@var{type}, @var{device})\n\
 Creates an instance of imaq_handler for a v4l2 or MF device and opens it.\n\
 @seealso{getsnapshot}\n\
 @end deftypefn")
@@ -66,14 +83,13 @@ Creates an instance of imaq_handler for a v4l2 or MF device and opens it.\n\
   else
     error ("unknown interface '%s'", type.c_str());
 
-  octave_stdout << "h = " << h << std::endl;
+  //octave_stdout << "h = " << h << std::endl;
   h->open (device.c_str (), false);
   retval.append (octave_value (h));
 
   return retval;
 }
 
-/*
 // PKG_ADD: autoload ("__imaq_handler_querycap__", which ("__imaq_handler__.oct"));
 // PKG_DEL: autoload ("__imaq_handler_querycap__", which ("__imaq_handler__.oct"), "remove");
 DEFUN_DLD(__imaq_handler_querycap__, args, nargout,
@@ -91,22 +107,24 @@ Query device capabilities, driver name, card type etc. from v4l2_handler @var{h}
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       retval = imgh->querycap ();
     }
   return retval;
 }
+
+
 // INPUTS
 
-// PKG_ADD: autoload ("__imaq_handler_enuminput__", which ("__imaq_handler__.oct"));
-// PKG_DEL: autoload ("__imaq_handler_enuminput__", which ("__imaq_handler__.oct"), "remove");
-DEFUN_DLD(__imaq_handler_enuminput__, args, nargout,
+// PKG_ADD: autoload ("__imaq_handler_enum_inputs__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_handler_enum_inputs__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_handler_enum_inputs__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{inputs} = } __imaq_handler_enuminput__ (@var{h})\n\
-Enumerate video inputs from v4l2_handler @var{h}.\n\
-Returns a struct with information for all available v4l2 inputs.\n\
+@deftypefn {Loadable Function} {@var{inputs} = } __imaq_handler_enum_inputs__ (@var{h})\n\
+Enumerate video inputs from @var{h}.\n\
+Returns a struct with information for all available inputs.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -118,20 +136,20 @@ Returns a struct with information for all available v4l2 inputs.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = imgh->enuminput ();
+      retval = imgh->enum_inputs ();
     }
   return retval;
 }
 
-// PKG_ADD: autoload ("__imaq_handler_g_input__", which ("__imaq_handler__.oct"));
-// PKG_DEL: autoload ("__imaq_handler_g_input__", which ("__imaq_handler__.oct"), "remove");
-DEFUN_DLD(__imaq_handler_g_input__, args, nargout,
+// PKG_ADD: autoload ("__imaq_handler_get_input__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_handler_get_input__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_handler_get_input__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{N} =} __imaq_handler_g_input__ (@var{h})\n\
-Query the current video input from v4l2_handler @var{h}.\n\
+@deftypefn {Loadable Function} {@var{N} =} __imaq_handler_get_input__ (@var{h})\n\
+Query the current video input from @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -142,20 +160,20 @@ Query the current video input from v4l2_handler @var{h}.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = octave_value(imgh->g_input ());
+      retval = octave_value(imgh->get_input ());
     }
   return retval;
 }
 
-// PKG_ADD: autoload ("__imaq_handler_s_input__", which ("__imaq_handler__.oct"));
-// PKG_DEL: autoload ("__imaq_handler_s_input__", which ("__imaq_handler__.oct"), "remove");
-DEFUN_DLD(__imaq_handler_s_input__, args, nargout,
+// PKG_ADD: autoload ("__imaq_handler_set_input__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_handler_set_input__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_handler_set_input__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {} __imaq_handler_s_input__ (@var{h}, @var{n})\n\
-Select video input @var{n} from v4l2_handler @var{h}.\n\
+@deftypefn {Loadable Function} {} __imaq_handler_set_input__ (@var{h}, @var{n})\n\
+Select video input @var{n} for @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -167,7 +185,7 @@ Select video input @var{n} from v4l2_handler @var{h}.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       if (! args(1).isnumeric())
@@ -175,20 +193,21 @@ Select video input @var{n} from v4l2_handler @var{h}.\n\
       else
         {
           int num = args(1).int_value ();
-          imgh->s_input (num);
+          imgh->set_input (num);
         }
     }
   return retval;
 }
+
 // FORMAT
 
-// PKG_ADD: autoload ("__imaq_handler_enum_fmt__", which ("__imaq_handler__.oct"));
-// PKG_DEL: autoload ("__imaq_handler_enum_fmt__", which ("__imaq_handler__.oct"), "remove");
-DEFUN_DLD(__imaq_handler_enum_fmt__, args, nargout,
+// PKG_ADD: autoload ("__imaq_handler_enum_formats__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_handler_enum_formats__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_handler_enum_formats__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{formats} = } __imaq_handler_enum_fmt__ (@var{h})\n\
-Enumerate image formats from v4l2_handler @var{h}.\n\
-Returns a struct with information for all available v4l2 formats.\n\
+@deftypefn {Loadable Function} {@var{formats} = } __imaq_handler_enum_formats__ (@var{h})\n\
+Enumerate image formats from @var{h}.\n\
+Returns a struct with information for all available formats.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -200,10 +219,10 @@ Returns a struct with information for all available v4l2 formats.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = imgh->enum_fmt ();
+      retval = imgh->enum_formats ();
     }
   return retval;
 }
@@ -225,7 +244,7 @@ Enumerate available frame sizes from v4l2_handler @var{h}.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       string pixel_format = args(1).string_value ();
@@ -252,7 +271,7 @@ Return a Nx2 matrix with numerator, denominator.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       if (!args (1).is_matrix_type())
@@ -286,7 +305,7 @@ Return current frame interval as numerator, denominator.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       retval = octave_value(imgh->g_parm ());
@@ -311,7 +330,7 @@ Set frame interval numerator and denominator.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       imgh->s_parm(args(1).matrix_value ());
@@ -336,7 +355,7 @@ Get format pixelformat, size[width height].\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       retval = octave_value(imgh->g_fmt ());
@@ -366,7 +385,7 @@ Set format @var{fmt}, @var{size} (V4L2_FIELD_INTERLACED).\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       string fmt = args(1).string_value ();
@@ -399,7 +418,7 @@ Use the field id for calls to __imaq_handler_s_ctrl__.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       retval = imgh->queryctrl ();
@@ -431,7 +450,7 @@ Use the field id from __imaq_handler_queryctrl__.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       unsigned int id = args(1).int_value ();
@@ -463,7 +482,7 @@ Use the field id from __imaq_handler_queryctrl__.\n\
       error("ID and VALUE has to be integer values");
       return retval;
     }
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       unsigned int id = args(1).int_value ();
@@ -472,6 +491,7 @@ Use the field id from __imaq_handler_queryctrl__.\n\
     }
   return retval;
 }
+
 // STREAMING
 
 // PKG_ADD: autoload ("__imaq_handler_streamoff__", which ("__imaq_handler__.oct"));
@@ -492,7 +512,7 @@ Stop streaming.\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     imgh->streamoff ();
   return retval;
@@ -520,7 +540,7 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       unsigned int n_buffers = args(1).int_value ();
@@ -528,6 +548,7 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
     }
   return retval;
 }
+
 // CAPTURES
 
 // PKG_ADD: autoload ("__imaq_handler_capture__", which ("__imaq_handler__.oct"));
@@ -535,7 +556,7 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
 DEFUN_DLD(__imaq_handler_capture__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{f} =} __imaq_handler_capture__ (@var{h}, [@var{preview}])\n\
-Get a snapshot from v4l2_handler @var{h}\n\
+Get a snapshot from @var{h}\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -552,7 +573,7 @@ Get a snapshot from v4l2_handler @var{h}\n\
       return retval;
     }
 
-  v4l2_handler* imgh = get_imaq_handler_from_ov (args(0));
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
       bool preview = false;
@@ -561,24 +582,6 @@ Get a snapshot from v4l2_handler @var{h}\n\
       retval = imgh->capture (nargout, preview);
     }
   return retval;
-}
-*/
-
-// PKG_ADD: autoload ("__imaq_list_devices__", which ("__imaq_handler__.oct"));
-// PKG_DEL: autoload ("__imaq_list_devices__", which ("__imaq_handler__.oct"), "remove");
-DEFUN_DLD(__imaq_list_devices__, args, nargout,
-          "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{l} =} __imaq_list_devices__ ()\n\
-List image capture devices.\n\
-@end deftypefn")
-{
-#ifdef HAVE_LIBV4L2_H
-  v4l2_handler imgh;
-#endif
-#ifdef HAVE_MFAPI_H
-  mf_handler imgh;
-#endif
-  return octave_value (imgh.list_devices ());
 }
 
 // PKG_ADD: autoload ("__imaq_preview_window_is_shown__", which ("__imaq_handler__.oct"));
@@ -607,7 +610,7 @@ Return preview_window->shown().\n\
 /*
 %!demo
 %! disp("open /dev/video0 and show live images with 2 different formats")
-%! vi = __imaq_handler_open__("/dev/video0");
+%! vi = __imaq_handler_open__("v4l2", "/dev/video0");
 %! s = __imaq_handler_enum_framesizes__(vi, "RGB24"); # get available frame sizes
 %! __imaq_handler_s_fmt__(vi, "RGB24", s(1,:));       # use the default framesize
 %! __imaq_handler_streamon__(vi, 2);                  # enable streaming with 2 buffers
@@ -628,7 +631,7 @@ Return preview_window->shown().\n\
 
 /*
 %!demo
-%! x = __imaq_handler_open__(__test__device__());
+%! x = __imaq_handler_open__(__test__device__{:});
 %! disp("get controls")
 %! ctrls = __imaq_handler_queryctrl__(x)
 %! fieldnames(__imaq_handler_queryctrl__(x))
@@ -636,7 +639,7 @@ Return preview_window->shown().\n\
 
 /*
 %!test
-%! x = __imaq_handler_open__(__test__device__());
+%! x = __imaq_handler_open__(__test__device__{:});
 %! s = __imaq_handler_enum_framesizes__(x, "RGB24");
 %! default_size = s(1,:);
 %! __imaq_handler_s_fmt__(x, "RGB24", default_size);
@@ -649,7 +652,7 @@ Return preview_window->shown().\n\
 
 /*  change controls
 %!test
-%! x = __imaq_handler_open__(__test__device__());
+%! x = __imaq_handler_open__(__test__device__{:});
 %! s = __imaq_handler_enum_framesizes__(x, "RGB24");
 %! __imaq_handler_s_fmt__(x, "RGB24", s(end,:));
 %! ctrls = __imaq_handler_queryctrl__(x);
@@ -669,6 +672,6 @@ Return preview_window->shown().\n\
 /*  check get timeperframe (1/fps).
  *  This may fail for example with some sn9c20x cameras
 %!test
-%! x = __imaq_handler_open__(__test__device__());
+%! x = __imaq_handler_open__(__test__device__{:});
 %! r = __imaq_handler_g_parm__(x);
 */

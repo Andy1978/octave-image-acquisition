@@ -1,4 +1,4 @@
-## Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
+## Copyright (C) 2014-2024 Andreas Weber <andy.weber.aw@gmail.com>
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -18,7 +18,7 @@
 ## Return device which should be used in tests, for example "/dev/video0"
 ## @end deftypefn
 
-function dev = __test__device__()
+function ret = __test__device__()
   persistent warning_shown = 0;
   l = imaqhwinfo();
   if ( numel(l) > 1)
@@ -33,6 +33,12 @@ function dev = __test__device__()
     dev = "/dev/null";
   else
     dev = l.device;
+  endif
+  ret{2} = dev;
+  if (ispc ())
+    ret{1} = "mf";
+  elseif (isunix ())
+    ret{1} = "v4l2";
   endif
 endfunction
 

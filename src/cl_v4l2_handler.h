@@ -74,17 +74,18 @@ public:
 
   ~v4l2_handler (void);
   
-  octave_map list_devices ();
+  octave_map enum_devices ();
 
   octave_scalar_map open (string d, bool quiet); //!< open a v4l2 device e.g. /dev/video0
-  void print (std::ostream& os, bool pr_as_read_syntax) const;  //!< print itself on ostream
-  octave_value querycap ();        //!< Query device capabilities
+  void print (std::ostream& os, bool pr_as_read_syntax);  //!< print itself on ostream
+  octave_value querycap ();          //!< Query device capabilities
 
-  octave_value enuminput ();       //!< Enumerate video inputs
-  int g_input ();                  //!< Query the current video input
-  void s_input (int index);        //!< Select video input
+  octave_value enum_inputs ();       //!< Enumerate video inputs
+  int get_input ();                  //!< Query the current video input
+  void set_input (int index);        //!< Select video input
 
-  octave_value enum_fmt (enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE); //!< Enumerate image formats
+  octave_value enum_formats ();      //!< Enumerate image formats
+
   Matrix enum_framesizes (string pixelformat);     //!< Enumerate frame sizes
   octave_scalar_map g_fmt ();                      //!< Get current format
   void s_fmt (string fmtstr, __u32 xres, __u32 yres); //!< Set format

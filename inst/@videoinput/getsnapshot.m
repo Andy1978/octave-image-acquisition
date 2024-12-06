@@ -85,7 +85,7 @@ function [img, seq, timestamp, timecode] = getsnapshot (vi, pv=0)
 endfunction
 
 %!test
-%! obj = videoinput("v4l2", __test__device__);
+%! obj = videoinput(__test__device__{:});
 %! oldval = get(obj, "VideoResolution");
 %! default_size = set (obj, "VideoResolution")(1,:);
 %! set (obj, "VideoResolution", default_size);
@@ -105,14 +105,14 @@ endfunction
 %! set (obj, "VideoResolution", oldval);
 
 %!test
-%! obj = videoinput("v4l2", __test__device__);
+%! obj = videoinput(__test__device__{:});
 %! set (obj, "VideoFormat", "RGB3")
 %! start (obj)
 %! img = getsnapshot (obj);
 %! stop (obj)
 
 %!test
-%! obj = videoinput ("v4l2", __test__device__);
+%! obj = videoinput (__test__device__{:});
 %! # see http://www.linuxtv.org/downloads/v4l-dvb-apis/V4L2-PIX-FMT-YUYV.html
 %! set (obj, "VideoFormat", "YUYV")
 %! start (obj)
@@ -120,7 +120,7 @@ endfunction
 %! stop (obj)
 
 %!test
-%! obj = videoinput ("v4l2", __test__device__);
+%! obj = videoinput (__test__device__{:});
 %! # see see http://www.linuxtv.org/downloads/v4l-dvb-apis/re23.html
 %! set (obj, "VideoFormat", "YU12")
 %! start (obj)
@@ -128,7 +128,7 @@ endfunction
 %! stop (obj)
 
 %!demo
-%! obj = videoinput ("v4l2", __test__device__);
+%! obj = videoinput (__test__device__{:});
 %! # see http://www.linuxtv.org/downloads/v4l-dvb-apis/V4L2-PIX-FMT-YUYV.html
 %! set(obj,"VideoFormat","YUYV")
 %! start(obj)

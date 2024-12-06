@@ -33,7 +33,7 @@
 ## @end deftypefn
 
 function ret = imaqhwinfo()
-  ret = __v4l2_list_devices__ ();
+  ret = __imaq_enum_devices__ ();
 endfunction
 
 %!test

@@ -85,7 +85,7 @@ function ret = set (vi, varargin)
             endif
           case 'VideoInput'
             if (isscalar (val) && isreal (val))
-              __imaq_handler_s_input__(vi.imaqh, val);
+              __imaq_handler_set_input__(vi.imaqh, val);
             else
               error ('set VideoInput: expecting the value to be a scalar integer');
             endif
@@ -132,7 +132,7 @@ function ret = __list_range__ (vi, prop)
           error ("Use set (VI, 'VideoFormat') to get a list of supported formats.")
         case 'VideoInput'
           # enumerate available inputs
-          ret = __imaq_handler_enuminput__ (vi.imaqh);
+          ret = __imaq_handler_enum_inputs__ (vi.imaqh);
         case 'VideoResolution'
           # enumerate possible framerates
           fmt = __imaq_handler_g_fmt__(vi.imaqh).pixelformat;
@@ -143,7 +143,7 @@ function ret = __list_range__ (vi, prop)
           current_frame_size = __imaq_handler_g_fmt__ (vi.imaqh).size;
           ret = __imaq_handler_enum_frameintervals__ (vi.imaqh, current_frame_size, fmt);
         case 'VideoFormat'
-          ret = __imaq_handler_enum_fmt__ (vi.imaqh);
+          ret = __imaq_handler_enum_formats__ (vi.imaqh);
         otherwise ## perhaps a v4l2 control?
           ctrls = __imaq_handler_queryctrl__(vi.imaqh);
           if (isfield(ctrls, prop))
@@ -171,7 +171,7 @@ function ret = __is_read_only_property__ (prop)
 endfunction
 
 %!test
-%! obj = videoinput ("v4l2", __test__device__);
+%! obj = videoinput (__test__device__{:});
 %! svi = set (obj, "VideoInput");
 %! assert (isstruct(svi))
 %! set(obj, "VideoInput", 0);
@@ -186,17 +186,17 @@ endfunction
 %!error set(obj, "DeviceCapabilities")
 
 %!test
-%! obj = videoinput ("v4l2", __test__device__);
+%! obj = videoinput (__test__device__{:});
 %! set (obj, 'VideoFormat', 'RGB24');
 
 %!test
-%! obj = videoinput ("v4l2", __test__device__);
+%! obj = videoinput (__test__device__{:});
 %! fmts = set (obj, 'VideoFormat');
 %! set (obj, 'VideoFormat', fmts(end).pixelformat);
 %! set (obj, 'VideoFormat', 'RGB24');
 
 %!test
-%! obj = videoinput ("v4l2", __test__device__);
+%! obj = videoinput (__test__device__{:});
 %! T = set (obj, 'VideoFrameInterval');
 %! # not all drives support enumeration and query of trameintervals
 %! if (rows(T) >= 1)
@@ -205,7 +205,7 @@ endfunction
 %! endif
 
 %!warning
-%! obj = videoinput ("v4l2", __test__device__);
+%! obj = videoinput (__test__device__{:});
 %! # This shouldn't be supported by any camera and the driver
 %! # clamps this to valid values but a warning should be displayed
 %! set (obj, 'VideoFrameInterval', [1 10000]);

@@ -23,12 +23,12 @@ bool imaq_handler::type_loaded = false;
 imaq_handler::imaq_handler ()
   : octave_base_value(), preview_window(0)
 {
-  octave_stdout << "imaq_handler C'Tor, type_loaded = " << type_loaded << endl;
+  //octave_stdout << "imaq_handler C'Tor, type_loaded = " << type_loaded << endl;
   if (!type_loaded)
     {
       type_loaded = true;
       imaq_handler::register_type();
-      octave_stdout << "imaq_handler C'Tor, type_id() = " << type_id() << std::endl;
+      //octave_stdout << "imaq_handler C'Tor, type_id() = " << type_id() << std::endl;
     }
 }
 
@@ -40,7 +40,7 @@ imaq_handler::imaq_handler ()
 
 imaq_handler::~imaq_handler ()
 {
-  octave_stdout << "imaq_handler D'Tor " << endl;
+  //octave_stdout << "imaq_handler D'Tor " << endl;
 
   // delete preview_window if active
   if (preview_window)
@@ -81,7 +81,7 @@ imaq_handler::close ()
 imaq_handler*
 get_imaq_handler_from_ov (octave_value ov)
 {
-  octave_stdout << "get_imaq_handler_from_ov ov.type_id() = " << ov.type_id() << std::endl;
+  //octave_stdout << "get_imaq_handler_from_ov ov.type_id() = " << ov.type_id() << std::endl;
   if (ov.type_id() != imaq_handler::static_type_id())
     {
       error("get_imaq_handler_from_ov: Not a valid imaq_handler");

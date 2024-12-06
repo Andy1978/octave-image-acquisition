@@ -45,11 +45,16 @@ public:
   }
 
   ~mf_handler (void);
-  
-  octave_map list_devices ();
+
+  octave_map enum_devices ();
 
   octave_scalar_map open (string d, bool quiet);
   void print (std::ostream& os, bool pr_as_read_syntax);  //!< print itself on ostream
+
+  // TODO: enum_inputs, get_input, set_input not yet implemented for media foundation
+
+  octave_value enum_formats ();      //!< Enumerate image formats
+
 
 /*
   octave_value querycap ();        //!< Query device capabilities
