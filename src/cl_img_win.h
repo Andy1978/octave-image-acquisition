@@ -38,7 +38,7 @@ class img_win : public Fl_Double_Window
 {
 private:
   uchar* pixel;         //!< internal memory for image
-  bool RGB;
+  bool is_RGB;
 
   int img_w ()
   {
@@ -50,7 +50,7 @@ private:
   }
   int pixel_len()
   {
-    return img_w () * img_h () * ((RGB)? 3: 1);
+    return img_w () * img_h () * ((is_RGB)? 3: 1);
   }
 
 public:
