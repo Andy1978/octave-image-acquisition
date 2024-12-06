@@ -2,7 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([Octave-Forge image-acquisition package], [0.1.0], [andy.weber.aw@gmail.com])
+AC_INIT([Octave-Forge image-acquisition package], [0.3.0], [andy.weber.aw@gmail.com])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -19,21 +20,23 @@ if [test $FLTK_CONFIG = "no"]; then
   AC_MSG_ERROR([fltk-config required to install $PACKAGE_NAME])
 else
   LIBS="`fltk-config --ldflags` $LIBS"
+	AC_DEFINE([HAVE_FLTK], [1], [Define to 1 if you have fltk-config])
 fi
-    
+
 # Checks for libraries.
-AC_CHECK_LIB(v4l2, v4l2_open, [], [
-  AC_MSG_ERROR([unable to find the v4l2_open() function])
-])
+AC_CHECK_LIB(v4l2, v4l2_open, [], [])
+AC_CHECK_LIB(mfplat, MFStartup, [
+  LIBS="-lmfplat -lmf -lmfreadwrite -lmfuuid -lshlwapi -lole32 -lksguid $LIBS"], [])
 
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/ioctl.h sys/time.h])
 
 # check for v4l2 headers
-AC_CHECK_HEADERS([libv4l2.h linux/videodev2.h],[],[
-  AC_MSG_ERROR([unable to find the needed v4l2 headers])
-])
+AC_CHECK_HEADERS([libv4l2.h linux/videodev2.h],[],[])
+
+# check for Media Foundation headers
+AC_CHECK_HEADERS([mfapi.h],[],[])
 
 # check for fltk headers
 AC_CHECK_HEADERS([FL/Fl.H FL/Fl_Double_Window.H FL/fl_draw.H],[],[
