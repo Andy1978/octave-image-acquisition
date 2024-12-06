@@ -13,9 +13,20 @@
 // You should have received a copy of the GNU General Public License along with
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <octave/oct.h>
-#include "cl_v4l2_handler.h"
-#include "cl_mf_handler.h"
+#include "config.h"
+
+#ifdef HAVE_LIBV4L2_H
+  #include "cl_v4l2_handler.h"
+#endif
+
+#ifdef HAVE_MFAPI_H
+  #include "cl_mf_handler.h"
+#endif
+
+using namespace std;
 
 // PKG_ADD: autoload ("__imaq_handler_open__", which ("__imaq_handler__.oct"));
 // PKG_DEL: autoload ("__imaq_handler_open__", which ("__imaq_handler__.oct"), "remove");
@@ -41,9 +52,17 @@ Creates an instance of imaq_handler for a v4l2 or MF device and opens it.\n\
   imaq_handler *h = 0;
   
   if (type == "v4l2")
+#ifdef HAVE_LIBV4L2_H
     h = new v4l2_handler ();
+#else
+	error ("octave-image-acquisition was built without v4l2 support");
+#endif
   else if (type == "mf")
+#ifdef HAVE_MFAPI_H
     h = new mf_handler ();
+#else
+	error ("octave-image-acquisition was built without media foundation support");
+#endif
   else
     error ("unknown interface '%s'", type.c_str());
 
@@ -553,8 +572,12 @@ DEFUN_DLD(__imaq_list_devices__, args, nargout,
 List image capture devices.\n\
 @end deftypefn")
 {
+#ifdef HAVE_LIBV4L2_H
   v4l2_handler imgh;
-  //mf_handler imgh;
+#endif
+#ifdef HAVE_MFAPI_H
+  mf_handler imgh;
+#endif
   return octave_value (imgh.list_devices ());
 }
 

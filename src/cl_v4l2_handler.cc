@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU General Public License along with
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
+#include "config.h"
+#ifdef HAVE_LIBV4L2_H
+
 #include <cassert>
 #include <dirent.h>
 //#include <sys/types.h>
@@ -1214,3 +1217,5 @@ v4l2_handler::close ()
   //~ imgh = &((v4l2_handler &)rep);
   //~ return imgh;
 //~ }
+
+#endif
