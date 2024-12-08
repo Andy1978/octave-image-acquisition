@@ -3,5 +3,5 @@ https://www.linuxtv.org/wiki/index.php/How_to_Obtain,_Build_and_Install_V4L-DVB_
 Hier, warum video0 und video1 erzeugt wird
 https://unix.stackexchange.com/questions/512759/multiple-dev-video-for-one-physical-device
 
-
-
+TODO:
+  ggf. fltk optional machen
