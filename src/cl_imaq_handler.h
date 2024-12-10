@@ -24,6 +24,10 @@
 
 #include <iostream>
 
+#ifdef WIN32
+  typedef unsigned int __u32;
+#endif
+
 #include <octave/oct.h>
 #include <octave/ov-struct.h>
 

@@ -40,7 +40,24 @@ endif
 
 addpath ("../inst")
 
+
+x = __imaq_enum_devices__ ();
+x(1)
+x(2)
+
 x = __imaq_handler_open__(__test__device__{:});
+
+#y = __imaq_handler_enum_formats__ (x)
+#y(1)
+
+#[img, seq, timestamp] = __imaq_handler_capture__(x);
+img = __imaq_handler_capture__(x);
+size (img)
+save_mjpeg_as_jpg ("foo.jpg", img)
+
+
+return
+
 s = __imaq_handler_enum_framesizes__(x, "RGB24");
 default_size = s(1,:);
 __imaq_handler_s_fmt__(x, "RGB24", default_size);

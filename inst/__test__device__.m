@@ -21,25 +21,29 @@
 function ret = __test__device__()
   persistent warning_shown = 0;
   l = imaqhwinfo();
+
+  if (ispc ())
+    ret{1} = "mf";
+    # quick workaround
+    [l.device] = deal(l.symlink);
+  elseif (isunix ())
+    ret{1} = "v4l2";
+  endif
+
   if ( numel(l) > 1)
     dev = l(1).device;
-    # only show warning once
+    # show warning only once
     if (!warning_shown)
-      warning("It appears that you have more than one v4l2 device. We will just use %s (the first returned from imaqhwinfo) for tests.", dev);
+      warning("It appears that you have more than one capture device. We will just use %s (the first returned by imaqhwinfo) for tests.", dev);
       warning_shown = 1;
     endif
   elseif (numel(l) == 0)
-    warning("It appears that you have no v4l2 device installed. All tests may fail. Please connect one or try\n       $ modprobe v4l2loopback\n       $ gst-launch videotestsrc ! v4l2sink device=/dev/video0");
+    warning("It appears that you have no capture device installed. All tests may fail. Please connect one or try\n       $ modprobe v4l2loopback\n       $ gst-launch videotestsrc ! v4l2sink device=/dev/video0");
     dev = "/dev/null";
   else
     dev = l.device;
   endif
   ret{2} = dev;
-  if (ispc ())
-    ret{1} = "mf";
-  elseif (isunix ())
-    ret{1} = "v4l2";
-  endif
 endfunction
 
 %!assert (1)

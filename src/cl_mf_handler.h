@@ -24,6 +24,11 @@
 #include "cl_imaq_handler.h"
 #include "cl_img_win.h"
 
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
+#include <mferror.h> // für MF_E_NO_MORE_TYPES
+
 using namespace std;
 
 class mf_handler: public imaq_handler
@@ -54,6 +59,11 @@ public:
   // TODO: enum_inputs, get_input, set_input not yet implemented for media foundation
 
   octave_value enum_formats ();      //!< Enumerate image formats
+	
+	void s_fmt (string fmtstr, __u32 xres, __u32 yres);
+	octave_scalar_map g_fmt ();
+
+  octave_value_list capture (int nargout, int preview);  //!< Retrieve captured image from buffer
 
 
 /*
@@ -98,6 +108,9 @@ public:
 
 private:
   mf_handler (const mf_handler& m);
+	
+	IMFSourceReader* reader;
+	
   //static bool type_loaded;
 /*
   int fd;
