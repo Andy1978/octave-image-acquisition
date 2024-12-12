@@ -110,6 +110,13 @@ protected:
 
   img_win *preview_window;
 
+	static octave_value get_RGB24      (void *start, size_t length, uint32_t width, uint32_t height);
+	static octave_value get_raw_bayer1 (void *start, size_t length, uint32_t width, uint32_t height);
+	static octave_value get_raw_bayer2 (void *start, size_t length, uint32_t width, uint32_t height);
+	static octave_value get_YUYV       (void *start, size_t length, uint32_t width, uint32_t height);
+	static octave_value get_YVU420     (void *start, size_t length, uint32_t width, uint32_t height, bool is_YUV = false);
+	static octave_value get_raw_bytes  (void *start, size_t length);
+
 private:
   imaq_handler (const imaq_handler& m);
   static bool type_loaded;
