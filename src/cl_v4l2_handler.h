@@ -73,7 +73,7 @@ public:
   }
 
   ~v4l2_handler (void);
-  
+
   octave_map enum_devices ();
 
   octave_scalar_map open (string d, bool quiet); //!< open a v4l2 device e.g. /dev/video0

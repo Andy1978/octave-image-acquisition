@@ -150,12 +150,12 @@ mf_handler::enum_devices ()
 			octave_scalar_map dev;
 			dev.assign ("name", GetAllocatedString (devices[i], MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME));
 			dev.assign ("symlink", GetAllocatedString (devices[i], MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK));
-			
+
 			//uint32_t tmp;
 			//hr = devices[i]->GetUINT32 (MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_MAX_BUFFERS, &tmp);
 			//CHECK (hr);
 			//dev.assign ("max_buffers", tmp);
-			
+
 			retval.assign(octave_idx_type(i), dev);
       devices[i]->Release();
     }
@@ -169,7 +169,7 @@ mf_handler::open (string d, bool quiet)
 {
   HRESULT hr;
   octave_scalar_map ret;
-	
+
   octave_stdout << "mf_handler::open (d = '" << d << "') called" << std::endl;
   // ToDo: Muss man schauen, welche ID unter windoze Sinn macht. Vorerst symlink weil eindeutig
   wstring symlink = utf8_to_wstring (d);
@@ -192,7 +192,7 @@ mf_handler::open (string d, bool quiet)
     // bei enum_devices MFEnumDeviceSources...
     hr = MFCreateDeviceSource(attr, &device);
     CHECK(hr);
-		
+
 		// man könnte überlegen den Code hier mit dem aus enum_devices zusammenzulegen under
 		// den Filter nach symlink optional...
 
@@ -238,7 +238,7 @@ mf_handler::enum_formats ()
           hr = MFGetAttributeSize(pType, MF_MT_FRAME_SIZE, &w, &h);
 					CHECK (hr)
           printf ("DEBUG: FRAME_SIZE w = %4i, h = %4i ", w, h);
-					
+
 					sm.assign ("frame_width", w);
 					sm.assign ("frame_height", h);
 
@@ -255,14 +255,14 @@ mf_handler::enum_formats ()
 					GUID sub;
 					hr = pType->GetGUID (MF_MT_SUBTYPE, &sub);
 					CHECK (hr);
-					
+
 					OLECHAR* guidString;
 					StringFromCLSID(sub, &guidString);
 					printf ("DEBUG: guidString = '%S', ", guidString);
           sm.assign ("subtype_CLSID", wchar_to_utf8 (guidString));
 
 					::CoTaskMemFree(guidString);
-					
+
 					// von Andy: die ersten 4 Bytes von Data1 scheinen FOURCC zu sein
 					char tmp_fourcc[5];
 					tmp_fourcc[0] = int8_t (sub.Data1 & 0xff);
@@ -272,9 +272,9 @@ mf_handler::enum_formats ()
 					tmp_fourcc[4] = 0;
 
           sm.assign ("fourcc", std::string(tmp_fourcc));
- 					
+
 					printf ("%s\n", tmp_fourcc);
-					
+
 					/*
 					// Die Konstanten sind wohl nur die FOURCC
 					#define out(x) printf (#x" %lx\n", x.Data1)
@@ -296,7 +296,7 @@ mf_handler::enum_formats ()
 					out (MFVideoFormat_YVYU);
 					*/
           pType->Release();
-				 
+
 					ret.assign(octave_idx_type(dwMediaTypeIndex), sm);
         }
       ++dwMediaTypeIndex;
@@ -351,7 +351,7 @@ mf_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
 
 				type->Release ();
 			}
-			
+
 			// ToDo: hier wie bei v4l2 warning, wenn der Treiber das Format geändert hat?
 			g_fmt ();
     }
@@ -400,7 +400,7 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
 	DWORD flags;
 	LONGLONG timestamp;
 	IMFSample* sample;
-	
+
 	//printf ("reader = %p\n", reader);
 
 	for (;;)
@@ -433,7 +433,7 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
 
 		hr = buffer->Lock (&data, NULL, &size);
 		CHECK(hr);
-		
+
 		printf ("buffer size = %lu\n", size);
 		for (int k = 0; k < 10; ++k)
 			printf ("%x ", data[k]);
@@ -467,7 +467,7 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
 	}
 
 	sample->Release ();
-	
+
 	return ret;
 }
 

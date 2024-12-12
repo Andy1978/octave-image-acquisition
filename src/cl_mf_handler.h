@@ -59,7 +59,7 @@ public:
   // TODO: enum_inputs, get_input, set_input not yet implemented for media foundation
 
   octave_value enum_formats ();      //!< Enumerate image formats
-	
+
 	void s_fmt (string fmtstr, __u32 xres, __u32 yres);
 	octave_scalar_map g_fmt ();
 
@@ -108,9 +108,9 @@ public:
 
 private:
   mf_handler (const mf_handler& m);
-	
+
 	IMFSourceReader* reader;
-	
+
   //static bool type_loaded;
 /*
   int fd;

@@ -67,7 +67,7 @@ Creates an instance of imaq_handler for a v4l2 or MF device and opens it.\n\
   string device = args(1).string_value ();
 
   imaq_handler *h = 0;
-  
+
   if (type == "v4l2")
 #ifdef HAVE_LIBV4L2_H
     h = new v4l2_handler ();
