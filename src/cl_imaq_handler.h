@@ -115,6 +115,7 @@ protected:
 	static octave_value get_raw_bayer2 (void *start, size_t length, uint32_t width, uint32_t height);
 	static octave_value get_YUYV       (void *start, size_t length, uint32_t width, uint32_t height);
 	static octave_value get_YVU420     (void *start, size_t length, uint32_t width, uint32_t height, bool is_YUV = false);
+	static octave_value get_NV12       (void *start, size_t length, uint32_t width, uint32_t height);
 	static octave_value get_raw_bytes  (void *start, size_t length);
 
 private:

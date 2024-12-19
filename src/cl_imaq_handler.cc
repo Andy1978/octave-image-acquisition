@@ -40,7 +40,7 @@ imaq_handler::imaq_handler ()
 
 imaq_handler::~imaq_handler ()
 {
-  //octave_stdout << "imaq_handler D'Tor " << endl;
+  octave_stdout << "imaq_handler D'Tor " << endl;
 
   // delete preview_window if active
   if (preview_window)
@@ -150,7 +150,8 @@ octave_value imaq_handler::get_YUYV (void *start, size_t length, uint32_t width,
 }
 
 // YVU420 aka YV12
-// http://www.linuxtv.org/downloads/v4l-dvb-apis/re23.html
+// see also is_YUV
+// https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-yuv420.html
 octave_value imaq_handler::get_YVU420 (void *start, size_t length, uint32_t width, uint32_t height, bool is_YUV)
 {
 	dim_vector dvy (width, height);
@@ -175,6 +176,7 @@ octave_value imaq_handler::get_YVU420 (void *start, size_t length, uint32_t widt
 	octave_scalar_map img;
 	img.assign ("Y", y.transpose ());
 	if (is_YUV)
+		// V4L2_PIX_FMT_YUV420
 		{
 			img.assign ("Cb", c1.transpose ());
 			img.assign ("Cr", c2.transpose ());
@@ -186,6 +188,35 @@ octave_value imaq_handler::get_YVU420 (void *start, size_t length, uint32_t widt
 			img.assign ("Cr", c1.transpose ());
 		}
 
+	return octave_value(img);
+}
+
+// NV12
+// https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-nv12.html
+octave_value imaq_handler::get_NV12 (void *start, size_t length, uint32_t width, uint32_t height)
+{
+	dim_vector dvy (width, height);
+	dim_vector dvc (width/2, height/2);
+	uint8NDArray y (dvy);
+	uint8NDArray cb (dvc);
+	uint8NDArray cr (dvc);
+	assert ((y.numel() + cb.numel() + cr.numel()) == int(length));
+
+	// Y
+	unsigned char *p = reinterpret_cast<unsigned char*>(y.fortran_vec());
+	memcpy(p, start, y.numel ());
+
+	unsigned char *s = reinterpret_cast<unsigned char*>(start) + y.numel ();
+	for (unsigned int i = 0; i < (width * height / 4); ++i)
+		{
+			cb(i) = s[2 * i];
+			cr(i) = s[2 * i + 1];
+		}
+
+	octave_scalar_map img;
+	img.assign ("Y", y.transpose ());
+	img.assign ("Cb", cb.transpose ());
+	img.assign ("Cr", cr.transpose ());
 	return octave_value(img);
 }
 
