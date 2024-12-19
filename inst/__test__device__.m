@@ -22,7 +22,7 @@ function ret = __test__device__()
   persistent warning_shown = 0;
   l = imaqhwinfo();
 
-  if (ispc ())
+  if (ispc () && numel(l) > 0)
     ret{1} = "mf";
     # quick workaround
     [l.device] = deal(l.symlink);

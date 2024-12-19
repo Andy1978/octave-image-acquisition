@@ -1,4 +1,4 @@
-## Copyright (C) 2013 Andreas Weber <andy.weber.aw@gmail.com>
+## Copyright (C) 2024 Andreas Weber <andy.weber.aw@gmail.com>
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -14,7 +14,7 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 function display (vi)
-  printf("%s = videoinput for v4l2\n", inputname(1));
+  printf("%s = videoinput\n", inputname(1));
   sp = repmat(' ',1,length(inputname(1))+3);
   printf("%sdevice               = %s\n", sp, get(vi, "SelectedSourceName"));
 

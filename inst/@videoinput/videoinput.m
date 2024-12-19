@@ -1,4 +1,4 @@
-## Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
+## Copyright (C) 2024 Andreas Weber <andy.weber.aw@gmail.com>
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,7 @@
 ## @group
 ## @example
 ## obj = videoinput("v4l2", "/dev/video0")
-## @result{} obj = videoinput for v4l2
+## @result{} obj = videoinput
 ##      device             = /dev/video0
 ##      driver             = uvcvideo
 ##      card               = UVC Camera (046d:0825)
