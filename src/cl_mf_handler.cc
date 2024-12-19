@@ -80,11 +80,11 @@ mf_handler::print (std::ostream& os, bool pr_as_read_syntax = false)
 string wchar_to_utf8 (LPWSTR val)
 {
 	int len = WideCharToMultiByte(CP_UTF8, 0, val, -1, 0, 0, 0, 0);
-	printf ("DEBUG: len = %i\n", len);
+	//printf ("DEBUG: len = %i\n", len);
 	// FIXME/TODO: check if the conversion can be made directly into std::string
 	char buf[len];
 	WideCharToMultiByte(CP_UTF8, 0, val, -1, buf, len, 0, 0);
-	printf ("DEBUG: wchar_to_utf8 returns '%s'\n", buf);
+	//printf ("DEBUG: wchar_to_utf8 returns '%s'\n", buf);
 	return buf;
 }
 
@@ -112,8 +112,7 @@ wstring utf8_to_wstring (const string &in)
     wstring wide_str (len, 0);
     MultiByteToWideChar(CP_UTF8, 0, in.c_str(), -1, &wide_str[0], len);
 
-		// Output the wide string
-		wcout << L"Converted wide string: " << wide_str << endl;
+		//wcout << L"DEBUG: Converted wide string: " << wide_str << endl;
 		return wide_str;
 	}
 }
@@ -212,6 +211,19 @@ mf_handler::open (string d, bool quiet)
 }
 
 octave_value
+mf_handler::querycap ()
+{
+	// ToDo: Is it possible to get some infos from the media foundation device?
+  octave_scalar_map st;
+  st.assign ("driver",       "uvcvideo");
+  st.assign ("card",         "not implemented");
+  st.assign ("bus_info",     "not implemented");
+  st.assign ("version",      "not implemented");
+  st.assign ("capabilities", "not implemented");
+  return octave_value (st);
+}
+
+octave_value
 mf_handler::enum_formats ()
 {
   octave_map ret;
@@ -226,79 +238,8 @@ mf_handler::enum_formats ()
   IMFMediaType *pType = NULL;
   while (SUCCEEDED(hr = reader->GetNativeMediaType(dwStreamIndex, dwMediaTypeIndex, &pType)))
     {
-		  octave_scalar_map sm;
-      //if (hr == MF_E_NO_MORE_TYPES)
-      //  {
-      //    hr = S_OK;
-      //    break;
-      //  }
-      //else if (SUCCEEDED(hr))
-        {
-          UINT32 w = 0, h = 0;
-          hr = MFGetAttributeSize(pType, MF_MT_FRAME_SIZE, &w, &h);
-					CHECK (hr)
-          printf ("DEBUG: FRAME_SIZE w = %4i, h = %4i ", w, h);
-
-					sm.assign ("frame_width", w);
-					sm.assign ("frame_height", h);
-
-
-					// https://learn.microsoft.com/en-us/windows/win32/medfound/video-subtype-guids
-					// https://learn.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid
-					// Data1: first 8 hexadecimal digits
-					// Data2: first group of 4 hexadecimal digits
-					// Data3: second group of 4 hexadecimal digits
-					// Data4: Array of 8 bytes.
-					//        The first 2 bytes contain the third group of 4 hexadecimal digits.
-					//        The remaining 6 bytes contain the final 12 hexadecimal digits.
-
-					GUID sub;
-					hr = pType->GetGUID (MF_MT_SUBTYPE, &sub);
-					CHECK (hr);
-
-					OLECHAR* guidString;
-					StringFromCLSID(sub, &guidString);
-					printf ("DEBUG: guidString = '%S', ", guidString);
-          sm.assign ("subtype_CLSID", wchar_to_utf8 (guidString));
-
-					::CoTaskMemFree(guidString);
-
-					// von Andy: die ersten 4 Bytes von Data1 scheinen FOURCC zu sein
-					char tmp_fourcc[5];
-					tmp_fourcc[0] = int8_t (sub.Data1 & 0xff);
-					tmp_fourcc[1] = int8_t ((sub.Data1 & 0xff00) >> 8);
-					tmp_fourcc[2] = int8_t ((sub.Data1 & 0xff0000) >> 16);
-					tmp_fourcc[3] = int8_t ((sub.Data1 & 0xff000000) >> 24);
-					tmp_fourcc[4] = 0;
-
-          sm.assign ("fourcc", std::string(tmp_fourcc));
-
-					printf ("%s\n", tmp_fourcc);
-
-					/*
-					// Die Konstanten sind wohl nur die FOURCC
-					#define out(x) printf (#x" %lx\n", x.Data1)
-					out (MFVideoFormat_MJPG);
-					out (MFVideoFormat_YUY2);
-					out (MFVideoFormat_NV12);
-					out (MFVideoFormat_AI44);
-					out (MFVideoFormat_AYUV);
-					out (MFVideoFormat_I420);
-					out (MFVideoFormat_IYUV);
-					out (MFVideoFormat_NV11);
-					out (MFVideoFormat_NV21);
-					out (MFVideoFormat_UYVY);
-					out (MFVideoFormat_Y41P);
-					out (MFVideoFormat_Y41T);
-					out (MFVideoFormat_Y42T);
-					out (MFVideoFormat_YVU9);
-					out (MFVideoFormat_YV12);
-					out (MFVideoFormat_YVYU);
-					*/
-          pType->Release();
-
-					ret.assign(octave_idx_type(dwMediaTypeIndex), sm);
-        }
+			ret.assign(octave_idx_type(dwMediaTypeIndex), g_fmt (pType));
+			pType->Release();
       ++dwMediaTypeIndex;
     }
   return octave_value(ret);
@@ -328,13 +269,24 @@ mf_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
 				hr = type->SetGUID (MF_MT_MAJOR_TYPE, MFMediaType_Video);
 				CHECK(hr);
 
+
 				// FIXME: schauen, wie man das geschickter machen kann
-				if (fmtstr == "MJPG")
-				  hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_MJPG);
-				else if (fmtstr == "YUY2")
-				  hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_YUY2);
-				else if (fmtstr == "NV12")
-				  hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_NV12);
+        #define MUX_FMT(X) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## X);
+				if MUX_FMT(MJPG)
+				else if MUX_FMT(YUY2)
+				else if MUX_FMT(NV12)
+				else if MUX_FMT(AI44)
+				else if MUX_FMT(AYUV)
+				else if MUX_FMT(I420)
+				else if MUX_FMT(IYUV)
+				else if MUX_FMT(NV11)
+				else if MUX_FMT(NV21)
+				else if MUX_FMT(UYVY)
+				else if MUX_FMT(Y41P)
+				else if MUX_FMT(Y42T)
+				else if MUX_FMT(YVU9)
+				else if MUX_FMT(YV12)
+				else if MUX_FMT(YVYU)
 				else
 					error ("unknown type %s", fmtstr.c_str());
 
@@ -357,38 +309,104 @@ mf_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
     }
 }
 
-octave_scalar_map mf_handler::g_fmt ()
+octave_scalar_map mf_handler::g_fmt (IMFMediaType *pType)
 {
+	octave_scalar_map ret;
+	HRESULT hr;
+
+	UINT64 tmp;
+	hr = pType->GetUINT64(MF_MT_FRAME_SIZE, &tmp);
+	CHECK(hr);
+
 	UINT32 width;
 	UINT32 height;
 
-	// get width/height
-	{
-		IMFMediaType* type;
-
-		HRESULT hr = reader->GetCurrentMediaType (MF_SOURCE_READER_FIRST_VIDEO_STREAM, &type);
-		CHECK(hr);
-
-		UINT64 tmp;
-		hr = type->GetUINT64(MF_MT_FRAME_SIZE, &tmp);
-		CHECK(hr);
-
-		width = (UINT32)(tmp >> 32);
-		height = (UINT32)(tmp);
-
-		type->Release ();
-	}
-
-	printf("Readback Size = %ux%u\n", width, height);
+	width = (UINT32)(tmp >> 32);
+	height = (UINT32)(tmp);
+	//printf("DEBUG: Readback Size = %ux%u\n", width, height);
 
   Matrix s(1,2);
   s(0) = width;
   s(1) = height;
-
-  octave_scalar_map ret;
   ret.assign ("size", s);
-  ret.assign ("pixelformat", "not yet implemented");
+
+	// get FOURCC
+
+	// https://learn.microsoft.com/en-us/windows/win32/medfound/video-subtype-guids
+	// https://learn.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid
+	// Data1: first 8 hexadecimal digits
+	// Data2: first group of 4 hexadecimal digits
+	// Data3: second group of 4 hexadecimal digits
+	// Data4: Array of 8 bytes.
+	//        The first 2 bytes contain the third group of 4 hexadecimal digits.
+	//        The remaining 6 bytes contain the final 12 hexadecimal digits.
+	GUID sub;
+
+	hr = pType->GetGUID (MF_MT_SUBTYPE, &sub);
+	CHECK(hr);
+
+	// First 4 bytes are FOURCC
+	char tmp_fourcc[5];
+	tmp_fourcc[0] = int8_t (sub.Data1 & 0xff);
+	tmp_fourcc[1] = int8_t ((sub.Data1 & 0xff00) >> 8);
+	tmp_fourcc[2] = int8_t ((sub.Data1 & 0xff0000) >> 16);
+	tmp_fourcc[3] = int8_t ((sub.Data1 & 0xff000000) >> 24);
+	tmp_fourcc[4] = 0;
+
+  ret.assign ("pixelformat", std::string(tmp_fourcc));
+
+  // get CLSID as string (informational purpose only)
+	OLECHAR* guidString;
+	StringFromCLSID(sub, &guidString);
+	//printf ("DEBUG: guidString = '%S'\n", guidString);
+	ret.assign ("MF_MT_SUBTYPE_CLSID", wchar_to_utf8 (guidString));
+	::CoTaskMemFree(guidString);
+
+	/*
+	// Die Konstanten sind wohl nur die FOURCC
+	#define out(x) printf (#x" %lx\n", x.Data1)
+	out (MFVideoFormat_MJPG);
+	out (MFVideoFormat_YUY2);
+	out (MFVideoFormat_NV12);
+	out (MFVideoFormat_AI44);
+	out (MFVideoFormat_AYUV);
+	out (MFVideoFormat_I420);
+	out (MFVideoFormat_IYUV);
+	out (MFVideoFormat_NV11);
+	out (MFVideoFormat_NV21);
+	out (MFVideoFormat_UYVY);
+	out (MFVideoFormat_Y41P);
+	out (MFVideoFormat_Y41T);
+	out (MFVideoFormat_Y42T);
+	out (MFVideoFormat_YVU9);
+	out (MFVideoFormat_YV12);
+	out (MFVideoFormat_YVYU);
+	*/
+
   return ret;
+}
+
+octave_scalar_map mf_handler::g_fmt ()
+{
+	octave_scalar_map ret;
+	IMFMediaType* pType;
+
+	HRESULT hr = reader->GetCurrentMediaType (MF_SOURCE_READER_FIRST_VIDEO_STREAM, &pType);
+	CHECK(hr);
+
+  ret = current_fmt = g_fmt (pType);
+
+	pType->Release ();
+  return ret;
+}
+
+octave_value mf_handler::queryctrl ()
+{
+  octave_scalar_map ctrls;
+
+	// ToDo: not yet implemented
+  //ctrls.assign (...));
+  return ctrls;
 }
 
 octave_value_list mf_handler::capture (int nargout, int preview = 0)
@@ -420,7 +438,7 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
 
   // näher anschauen: IMFTransform
   // https://learn.microsoft.com/en-us/windows/win32/medfound/processing-data-in-the-encoder
-
+	// nach 2 Tagen komme ich zu dem Schluss, das MJPG -> RGB24 mit den mitgelieferten MFTs gar nicht möglich ist
 
 	{
 		IMFMediaBuffer* buffer;
@@ -439,9 +457,27 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
 			printf ("%x ", data[k]);
 		printf ("\n");
 
+		// get current format
+		string fmt = current_fmt.contents("pixelformat").string_value ();
+		printf ("DEBUG: fmt = '%s'\n", fmt.c_str());
+		uint32NDArray s = current_fmt.contents("size").uint32_array_value ();
+		UINT32 width = s(0);
+		UINT32 height = s(1);
+		printf ("DEBUG: size = [%i %i]\n", width, height);
 
-		// einfach mal den buffer zurück geben
+		if (fmt == "YUY2")
+			// YUYV aka YUV 4:2:2 aka YUY2
+			// return struct with fields Y, Cb, Cr
+			{
+				ret(0) = imaq_handler::get_YUYV (data, size, width, height);
+			}
+		else if (fmt == "NV12")
+			{
+				ret(0) = imaq_handler::get_NV12 (data, size, width, height);
+			}
+		else
 		{
+			// return buffer verbatim
       dim_vector dv (size, 1);
       uint8NDArray img (dv);
       unsigned char *p = reinterpret_cast<unsigned char*>(img.fortran_vec());
@@ -474,6 +510,8 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
 void
 mf_handler::close ()
 {
+	octave_stdout << "mf_handler::close called" << std::endl;
+
   //~ streamoff();
   //~ if (fd >= 0)
     //~ v4l2_close(fd);
@@ -485,9 +523,6 @@ mf_handler::close ()
 		reader = 0;
 	}
 }
-
-
-
 
 
 
