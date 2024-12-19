@@ -57,11 +57,15 @@ public:
   void print (std::ostream& os, bool pr_as_read_syntax);  //!< print itself on ostream
 
   // TODO: enum_inputs, get_input, set_input not yet implemented for media foundation
+	octave_value querycap (); //!< Query device capabilities
 
   octave_value enum_formats ();      //!< Enumerate image formats
 
 	void s_fmt (string fmtstr, __u32 xres, __u32 yres);
+	octave_scalar_map g_fmt (IMFMediaType *pType);
 	octave_scalar_map g_fmt ();
+
+	octave_value queryctrl (); //!< Query controls
 
   octave_value_list capture (int nargout, int preview);  //!< Retrieve captured image from buffer
 
@@ -110,6 +114,8 @@ private:
   mf_handler (const mf_handler& m);
 
 	IMFSourceReader* reader;
+
+	octave_scalar_map current_fmt; // updated in g_fmt ()
 
   //static bool type_loaded;
 /*
