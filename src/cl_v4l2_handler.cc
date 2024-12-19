@@ -926,7 +926,7 @@ v4l2_handler::capture (int nargout, int preview)
     }
   else if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV)
     // YUYV aka YUV 4:2:2
-    // https://www.kernel.org/doc/html/v4.8/media/uapi/v4l/pixfmt-yuyv.html
+    // https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-yuyv.html
 		// V4L2_PIX_FMT_YUYV is known in the Windows environment as YUY2
     // return struct with fields Y, Cb, Cr
     {
@@ -935,9 +935,15 @@ v4l2_handler::capture (int nargout, int preview)
   else if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YVU420
            || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUV420)
     // YVU420 aka YV12
-    // http://www.linuxtv.org/downloads/v4l-dvb-apis/re23.html
+    // https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-yuv420.html
     {
       ret(0) = imaq_handler::get_YVU420 (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height, fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUV420);
+    }
+  else if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_NV12
+           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_NV21)
+    // https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-nv12.html
+    {
+      ret(0) = imaq_handler::get_NV12 (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
     }
   else
     // No conversion for this format
