@@ -25,7 +25,8 @@
 
 mf_handler::mf_handler ()
   : imaq_handler(),
-	  reader (0)
+    device (0),
+    reader (0)
 
 
 	/*,
@@ -174,7 +175,6 @@ mf_handler::open (string d, bool quiet)
   wstring symlink = utf8_to_wstring (d);
 
   // create device from symlink
-  IMFMediaSource* device;
   {
     IMFAttributes* attr;
 
@@ -192,7 +192,7 @@ mf_handler::open (string d, bool quiet)
     hr = MFCreateDeviceSource(attr, &device);
     CHECK(hr);
 
-		// man könnte überlegen den Code hier mit dem aus enum_devices zusammenzulegen under
+		// man könnte überlegen den Code hier mit dem aus enum_devices zusammenzulegen und
 		// den Filter nach symlink optional...
 
     attr->Release();
@@ -201,7 +201,7 @@ mf_handler::open (string d, bool quiet)
   // create reader
   hr = MFCreateSourceReaderFromMediaSource(device, NULL, &reader);
   CHECK(hr);
-  device->Release();
+  //device->Release();
 
   enum_formats ();
 
@@ -400,12 +400,75 @@ octave_scalar_map mf_handler::g_fmt ()
   return ret;
 }
 
+
+octave_scalar_map get_ctrl_range (IMFMediaSource* device, long src_obj, long prop)
+{
+  octave_scalar_map ctrl;
+
+  long min, max, step, def, control;
+
+  HRESULT hr = 0;
+  if (src_obj == 0)
+  {
+     IAMCameraControlPtr spCameraControl(device);
+     if(spCameraControl)
+       hr = spCameraControl->GetRange(prop, &min, &max, &step, &def, &control);
+  }
+  else if (src_obj == 1)
+  {
+     IAMVideoProcAmpPtr spVideo(device);
+     if(spVideo)
+       hr = spVideo->GetRange(prop, &min, &max, &step, &def, &control);
+  }
+
+ if(SUCCEEDED(hr))
+ {
+   ctrl.assign ("id", int((src_obj << 16) + prop)); // von Andy erdacht. Möglicherweise wäre die UUID hier sinnvoller
+   ctrl.assign ("min", min);
+   ctrl.assign ("max", max);
+   ctrl.assign ("step", step);
+   ctrl.assign ("default", def);
+   ctrl.assign ("control", control);
+ }
+
+  return ctrl;
+}
+
 octave_value mf_handler::queryctrl ()
 {
   octave_scalar_map ctrls;
 
-	// ToDo: not yet implemented
-  //ctrls.assign (...));
+  // It looks like media foundation has a fixed num of properties, see
+  // https://learn.microsoft.com/de-de/windows/win32/api/strmif/ne-strmif-cameracontrolproperty
+  // or https://learn.microsoft.com/de-de/windows/win32/api/strmif/ne-strmif-videoprocampproperty
+  // as opposed to v4l2 which supports dynamic controls.
+
+  // Die id würde ich zusammenstückeln aus der property und einer Konstante oder der UUID?
+  // Ich denke ich sollte hier die interessanten controls aus
+  // IAMCameraControl und IAMVideoProcAmp händisch reinpacken, wenn es sie gibt
+
+  ctrls.assign("pan",   get_ctrl_range (device, 0, CameraControl_Pan));
+  ctrls.assign("tilt",   get_ctrl_range (device, 0, CameraControl_Tilt));
+  ctrls.assign("roll",   get_ctrl_range (device, 0, CameraControl_Roll));
+  ctrls.assign("zoom",   get_ctrl_range (device, 0, CameraControl_Zoom));
+  ctrls.assign("exposure",   get_ctrl_range (device, 0, CameraControl_Exposure));
+  ctrls.assign("iris",   get_ctrl_range (device, 0, CameraControl_Iris));
+  ctrls.assign("focus",      get_ctrl_range (device, 0, CameraControl_Focus));
+
+  ctrls.assign("brightness", get_ctrl_range (device, 1, VideoProcAmp_Brightness));
+  ctrls.assign("contrast",   get_ctrl_range (device, 1, VideoProcAmp_Contrast));
+  ctrls.assign("hue",        get_ctrl_range (device, 1, VideoProcAmp_Hue));
+  ctrls.assign("saturation", get_ctrl_range (device, 1, VideoProcAmp_Saturation));
+  ctrls.assign("sharpness",  get_ctrl_range (device, 1, VideoProcAmp_Sharpness));
+  ctrls.assign("gamma",        get_ctrl_range (device, 1, VideoProcAmp_Gamma));
+  ctrls.assign("colorenable",  get_ctrl_range (device, 1, VideoProcAmp_ColorEnable));
+  ctrls.assign("white_balance", get_ctrl_range (device, 1, VideoProcAmp_WhiteBalance));
+  ctrls.assign("backlightcompensation",  get_ctrl_range (device, 1, VideoProcAmp_BacklightCompensation)); // power_line_frequency in v4l2
+  ctrls.assign("gain",  get_ctrl_range (device, 1, VideoProcAmp_Gain));
+
+  // FIXME: currently the not available controls are also returned
+  // What yould be the best solution? Remove the empty ones?
+
   return ctrls;
 }
 
@@ -516,12 +579,20 @@ mf_handler::close ()
   //~ if (fd >= 0)
     //~ v4l2_close(fd);
   //~ fd = -1;
+  if (device)
+  {
+    device->Release();
+    device = 0;
+  }
+
 
 	if (reader)
 	{
 		reader->Release ();
 		reader = 0;
 	}
+
+
 }
 
 

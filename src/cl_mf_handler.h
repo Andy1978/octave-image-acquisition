@@ -27,9 +27,13 @@
 #include <mfapi.h>
 #include <mfidl.h>
 #include <mfreadwrite.h>
-#include <mferror.h> // für MF_E_NO_MORE_TYPES
+#include <mferror.h>     // for MF_E_NO_MORE_TYPES
+#include <comdef.h>      // for IID_IAMCameraControl, IID_IAMVideoProcAmp
 
 using namespace std;
+
+_COM_SMARTPTR_TYPEDEF(IAMCameraControl, IID_IAMCameraControl);
+_COM_SMARTPTR_TYPEDEF(IAMVideoProcAmp, IID_IAMVideoProcAmp);
 
 class mf_handler: public imaq_handler
 {
@@ -113,6 +117,7 @@ public:
 private:
   mf_handler (const mf_handler& m);
 
+  IMFMediaSource* device;
 	IMFSourceReader* reader;
 
 	octave_scalar_map current_fmt; // updated in g_fmt ()

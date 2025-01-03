@@ -26,7 +26,7 @@ fi
 # Checks for libraries.
 AC_CHECK_LIB(v4l2, v4l2_open, [], [])
 AC_CHECK_LIB(mfplat, MFStartup, [
-  LIBS="-lmfplat -lmf -lmfreadwrite -lmfuuid -lshlwapi -lole32 -lksguid $LIBS"], [])
+  LIBS="-lmfplat -lmf -lmfreadwrite -lmfuuid -lshlwapi -lole32 -lksguid -lamstrmid $LIBS"], [])
 
 # Checks for header files.
 AC_HEADER_DIRENT
