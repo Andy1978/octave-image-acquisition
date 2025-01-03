@@ -273,22 +273,22 @@ mf_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
       // FIXME: schauen, wie man das geschickter machen kann
 #define MUX_FMT(X) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## X);
       if MUX_FMT(MJPG)
-        else if MUX_FMT(YUY2)
-          else if MUX_FMT(NV12)
-            else if MUX_FMT(AI44)
-              else if MUX_FMT(AYUV)
-                else if MUX_FMT(I420)
-                  else if MUX_FMT(IYUV)
-                    else if MUX_FMT(NV11)
-                      else if MUX_FMT(NV21)
-                        else if MUX_FMT(UYVY)
-                          else if MUX_FMT(Y41P)
-                            else if MUX_FMT(Y42T)
-                              else if MUX_FMT(YVU9)
-                                else if MUX_FMT(YV12)
-                                  else if MUX_FMT(YVYU)
-                                    else
-                                      error ("unknown type %s", fmtstr.c_str());
+      else if MUX_FMT(YUY2)
+      else if MUX_FMT(NV12)
+      else if MUX_FMT(AI44)
+      else if MUX_FMT(AYUV)
+      else if MUX_FMT(I420)
+      else if MUX_FMT(IYUV)
+      else if MUX_FMT(NV11)
+      else if MUX_FMT(NV21)
+      else if MUX_FMT(UYVY)
+      else if MUX_FMT(Y41P)
+      else if MUX_FMT(Y42T)
+      else if MUX_FMT(YVU9)
+      else if MUX_FMT(YV12)
+      else if MUX_FMT(YVYU)
+      else
+	error ("unknown type %s", fmtstr.c_str());
 
       CHECK(hr);
 
@@ -406,19 +406,28 @@ octave_scalar_map get_ctrl_range (IMFMediaSource* device, long src_obj, long pro
   octave_scalar_map ctrl;
 
   long min, max, step, def, control;
+  long current_value = 0;
+  long flags = 0;
 
   HRESULT hr = 0;
+  HRESULT hr2 = 0;
   if (src_obj == 0)
     {
       IAMCameraControlPtr spCameraControl(device);
       if(spCameraControl)
+      {
         hr = spCameraControl->GetRange(prop, &min, &max, &step, &def, &control);
+        hr2 = spCameraControl->Get(prop, &current_value, &flags);
+      }
     }
   else if (src_obj == 1)
     {
       IAMVideoProcAmpPtr spVideo(device);
       if(spVideo)
+      {
         hr = spVideo->GetRange(prop, &min, &max, &step, &def, &control);
+        hr2 = spVideo->Get(prop, &current_value, &flags);
+      }
     }
 
   if(SUCCEEDED(hr))
@@ -429,6 +438,12 @@ octave_scalar_map get_ctrl_range (IMFMediaSource* device, long src_obj, long pro
       ctrl.assign ("step", step);
       ctrl.assign ("default", def);
       ctrl.assign ("control", control);
+    }
+    
+  if(SUCCEEDED(hr2))
+    {
+      ctrl.assign ("value", current_value);
+      ctrl.assign ("flags", flags);
     }
 
   return ctrl;
@@ -470,6 +485,37 @@ octave_value mf_handler::queryctrl ()
   // What yould be the best solution? Remove the empty ones?
 
   return ctrls;
+}
+
+int mf_handler::g_ctrl (int id)
+{
+  int src_obj = id >> 16;
+  long prop = id && 0xFFFF;
+  octave_scalar_map tmp = get_ctrl_range (device, src_obj, prop);
+  return tmp.contents ("value").int_value();
+}
+
+// FIXME/ToDo: how can I enable CameraControl_Flags_Auto once set to Manual?
+void mf_handler::s_ctrl (int id, int value)
+{
+  HRESULT hr = 0;
+  int src_obj = id >> 16;
+  long prop = id && 0xFFFF;
+  long val = value;
+  
+  if (src_obj == 0)
+    {
+      IAMCameraControlPtr spCameraControl(device);
+      if(spCameraControl)
+        hr = spCameraControl->Set(prop, val, CameraControl_Flags_Manual);
+    }
+  else if (src_obj == 1)
+    {
+      IAMVideoProcAmpPtr spVideo(device);
+      if(spVideo)
+        hr = spVideo->Set(prop, val, CameraControl_Flags_Manual);
+    }
+  CHECK(hr)
 }
 
 octave_value_list mf_handler::capture (int nargout, int preview = 0)
