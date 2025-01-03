@@ -95,7 +95,7 @@ Creates an instance of imaq_handler for a v4l2 or MF device and opens it.\n\
 DEFUN_DLD(__imaq_handler_querycap__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{c} = } __imaq_handler_querycap__ (@var{h})\n\
-Query device capabilities, driver name, card type etc. from v4l2_handler @var{h}.\n\
+Query device capabilities, driver name, card type etc. from imaq_handler @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -232,7 +232,7 @@ Returns a struct with information for all available formats.\n\
 DEFUN_DLD(__imaq_handler_enum_framesizes__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{sizes} = } __imaq_handler_enum_framesizes__ (@var{h}, @var{format})\n\
-Enumerate available frame sizes from v4l2_handler @var{h}.\n\
+Enumerate available frame sizes from imaq_handler @var{h}.\n\
 @end deftypefn")
 {
   octave_value_list retval;
@@ -258,7 +258,7 @@ Enumerate available frame sizes from v4l2_handler @var{h}.\n\
 DEFUN_DLD(__imaq_handler_enum_frameintervals__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{T} = } __imaq_handler_enum_frameintervals__ (@var{h}, @var{size}, @var{format})\n\
-Enumerate available frame intervals from v4l2_handler @var{h}.\n\
+Enumerate available frame intervals from imaq_handler @var{h}.\n\
 Return a Nx2 matrix with numerator, denominator.\n\
 @end deftypefn")
 {
@@ -404,7 +404,7 @@ Set format @var{fmt}, @var{size} (V4L2_FIELD_INTERLACED).\n\
 DEFUN_DLD(__imaq_handler_queryctrl__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{controls} = } __imaq_handler_queryctrl__ (@var{h})\n\
-Query controls like brightness, contrast, saturation etc. from v4l2_handler @var{h}.\n\
+Query controls like brightness, contrast, saturation etc. from imaq_handler @var{h}.\n\
 Use the field id for calls to __imaq_handler_s_ctrl__.\n\
 @seealso{__imaq_handler_s_ctrl__}\n\
 @end deftypefn")
@@ -431,7 +431,7 @@ Use the field id for calls to __imaq_handler_s_ctrl__.\n\
 DEFUN_DLD(__imaq_handler_g_ctrl__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{value} =} __imaq_handler_g_ctrl__ (@var{h}, @var{id})\n\
-Get value for control @var{id} from v4l2_handler @var{h}.\n\
+Get value for control @var{id} from imaq_handler @var{h}.\n\
 Use the field id from __imaq_handler_queryctrl__.\n\
 @seealso{__imaq_handler_queryctrl__}\n\
 @end deftypefn")
@@ -464,7 +464,7 @@ Use the field id from __imaq_handler_queryctrl__.\n\
 DEFUN_DLD(__imaq_handler_s_ctrl__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {} __imaq_handler_s_ctrl__ (@var{h}, @var{id}, @var{value})\n\
-Set control @var{id} like brightness, contrast, saturation etc. in v4l2_handler @var{h}.\n\
+Set control @var{id} like brightness, contrast, saturation etc. in imaq_handler @var{h}.\n\
 Use the field id from __imaq_handler_queryctrl__.\n\
 @seealso{__imaq_handler_queryctrl__}\n\
 @end deftypefn")
