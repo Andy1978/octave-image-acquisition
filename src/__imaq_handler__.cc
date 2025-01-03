@@ -19,11 +19,11 @@
 #include "config.h"
 
 #ifdef HAVE_LIBV4L2_H
-  #include "cl_v4l2_handler.h"
+#include "cl_v4l2_handler.h"
 #endif
 
 #ifdef HAVE_MFAPI_H
-  #include "cl_mf_handler.h"
+#include "cl_mf_handler.h"
 #endif
 
 using namespace std;
@@ -72,13 +72,13 @@ Creates an instance of imaq_handler for a v4l2 or MF device and opens it.\n\
 #ifdef HAVE_LIBV4L2_H
     h = new v4l2_handler ();
 #else
-	error ("octave-image-acquisition was built without v4l2 support");
+    error ("octave-image-acquisition was built without v4l2 support");
 #endif
   else if (type == "mf")
 #ifdef HAVE_MFAPI_H
     h = new mf_handler ();
 #else
-	error ("octave-image-acquisition was built without media foundation support");
+    error ("octave-image-acquisition was built without media foundation support");
 #endif
   else
     error ("unknown interface '%s'", type.c_str());

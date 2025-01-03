@@ -63,10 +63,12 @@ buftype2s (int type) //taken from v4l2-ctl.cpp
     }
 }
 
-static struct { //taken from yavta Copyright (C) 2005-2010 Laurent Pinchart
+static struct   //taken from yavta Copyright (C) 2005-2010 Laurent Pinchart
+{
   const char *name;
   unsigned int fourcc;
-} pixel_formats[] = {
+} pixel_formats[] =
+{
   { "RGB332", V4L2_PIX_FMT_RGB332 },
   { "RGB555", V4L2_PIX_FMT_RGB555 },
   { "RGB565", V4L2_PIX_FMT_RGB565 },
@@ -114,20 +116,22 @@ static struct { //taken from yavta Copyright (C) 2005-2010 Laurent Pinchart
 static std::string v4l2_fourcc_name(unsigned int fourcc)
 {
   static char name[5];
-  for (int i = 0; i < 4; ++i) {
-    name[i] = fourcc & 0xff;
-    fourcc >>= 8;
-  }
+  for (int i = 0; i < 4; ++i)
+    {
+      name[i] = fourcc & 0xff;
+      fourcc >>= 8;
+    }
   name[4] = '\0';
   return string(name);
 }
 
 static std::string v4l2_format_name(unsigned int fourcc)
 {
-  for (unsigned int i = 0; i < ARRAY_SIZE(pixel_formats); ++i) {
-    if (pixel_formats[i].fourcc == fourcc)
-      return string(pixel_formats[i].name);
-  }
+  for (unsigned int i = 0; i < ARRAY_SIZE(pixel_formats); ++i)
+    {
+      if (pixel_formats[i].fourcc == fourcc)
+        return string(pixel_formats[i].name);
+    }
   return v4l2_fourcc_name(fourcc);
 }
 
@@ -135,17 +139,19 @@ static unsigned int v4l2_format_code(const char *name)
 {
   unsigned int i;
 
-  for (i = 0; i < ARRAY_SIZE(pixel_formats); ++i) {
-    if (strcasecmp(pixel_formats[i].name, name) == 0)
-      return pixel_formats[i].fourcc;
-  }
+  for (i = 0; i < ARRAY_SIZE(pixel_formats); ++i)
+    {
+      if (strcasecmp(pixel_formats[i].name, name) == 0)
+        return pixel_formats[i].fourcc;
+    }
 
   //try fourcc format
   unsigned int fourcc = 0;
-  for (int i = 3; i >=0; i--) {
-    fourcc <<= 8;
-    fourcc += name[i];
-  }
+  for (int i = 3; i >=0; i--)
+    {
+      fourcc <<= 8;
+      fourcc += name[i];
+    }
   return fourcc;
 }
 
@@ -162,10 +168,10 @@ v4l2_handler::v4l2_handler ()
   //octave_stdout << "v4l2_handler C'Tor, type_id() = " << type_id() << std::endl;
 
   //~ if (!type_loaded)
-    //~ {
-      //~ type_loaded = true;
-      //~ register_type();
-    //~ }
+  //~ {
+  //~ type_loaded = true;
+  //~ register_type();
+  //~ }
 }
 
 v4l2_handler::v4l2_handler (const v4l2_handler& m)
@@ -201,9 +207,9 @@ typedef std::vector<std::string> dev_vec;
 static bool is_v4l_dev(const char *name)
 {
   return !memcmp(name, "video", 5) ||
-    !memcmp(name, "radio", 5) ||
-    !memcmp(name, "vbi", 3) ||
-    !memcmp(name, "v4l-subdev", 10);
+         !memcmp(name, "radio", 5) ||
+         !memcmp(name, "vbi", 3) ||
+         !memcmp(name, "v4l-subdev", 10);
 }
 
 octave_map
@@ -221,10 +227,11 @@ v4l2_handler::enum_devices ()
   struct dirent *ep;
   dev_vec files;
   dp = opendir("/dev");
-  if (dp == NULL) {
-    error ("Couldn't open /dev/ directory");
-    return octave_map();
-  }
+  if (dp == NULL)
+    {
+      error ("Couldn't open /dev/ directory");
+      return octave_map();
+    }
   while ((ep = readdir(dp)))
     if (is_v4l_dev(ep->d_name))
       files.push_back(std::string("/dev/") + ep->d_name);
@@ -232,7 +239,7 @@ v4l2_handler::enum_devices ()
 
   octave_idx_type i=0;
   for (dev_vec::iterator iter = files.begin();
-      iter != files.end(); ++iter)
+       iter != files.end(); ++iter)
     {
       //printf ("trying '%s'...\n", iter->c_str());
       //fflush(stdout);
@@ -240,12 +247,12 @@ v4l2_handler::enum_devices ()
       octave_scalar_map caps = h.open(iter->c_str(), true);
 
       if (! h.is_meta_capture ())
-      {
-        caps.assign ("device", *iter);
-        retval.assign(i++, caps);
-      }
+        {
+          caps.assign ("device", *iter);
+          retval.assign(i++, caps);
+        }
       //else
-        //printf ("INFO: list device ignores metadata interface '%s'...\n", iter->c_str());
+      //printf ("INFO: list device ignores metadata interface '%s'...\n", iter->c_str());
     }
   return retval;
 }
@@ -282,10 +289,10 @@ v4l2_handler::open (string d, bool quiet)
   else
     {
       dev = d; // store device path for later info output
-	  ret = querycap ().scalar_map_value ();
+      ret = querycap ().scalar_map_value ();
 
-	  if (!quiet && is_meta_capture ())
-	    warning ("Device '%s' is a metadata interface device", d.c_str());
+      if (!quiet && is_meta_capture ())
+        warning ("Device '%s' is a metadata interface device", d.c_str());
     }
   return ret;
 }
@@ -300,7 +307,7 @@ v4l2_handler::expand_cap (unsigned int cap)
 {
   octave_scalar_map ret;
   ret.assign ("raw", cap);
-  #define CHECK_DEVICE_CAPABILITIES_FIELD(X) ret.assign (#X, (bool)(cap & X))
+#define CHECK_DEVICE_CAPABILITIES_FIELD(X) ret.assign (#X, (bool)(cap & X))
 
   CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_CAPTURE);
   CHECK_DEVICE_CAPABILITIES_FIELD (V4L2_CAP_VIDEO_OUTPUT);
@@ -364,16 +371,16 @@ v4l2_handler::querycap ()
   // The driver fills the device_caps field. This capability can only
   // appear in the capabilities field and never in the device_caps field.
   if (cap.capabilities & V4L2_CAP_DEVICE_CAPS)
-  {
-    st.assign ("device_caps", expand_cap (cap.device_caps));
-    _is_video_capture = cap.device_caps & V4L2_CAP_VIDEO_CAPTURE;
-    _is_meta_capture  = cap.device_caps & V4L2_CAP_META_CAPTURE;
-  }
+    {
+      st.assign ("device_caps", expand_cap (cap.device_caps));
+      _is_video_capture = cap.device_caps & V4L2_CAP_VIDEO_CAPTURE;
+      _is_meta_capture  = cap.device_caps & V4L2_CAP_META_CAPTURE;
+    }
   else
-  {
-    _is_video_capture = cap.capabilities & V4L2_CAP_VIDEO_CAPTURE;
-    _is_meta_capture  = cap.capabilities & V4L2_CAP_META_CAPTURE;
-  }
+    {
+      _is_video_capture = cap.capabilities & V4L2_CAP_VIDEO_CAPTURE;
+      _is_meta_capture  = cap.capabilities & V4L2_CAP_META_CAPTURE;
+    }
 
   return octave_value (st);
 }
@@ -584,7 +591,7 @@ v4l2_handler::s_parm (Matrix timeperframe)
     }
   else
     {
-       warning("v4l2_handler::s_parm: V4L2_CAP_TIMEPERFRAME is not supported");
+      warning("v4l2_handler::s_parm: V4L2_CAP_TIMEPERFRAME is not supported");
     }
 }
 
@@ -904,21 +911,21 @@ v4l2_handler::capture (int nargout, int preview)
       ret(0) = imaq_handler::get_RGB24 (buffers[buf.index].start,  buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
     }
   else if (  fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10
-          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG10
-          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB10
-          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR12
-          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG12
-          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG12
-          || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB12 )
+             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG10
+             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB10
+             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR12
+             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG12
+             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG12
+             || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB12 )
     // RAW Bayer, 2 bytes per pixel
     // return [height * width] uint16 matrix
     {
       ret(0) = imaq_handler::get_raw_bayer2 (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
     }
   else if ( fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR8
-         || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG8
-         || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG8
-         || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB8 )
+            || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGBRG8
+            || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG8
+            || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SRGGB8 )
     // RAW Bayer, 1 byte per pixel
     // return [height * width] uint8 matrix
     {
@@ -927,20 +934,20 @@ v4l2_handler::capture (int nargout, int preview)
   else if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV)
     // YUYV aka YUV 4:2:2
     // https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-yuyv.html
-		// V4L2_PIX_FMT_YUYV is known in the Windows environment as YUY2
+    // V4L2_PIX_FMT_YUYV is known in the Windows environment as YUY2
     // return struct with fields Y, Cb, Cr
     {
       ret(0) = imaq_handler::get_YUYV (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
     }
   else if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YVU420
-           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUV420)
+              || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUV420)
     // YVU420 aka YV12
     // https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-yuv420.html
     {
       ret(0) = imaq_handler::get_YVU420 (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height, fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUV420);
     }
   else if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_NV12
-           || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_NV21)
+              || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_NV21)
     // https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-nv12.html
     {
       ret(0) = imaq_handler::get_NV12 (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
@@ -1133,16 +1140,16 @@ v4l2_handler::close ()
 //~ v4l2_handler*
 //~ get_v4l2_handler_from_ov (octave_value ov)
 //~ {
-  //~ if (ov.type_id() != v4l2_handler::static_type_id())
-    //~ {
-      //~ error("get_v4l2_handler_from_ov: Not a valid v4l2_handler");
-      //~ return 0;
-    //~ }
+//~ if (ov.type_id() != v4l2_handler::static_type_id())
+//~ {
+//~ error("get_v4l2_handler_from_ov: Not a valid v4l2_handler");
+//~ return 0;
+//~ }
 
-  //~ v4l2_handler* imgh = 0;
-  //~ const octave_base_value& rep = ov.get_rep();
-  //~ imgh = &((v4l2_handler &)rep);
-  //~ return imgh;
+//~ v4l2_handler* imgh = 0;
+//~ const octave_base_value& rep = ov.get_rep();
+//~ imgh = &((v4l2_handler &)rep);
+//~ return imgh;
 //~ }
 
 #endif

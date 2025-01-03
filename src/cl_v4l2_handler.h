@@ -106,15 +106,21 @@ public:
   void streamoff ();                          //!< stop streaming
 
   void close ();                              //!< close v4l2 device
-/*
-  bool preview_window_is_shown()
+  /*
+    bool preview_window_is_shown()
+    {
+      Fl::wait(0);
+      return (preview_window)? preview_window->shown() : false;
+    }
+  */
+  bool is_video_capture ()
   {
-    Fl::wait(0);
-    return (preview_window)? preview_window->shown() : false;
+    return _is_video_capture;
   }
-*/
-  bool is_video_capture () {return _is_video_capture;}
-  bool is_meta_capture () {return _is_meta_capture;}
+  bool is_meta_capture ()
+  {
+    return _is_meta_capture;
+  }
 
 private:
   v4l2_handler (const v4l2_handler& m);
