@@ -1,0 +1,11 @@
+Imported Win10.ova into VirtualBox, boot + login (Passw0rd!)
+- /home/andy/josoansi.de/git/octave-dev/octave-packages/octave-image-acquisition/VM_share/
+  angelegt und als "Gemeinsamer Ordner" in VirtualBox angelegt
+  
+- Aus Debian heraus Download von
+  https://ftpmirror.gnu.org/octave/windows/octave-9.3.0-w64-installer.exe
+  in den Shared Ordner, dort Setup
+  (direkt von Z: ging nicht, musste den Installer zuerst auf den Desktop kopieren)
+  -> "Install just for me"
+
+  This is all you need to compile the media foundation wrapper

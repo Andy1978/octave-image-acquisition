@@ -535,7 +535,7 @@ v4l2_handler::enum_frameintervals (string pixelformat, __u32 width, __u32 height
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-parm.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-g-parm.html
  */
 Matrix
 v4l2_handler::g_parm ()

@@ -1,3 +1,11 @@
+__imaq_handler_g_parm__
+__imaq_handler_s_parm__
+
+  umbenennen. So wie ich das sehe, kann man in v4l2 dadurch nur das frame interval abrufen bzw. setzen
+  https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-g-parm.html#c.V4L.v4l2_captureparm
+
+  Frage wäre, ob man das aufbohr oder umbenennt in "timeperframe" oder so
+
 * implement lowpass filter for fps in preview window (see title bar)
 
 * After "pkg install" doc-cache doesn't list @videoinput/*.
