@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 cp ../image-acquisition-*.tar.gz .
+rm -f image-acquisition-html.tar.gz
 
 ## Debian bullseye
 ## GNU Octave Version: 6.2.0 (hg id: 5cfdf97c5350)
