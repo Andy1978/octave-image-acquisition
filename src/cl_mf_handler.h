@@ -63,6 +63,10 @@ public:
   // TODO: enum_inputs, get_input, set_input not yet implemented for media foundation
   octave_value querycap (); //!< Query device capabilities
 
+  octave_value enum_inputs ();       //!< Enumerate video inputs
+  int get_input ();                  //!< Query the current video input
+  void set_input (int index);        //!< Select video input
+
   octave_value enum_formats ();      //!< Enumerate image formats
 
   void s_fmt (string fmtstr, uint32_t xres, uint32_t yres);

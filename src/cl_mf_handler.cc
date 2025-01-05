@@ -27,14 +27,9 @@ mf_handler::mf_handler ()
   : imaq_handler(),
     device (0),
     reader (0)
-
-
-    /*,
-      fd(-1), n_buffer(0), buffers(0), streaming(0),
-      preview_window(0), _is_video_capture (0), _is_meta_capture(0)*/
+    /*streaming(0), preview_window(0)*/
 {
-  //octave_stdout << "mf_handler C'Tor" << endl;
-  octave_stdout << "mf_handler C'Tor, type_id() = " << type_id() << std::endl;
+  //octave_stdout << "mf_handler C'Tor, type_id() = " << type_id() << std::endl;
 
   HRESULT hr;
 
@@ -54,7 +49,7 @@ mf_handler::mf_handler (const mf_handler& m)
 
 mf_handler::~mf_handler ()
 {
-  octave_stdout << "mf_handler D'Tor " << endl;
+  //octave_stdout << "mf_handler D'Tor " << endl;
 
   // delete preview_window if active
   if (preview_window)
@@ -170,7 +165,8 @@ mf_handler::open (string d, bool quiet)
   HRESULT hr;
   octave_scalar_map ret;
 
-  octave_stdout << "mf_handler::open (d = '" << d << "') called" << std::endl;
+  //octave_stdout << "DEBUG: mf_handler::open (d = '" << d << "') called" << std::endl;
+
   // ToDo: Muss man schauen, welche ID unter windoze Sinn macht. Vorerst symlink weil eindeutig
   wstring symlink = utf8_to_wstring (d);
 
@@ -221,6 +217,38 @@ mf_handler::querycap ()
   st.assign ("version",      "not implemented");
   st.assign ("capabilities", "not implemented");
   return octave_value (st);
+}
+
+octave_value
+mf_handler::enum_inputs ()
+{
+  octave_stdout << "warning: mf_handler::enum_inputs isn't implemented yet, it always returns one dummy entry" << std::endl;
+
+  octave_map ret;
+  octave_scalar_map st;
+  st.assign ("name", "dummy input");
+  st.assign ("type", "not yet implemented");
+  st.assign ("audioset",     (unsigned int) 0);
+  st.assign ("tuner",        (unsigned int) 0);
+  st.assign ("std",          (unsigned int) 0);
+  st.assign ("status",       (unsigned int) 0);
+  st.assign ("capabilities", (unsigned int) 0);
+
+  ret.assign(0, st);
+  return octave_value(ret);
+}
+
+int
+mf_handler::get_input ()
+{
+  octave_stdout << "warning: mf_handler::get_input isn't implemented yet, it always returns 0" << std::endl;
+  return 0;
+}
+
+void
+mf_handler::set_input (int index)
+{
+  octave_stdout << "warning: mf_handler::set_input isn't implemented yet, a function call has no effect" << std::endl;
 }
 
 octave_value
@@ -439,7 +467,7 @@ octave_scalar_map get_ctrl_range (IMFMediaSource* device, long src_obj, long pro
       ctrl.assign ("default", def);
       ctrl.assign ("control", control);
     }
-    
+
   if(SUCCEEDED(hr2))
     {
       ctrl.assign ("value", current_value);
@@ -502,7 +530,7 @@ void mf_handler::s_ctrl (int id, int value)
   int src_obj = id >> 16;
   long prop = id && 0xFFFF;
   long val = value;
-  
+
   if (src_obj == 0)
     {
       IAMCameraControlPtr spCameraControl(device);
