@@ -36,18 +36,20 @@
 ##    [6,1] = VideoResolution
 ##    [7,1] = VideoFrameInterval
 ##    [8,1] = VideoFormat
-##    [9,1] = brightness
-##    [10,1] = contrast
-##    [11,1] = saturation
-##    [12,1] = white_balance_temperature_auto
-##    [13,1] = gain
-##    [14,1] = power_line_frequency
-##    [15,1] = white_balance_temperature
-##    [16,1] = sharpness
-##    [17,1] = backlight_compensation
-##    [18,1] = exposure_auto
-##    [19,1] = exposure_absolute
-##    [20,1] = exposure_auto_priority
+##    [9,1] = user_controls
+##    [10,1] = brightness
+##    [11,1] = contrast
+##    [12,1] = saturation
+##    [13,1] = white_balance_automatic
+##    [14,1] = gain
+##    [15,1] = power_line_frequency
+##    [16,1] = white_balance_temperature
+##    [17,1] = sharpness
+##    [18,1] = backlight_compensation
+##    [19,1] = camera_controls
+##    [20,1] = auto_exposure
+##    [21,1] = exposure_time_absolute
+##    [22,1] = exposure_dynamic_framerate
 ##  @}
 ## @end group
 ## @end example

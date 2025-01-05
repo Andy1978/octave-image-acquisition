@@ -52,7 +52,7 @@ struct buffer
  * v4l2 wrapper for octave-image-acquisition
  *
  * A big help was the Video Grabber example using libv4l by Mauro Carvalho Cheha
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/v4l2grab-example.html
+ * https://www.linuxtv.org/downloads/v4l-dvb-apis/userspace-api/v4l/v4l2grab-example.html
  */
 class v4l2_handler: public imaq_handler
 {
@@ -113,10 +113,14 @@ public:
       return (preview_window)? preview_window->shown() : false;
     }
   */
+
   bool is_video_capture ()
   {
     return _is_video_capture;
   }
+
+  // see https://unix.stackexchange.com/questions/512759/multiple-dev-video-for-one-physical-device
+  // why today video0 and video1 are created simulateneously
   bool is_meta_capture ()
   {
     return _is_meta_capture;

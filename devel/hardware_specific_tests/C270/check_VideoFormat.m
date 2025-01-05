@@ -27,7 +27,7 @@ if (1)
 endif
 
 ##### YUYV aka YUV422
-# see http://www.linuxtv.org/downloads/v4l-dvb-apis/V4L2-PIX-FMT-YUYV.html
+# see https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-packed-yuv.html
 if (1)
   set(obj, "VideoFormat", "YUYV")
   start(obj)
@@ -46,7 +46,7 @@ if (1)
 endif
 
 #### YV12 aka YVU420
-# see http://www.linuxtv.org/downloads/v4l-dvb-apis/re23.html
+# see https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-yuv-planar.html
 
 if (1)
   set(obj, "VideoFormat", "YV12")
@@ -67,7 +67,7 @@ if (1)
 endif
 
 #### YU12 aka YUV420
-# see http://www.linuxtv.org/downloads/v4l-dvb-apis/re23.html
+# see https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-yuv-planar.html
 
 if (1)
   set(obj,"VideoFormat","YU12")

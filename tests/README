@@ -1,5 +1,5 @@
 build docker containers and run tests in them.
-/dev/video0 is exported to the docker conatianers via --device
+/dev/video0 is exported to the docker containers via --device
 
 Usage:
 $ [sudo] ./build.sh

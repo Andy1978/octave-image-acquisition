@@ -8,3 +8,6 @@ dependencies on Debian GNU/Linux 7.2 (wheezy)
 
 strongly suggested (for v4l2-ctl):
 * v4l-utils
+
+Helpful links:
+* https://www.linuxtv.org/wiki/index.php/How_to_Obtain,_Build_and_Install_V4L-DVB_Device_Drivers

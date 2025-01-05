@@ -40,7 +40,7 @@ imaq_handler::imaq_handler ()
 
 imaq_handler::~imaq_handler ()
 {
-  octave_stdout << "imaq_handler D'Tor " << endl;
+  //octave_stdout << "imaq_handler D'Tor " << endl;
 
   // delete preview_window if active
   if (preview_window)

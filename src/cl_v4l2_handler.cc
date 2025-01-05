@@ -386,7 +386,7 @@ v4l2_handler::querycap ()
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enuminput.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-enuminput.html
  * see also output from "v4l2-ctl -n"
  * \return octave_map with the enumeration of all inputs
  */
@@ -425,7 +425,7 @@ v4l2_handler::enum_inputs ()
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-g-input.html
  */
 int
 v4l2_handler::get_input ()
@@ -436,7 +436,7 @@ v4l2_handler::get_input ()
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-input.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-g-input.html
  */
 void
 v4l2_handler::set_input (int index)
@@ -445,7 +445,7 @@ v4l2_handler::set_input (int index)
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enum-fmt.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-enum-fmt.html
  * see also "v4l2-ctl -w --list-formats"
  * \return octave_map with available video formats
  */
@@ -474,7 +474,7 @@ v4l2_handler::enum_formats ()
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enum-framesizes.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-enum-framesizes.html
  * see also v4l2-ctl --list-formats-ext
  * \param pixel_format e.g. 'RGB24'
  * \return Nx2 Matrix with width, height
@@ -505,7 +505,7 @@ v4l2_handler::enum_framesizes (string pixelformat)
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enum-frameintervals.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-enum-frameintervals.html
  * see also v4l2-ctl --list-formats-ext
  * \param pixel_format e.g. 'RGB24'
  * \param width in px
@@ -567,7 +567,7 @@ v4l2_handler::g_parm ()
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-parm.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-g-parm.html
  */
 void
 v4l2_handler::s_parm (Matrix timeperframe)
@@ -635,8 +635,8 @@ v4l2_handler::get_osm (struct v4l2_queryctrl queryctrl)
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-queryctrl.html
- * or better http://www.linuxtv.org/downloads/v4l-dvb-apis/extended-controls.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-queryctrl.html
+ * or better https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/extended-controls.html
  * because most "Exposure" ctrls are "extended controls"
  *
  * see also v4l2-ctl -L
@@ -679,8 +679,8 @@ v4l2_handler::queryctrl ()
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/control.html
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-ctrl.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/control.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l//vidioc-g-ctrl.html
  */
 int
 v4l2_handler::g_ctrl (int id)
@@ -693,8 +693,8 @@ v4l2_handler::g_ctrl (int id)
 }
 
 /*!
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/control.html
- * http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-g-ctrl.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media//control.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media//vidioc-g-ctrl.html
  */
 void
 v4l2_handler::s_ctrl (int id, int value)
@@ -770,7 +770,7 @@ v4l2_handler::g_fmt ()
 }
 
 /*!
- * https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/vidioc-reqbufs.html
+ * https://www.kernel.org/doc/html/v6.1/userspace-api/media/vidioc-reqbufs.html
  * \param n number of buffers to initiate. A count value of zero frees all buffers.
  */
 void
@@ -953,9 +953,9 @@ v4l2_handler::capture (int nargout, int preview)
       ret(0) = imaq_handler::get_NV12 (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
     }
   else
-    // No conversion for this format
-    // http://www.linuxtv.org/downloads/v4l-dvb-apis/ch02s10.html
-    // Just return the bytes as vector in this case.
+    // No conversion for this format (perhaps a compressed format like MPEG)
+    // https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-compressed.html
+    // -> Just return the bytes as vector in this case.
     {
       //octave_stdout << "INFO: No conversion for "
       //              << v4l2_format_name(fmt.fmt.pix.pixelformat)

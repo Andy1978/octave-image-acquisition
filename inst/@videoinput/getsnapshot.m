@@ -64,7 +64,7 @@
 ##   @end table
 ##
 ## @item struct @var{tc}
-## Timecode, see @url{http://linuxtv.org/downloads/v4l-dvb-apis/buffer.html#v4l2-timecode}
+## Timecode, see @url{https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/buffer.html#c.V4L.v4l2_timecode}
 ## @end table
 ## @seealso {@@videoinput/start, @@videoinput/preview}
 ## @end deftypefn
@@ -113,7 +113,7 @@ endfunction
 
 %!test
 %! obj = videoinput (__test__device__{:});
-%! # see http://www.linuxtv.org/downloads/v4l-dvb-apis/V4L2-PIX-FMT-YUYV.html
+%! # see https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-packed-yuv.html
 %! set (obj, "VideoFormat", "YUYV")
 %! start (obj)
 %! img = getsnapshot (obj);
@@ -121,7 +121,7 @@ endfunction
 
 %!test
 %! obj = videoinput (__test__device__{:});
-%! # see see http://www.linuxtv.org/downloads/v4l-dvb-apis/re23.html
+%! # see https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-yuv-planar.html
 %! set (obj, "VideoFormat", "YU12")
 %! start (obj)
 %! img = getsnapshot(obj);
@@ -129,7 +129,7 @@ endfunction
 
 %!demo
 %! obj = videoinput (__test__device__{:});
-%! # see http://www.linuxtv.org/downloads/v4l-dvb-apis/V4L2-PIX-FMT-YUYV.html
+%! # see https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-packed-yuv.html
 %! set(obj,"VideoFormat","YUYV")
 %! start(obj)
 %! img = getsnapshot(obj);
