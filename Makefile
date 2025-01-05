@@ -1,4 +1,4 @@
-## Copyright 2015-2016 Andreas Weber
+## Copyright 2015-2025 Andreas Weber
 ## Copyright 2015-2016 Mike Miller
 ## Copyright 2015-2016 Carnë Draug
 ## Copyright 2015-2016 Oliver Heimlich
@@ -49,10 +49,12 @@ help:
 
 $(RELEASE_DIR):
 	@echo "Creating package version $(VERSION) release ..."
-	-rm -rf $@
-	#hg archive --exclude ".hg*" --exclude "Makefile" --type files "$@"
-	#TODO/FIXME
-	cd "$@" && rm -rf "devel/" && rm -rf "tests/" && cd "src/" && ./bootstrap && cd - && rm -rf "src/autom4te.cache"
+	rm -rf $@ && mkdir -p $@/src
+	cd src && ./bootstrap && cd -
+	# Explicitly copy only needed files
+	cp COPYING DESCRIPTION INDEX NEWS $@
+	cp -r inst $@
+	cp src/*.cc src/*.h src/*.in src/configure src/config.guess src/config.sub $@/src
 	chmod -R a+rX,u+w,go-w $@
 
 $(RELEASE_TARBALL): $(RELEASE_DIR)
@@ -124,5 +126,5 @@ debug: clean
 clean:
 	rm -rf $(RELEASE_DIR) $(RELEASE_TARBALL) $(HTML_TARBALL) $(HTML_DIR)
 	rm -f ./devel/fntest.log
-	-test -e src/Makefile && $(MAKE) -C src clean
+	-test -e src/Makefile && $(MAKE) -C src realclean
 
