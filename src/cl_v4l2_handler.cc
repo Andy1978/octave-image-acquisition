@@ -484,7 +484,7 @@ Matrix
 v4l2_handler::enum_framesizes (string pixelformat)
 {
   Matrix ret;
-  __u32 pfcode = v4l2_format_code(pixelformat.c_str());
+  uint32_t pfcode = v4l2_format_code(pixelformat.c_str());
   struct v4l2_frmsizeenum frmsize;
   CLEAR(frmsize);
   frmsize.pixel_format = pfcode;
@@ -514,10 +514,10 @@ v4l2_handler::enum_framesizes (string pixelformat)
  * \sa enum_framesizes
  */
 Matrix
-v4l2_handler::enum_frameintervals (string pixelformat, __u32 width, __u32 height)
+v4l2_handler::enum_frameintervals (string pixelformat, uint32_t width, uint32_t height)
 {
   Matrix ret;
-  __u32 pfcode = v4l2_format_code(pixelformat.c_str());
+  uint32_t pfcode = v4l2_format_code(pixelformat.c_str());
   struct v4l2_frmivalenum frmival;
   CLEAR(frmival);
   frmival.pixel_format = pfcode;
@@ -585,9 +585,9 @@ v4l2_handler::s_parm (Matrix timeperframe)
       if (!tf->denominator || !tf->numerator)
         error("v4l2_handler::s_parm: Invalid framerate");
 
-      if (tf->numerator != __u32(timeperframe(0)) || tf->denominator != __u32(timeperframe(1)))
+      if (tf->numerator != uint32_t(timeperframe(0)) || tf->denominator != uint32_t(timeperframe(1)))
         warning("v4l2_handler::s_parm: driver is using %d/%d as timeperframe but %d/%d was requested",
-                tf->numerator, tf->denominator, __u32(timeperframe(0)), __u32(timeperframe(1)));
+                tf->numerator, tf->denominator, uint32_t(timeperframe(0)), uint32_t(timeperframe(1)));
     }
   else
     {
@@ -714,7 +714,7 @@ v4l2_handler::s_ctrl (int id, int value)
  * The used libv4l2 pixelformat is set to fmt, V4L2_FIELD_INTERLACED
  */
 void
-v4l2_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
+v4l2_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
 {
   if (streaming)
     {

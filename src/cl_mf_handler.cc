@@ -246,7 +246,7 @@ mf_handler::enum_formats ()
 }
 
 void
-mf_handler::s_fmt (string fmtstr, __u32 xres, __u32 yres)
+mf_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
 {
   cout << "mf_handler::s_fmt (" << fmtstr << ", " << xres << ", " << yres << ") called" << endl;
 

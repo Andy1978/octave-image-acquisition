@@ -24,14 +24,15 @@
 
 #include <iostream>
 
-#ifdef WIN32
-typedef unsigned int __u32;
-#endif
+//#ifdef WIN32
+//typedef unsigned int uint32;
+//#endif
 
 #include <octave/oct.h>
 #include <octave/ov-struct.h>
 
 //#include <octave/dMatrix.h>
+#include <cstdint>
 
 #include "cl_img_win.h"
 
@@ -93,9 +94,9 @@ public:
   {
     return octave_scalar_map ();  //!< Get current format
   }
-  virtual void s_fmt (string fmtstr, __u32 xres, __u32 yres) {}             //!< Set format
+  virtual void s_fmt (string fmtstr, uint32_t xres, uint32_t yres) {}             //!< Set format
 
-  virtual Matrix enum_frameintervals (string pixelformat, __u32 width, __u32 height)
+  virtual Matrix enum_frameintervals (string pixelformat, uint32_t width, uint32_t height)
   {
     return Matrix ();  //!< Enumerate frame intervals
   }

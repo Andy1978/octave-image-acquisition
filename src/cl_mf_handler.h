@@ -65,7 +65,7 @@ public:
 
   octave_value enum_formats ();      //!< Enumerate image formats
 
-  void s_fmt (string fmtstr, __u32 xres, __u32 yres);
+  void s_fmt (string fmtstr, uint32_t xres, uint32_t yres);
   octave_scalar_map g_fmt (IMFMediaType *pType);
   octave_scalar_map g_fmt ();
 
@@ -81,9 +81,9 @@ public:
     octave_value enum_fmt (enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE); //!< Enumerate image formats
     Matrix enum_framesizes (string pixelformat);     //!< Enumerate frame sizes
     octave_scalar_map g_fmt ();                      //!< Get current format
-    void s_fmt (string fmtstr, __u32 xres, __u32 yres); //!< Set format
+    void s_fmt (string fmtstr, uint32_t xres, uint32_t yres); //!< Set format
 
-    Matrix enum_frameintervals (string pixelformat, __u32 width, __u32 height);     //!< Enumerate frame intervals
+    Matrix enum_frameintervals (string pixelformat, uint32_t width, uint32_t height);     //!< Enumerate frame intervals
     Matrix g_parm ();                    //!< Get streaming parameters (like frame interval)
     void s_parm (Matrix timeperframe);   //!< Set streaming parameters (like frame interval)
 
