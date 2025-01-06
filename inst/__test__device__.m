@@ -1,4 +1,4 @@
-## Copyright (C) 2014-2024 Andreas Weber <andy.weber.aw@gmail.com>
+## Copyright (C) 2014-2025 Andreas Weber <andy.weber.aw@gmail.com>
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -38,7 +38,7 @@ function ret = __test__device__()
       warning_shown = 1;
     endif
   elseif (numel(l) == 0)
-    warning("It appears that you have no capture device installed. All tests may fail. Please connect one or try\n       $ modprobe v4l2loopback\n       $ gst-launch videotestsrc ! v4l2sink device=/dev/video0");
+    error("It appears that you have no video capture device installed. Almost all tests will fail. Please connect one or try\n       $ modprobe v4l2loopback\n       $ gst-launch videotestsrc ! v4l2sink device=/dev/video0");
     dev = "/dev/null";
   else
     dev = l.device;
