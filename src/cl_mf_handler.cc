@@ -69,7 +69,6 @@ void
 mf_handler::print (std::ostream& os, bool pr_as_read_syntax = false)
 {
   os << "This is class mf_handler" << endl;
-  //os << "dev = " << dev << ", fd = " << fd << ", n_buffer = " << n_buffer << ", streaming = " << ((streaming)? "true":"false") << endl;
 }
 
 // https://learn.microsoft.com/en-us/archive/msdn-magazine/2016/september/c-unicode-encoding-conversions-with-stl-strings-and-win32-apis
@@ -197,11 +196,9 @@ mf_handler::open (string d, bool quiet)
   // create reader
   hr = MFCreateSourceReaderFromMediaSource(device, NULL, &reader);
   CHECK(hr);
-  //device->Release();
 
-  enum_formats ();
-
-  s_fmt ("MJPG", 640, 480);
+  //enum_formats ();
+  //s_fmt ("MJPG", 640, 480);
 
   return ret;
 }
@@ -266,6 +263,7 @@ mf_handler::enum_formats ()
   IMFMediaType *pType = NULL;
   while (SUCCEEDED(hr = reader->GetNativeMediaType(dwStreamIndex, dwMediaTypeIndex, &pType)))
     {
+      //printf ("dwMediaTypeIndex = %i\n", dwMediaTypeIndex);
       ret.assign(octave_idx_type(dwMediaTypeIndex), g_fmt (pType));
       pType->Release();
       ++dwMediaTypeIndex;
@@ -296,7 +294,6 @@ mf_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
 
       hr = type->SetGUID (MF_MT_MAJOR_TYPE, MFMediaType_Video);
       CHECK(hr);
-
 
       // FIXME: schauen, wie man das geschickter machen kann
 #define MUX_FMT(X) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## X);
@@ -342,21 +339,46 @@ octave_scalar_map mf_handler::g_fmt (IMFMediaType *pType)
   octave_scalar_map ret;
   HRESULT hr;
 
-  UINT64 tmp;
-  hr = pType->GetUINT64(MF_MT_FRAME_SIZE, &tmp);
-  CHECK(hr);
+  // get frame size
+  {
+    UINT64 tmp;
+    hr = pType->GetUINT64(MF_MT_FRAME_SIZE, &tmp);
+    CHECK(hr);
 
-  UINT32 width;
-  UINT32 height;
+    UINT32 width = (UINT32)(tmp >> 32);
+    UINT32 height = (UINT32)(tmp);
+    //printf("DEBUG: Readback Size = %ux%u\n", width, height);
 
-  width = (UINT32)(tmp >> 32);
-  height = (UINT32)(tmp);
-  //printf("DEBUG: Readback Size = %ux%u\n", width, height);
+    Matrix s(1,2);
+    s(0) = width;
+    s(1) = height;
+    ret.assign ("size", s);
+  }
 
-  Matrix s(1,2);
-  s(0) = width;
-  s(1) = height;
-  ret.assign ("size", s);
+  // get frame rate
+  {
+    UINT32 unNumerator_min;
+    UINT32 unDenominator_min;
+    hr = MFGetAttributeRatio(pType, MF_MT_FRAME_RATE_RANGE_MIN, &unNumerator_min, &unDenominator_min);
+    CHECK (hr);
+    //printf ("MF_MT_FRAME_RATE_RANGE_MIN = %i/%i\n", unNumerator_min, unNumerator_min);
+
+    UINT32 unNumerator_max;
+    UINT32 unDenominator_max;
+    hr = MFGetAttributeRatio(pType, MF_MT_FRAME_RATE_RANGE_MAX, &unNumerator_max, &unDenominator_max);
+    CHECK (hr);
+    //printf ("MF_MT_FRAME_RATE_RANGE_MAX = %i/%i\n", unNumerator_min, unNumerator_min);
+
+    // TODO: all of my tests with uvcvideo returned eqal values vor _MIN and _MAX
+    // but can we be sure?
+    assert (unNumerator_min == unNumerator_max);
+    assert (unDenominator_min == unDenominator_max);
+
+    Matrix s(1,2);
+    s(0) = unNumerator_min;
+    s(1) = unDenominator_min;
+    ret.assign ("frame_rate", s);
+  }
 
   // get FOURCC
 
@@ -381,7 +403,7 @@ octave_scalar_map mf_handler::g_fmt (IMFMediaType *pType)
   tmp_fourcc[3] = int8_t ((sub.Data1 & 0xff000000) >> 24);
   tmp_fourcc[4] = 0;
 
-  ret.assign ("pixelformat", std::string(tmp_fourcc));
+  ret.assign ("fourcc", std::string(tmp_fourcc));
 
   // get CLSID as string (informational purpose only)
   OLECHAR* guidString;
@@ -410,6 +432,16 @@ octave_scalar_map mf_handler::g_fmt (IMFMediaType *pType)
   out (MFVideoFormat_YV12);
   out (MFVideoFormat_YVYU);
   */
+
+  {
+    int fCompressed = 0;
+    hr = pType->IsCompressedFormat (&fCompressed);
+    CHECK(hr)
+    ret.assign ("flags_compressed", fCompressed);  // TODO/FIXME: not tested yet
+
+    // GetNativeMediaType should only return native formats
+    ret.assign ("flags_emulated", false);
+  }
 
   return ret;
 }
@@ -647,31 +679,20 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
 void
 mf_handler::close ()
 {
-  octave_stdout << "mf_handler::close called" << std::endl;
+  //octave_stdout << "DEBUG: mf_handler::close called" << std::endl;
 
   //~ streamoff();
-  //~ if (fd >= 0)
-  //~ v4l2_close(fd);
-  //~ fd = -1;
   if (device)
     {
       device->Release();
       device = 0;
     }
 
-
   if (reader)
     {
       reader->Release ();
       reader = 0;
     }
-
-
 }
-
-
-
-
-
 
 #endif
