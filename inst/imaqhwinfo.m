@@ -38,3 +38,4 @@ endfunction
 
 %!test
 %! d = imaqhwinfo();
+%! assert (numel (d) >= 1);

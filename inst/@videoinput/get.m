@@ -123,4 +123,4 @@ endfunction
 %! obj = videoinput(__test__device__{:});
 %! f = get(obj, "VideoFormat");
 
-%!error get(obj, "there_is_no_such_property")
+%!error <invalid property name> get(videoinput(__test__device__{:}), "there_is_no_such_property")
