@@ -1,4 +1,4 @@
-## Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
+## Copyright (C) 2014-2025 Andreas Weber <andy.weber.aw@gmail.com>
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -15,12 +15,14 @@
 
 ## Run all tests
 ## This should finish with "FAIL  0" but some device drivers do not implement
-## all v4l2 io-calls like enum frameintervals.
+## all functions like enum frameintervals.
 ##
 ## Tested with
 ## - v4l2 loopback 0.6.1
 ## - uvcvideo 3.2.51 UVC Camera (046d:0825), Logitech, Inc. Webcam C270
 ## - sn9c20x 3.2.51 USB20 Camera, Trust 14830
+##
+## Newer versions of GNU Octave might have "runtests" or "oruntests"
 
 fns = { '../src/__imaq_handler__.cc';
         '@videoinput/videoinput';

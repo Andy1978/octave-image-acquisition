@@ -198,7 +198,7 @@ endfunction
 %!test
 %! obj = videoinput (__test__device__{:});
 %! T = set (obj, 'VideoFrameInterval');
-%! # not all drives support enumeration and query of trameintervals
+%! # not all drives support enumeration and query of frameintervals
 %! if (rows(T) >= 1)
 %!   set (obj, 'VideoFrameInterval', T(1,:));
 %!   set (obj, 'VideoFrameInterval', T(end,:));
