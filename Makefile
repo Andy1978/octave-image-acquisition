@@ -50,7 +50,6 @@ help:
 $(RELEASE_DIR):
 	@echo "Creating package version $(VERSION) release ..."
 	rm -rf $@ && mkdir -p $@/src
-	cd src && ./bootstrap && cd -
 	# Explicitly copy only needed files
 	cp COPYING DESCRIPTION INDEX NEWS $@
 	cp -r inst $@
@@ -94,19 +93,19 @@ install: $(RELEASE_TARBALL)
 	@echo "Installing package locally ..."
 	$(OCTAVE) --silent --eval 'pkg ("install", "${RELEASE_TARBALL}")'
 
-all: $(CC_SOURCES)
+src/Makefile:
 	cd src/ && ./configure
+
+all: $(CC_SOURCES) src/Makefile
 	$(MAKE) -C src/
 
-
+## At least one video input device or v4l2 loopback needed
 check: all
 	$(OCTAVE) --no-window-system --silent \
 	  --eval 'addpath (fullfile ([pwd filesep "inst"]));' \
 	  --eval 'addpath (fullfile ([pwd filesep "src"]));' \
 	  --eval '${PKG_ADD}' \
 	  --eval 'run ("./devel/run_tests")'
-#FIXME: I haven't yet found a way to run the test in @classes
-#--eval 'runtests ("inst"); runtests ("src");' \
 
 run: all
 	$(OCTAVE) --no-gui --silent --persist \
@@ -114,8 +113,7 @@ run: all
 	  --eval 'addpath (fullfile ([pwd filesep "src"]));' \
 	  --eval '${PKG_ADD}'
 
-debug: clean
-	cd src/ && ./configure
+debug: clean src/Makefile
 	$(MAKE) -C src/ debug
 	$(OCTAVE) --no-gui --silent --persist \
 	  --eval 'addpath (fullfile ([pwd filesep "inst"]));' \
@@ -126,5 +124,5 @@ debug: clean
 clean:
 	rm -rf $(RELEASE_DIR) $(RELEASE_TARBALL) $(HTML_TARBALL) $(HTML_DIR)
 	rm -f ./devel/fntest.log
-	-test -e src/Makefile && $(MAKE) -C src realclean
+	-test -e src/Makefile && $(MAKE) -C src distclean
 
