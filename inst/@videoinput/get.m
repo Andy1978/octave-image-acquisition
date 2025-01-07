@@ -89,7 +89,7 @@ function val = get (vi, prop)
       case "VideoInput"
         val = __imaq_handler_get_input__(vi.imaqh);
       case "VideoFrameInterval"
-        val = __imaq_handler_g_parm__(vi.imaqh);
+        val = __imaq_handler_get_frameinterval__(vi.imaqh);
       case "VideoResolution"
         val = __imaq_handler_g_fmt__(vi.imaqh).size;
       case "VideoFormat"

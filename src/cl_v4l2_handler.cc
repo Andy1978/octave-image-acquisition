@@ -545,7 +545,7 @@ v4l2_handler::enum_frameintervals (string pixelformat, uint32_t width, uint32_t 
  * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-g-parm.html
  */
 Matrix
-v4l2_handler::g_parm ()
+v4l2_handler::get_frameinterval ()
 {
   Matrix ret(1,2);
   struct v4l2_streamparm sparam;
@@ -560,7 +560,7 @@ v4l2_handler::g_parm ()
     }
   else
     {
-      warning("v4l2_handler::g_parm: V4L2_CAP_TIMEPERFRAME is not supported");
+      warning("v4l2_handler::get_frameinterval: V4L2_CAP_TIMEPERFRAME is not supported");
       return Matrix(0,0);
     }
   return ret;
@@ -570,7 +570,7 @@ v4l2_handler::g_parm ()
  * https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-g-parm.html
  */
 void
-v4l2_handler::s_parm (Matrix timeperframe)
+v4l2_handler::set_frameinterval (Matrix timeperframe)
 {
   struct v4l2_streamparm sparam;
   CLEAR(sparam);
@@ -583,15 +583,15 @@ v4l2_handler::s_parm (Matrix timeperframe)
       xioctl(fd, VIDIOC_S_PARM, &sparam);
       struct v4l2_fract *tf = &sparam.parm.capture.timeperframe;
       if (!tf->denominator || !tf->numerator)
-        error("v4l2_handler::s_parm: Invalid framerate");
+        error("v4l2_handler::set_frameinterval: Invalid framerate");
 
       if (tf->numerator != uint32_t(timeperframe(0)) || tf->denominator != uint32_t(timeperframe(1)))
-        warning("v4l2_handler::s_parm: driver is using %d/%d as timeperframe but %d/%d was requested",
+        warning("v4l2_handler::set_frameinterval: driver is using %d/%d as timeperframe but %d/%d was requested",
                 tf->numerator, tf->denominator, uint32_t(timeperframe(0)), uint32_t(timeperframe(1)));
     }
   else
     {
-      warning("v4l2_handler::s_parm: V4L2_CAP_TIMEPERFRAME is not supported");
+      warning("v4l2_handler::set_frameinterval: V4L2_CAP_TIMEPERFRAME is not supported");
     }
 }
 

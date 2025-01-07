@@ -91,7 +91,7 @@ function ret = set (vi, varargin)
             endif
           case 'VideoFrameInterval'
             if (ismatrix (val) && isreal (val) && numel (val) == 2)
-              __imaq_handler_s_parm__(vi.imaqh, val);
+              __imaq_handler_set_frameinterval__(vi.imaqh, val);
             else
               error ('set VideoFrameInterval: expecting a 1x2 matrix with [numerator, denominator]');
             endif

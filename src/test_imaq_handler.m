@@ -9,11 +9,14 @@ autoload ("__imaq_handler_get_input__", which ("__imaq_handler__.oct"));
 autoload ("__imaq_handler_set_input__", which ("__imaq_handler__.oct"));
 autoload ("__imaq_handler_enum_formats__", which ("__imaq_handler__.oct"));
 autoload ("__imaq_handler_enum_framesizes__", which ("__imaq_handler__.oct"));
+
 autoload ("__imaq_handler_enum_frameintervals__", which ("__imaq_handler__.oct"));
-autoload ("__imaq_handler_g_parm__", which ("__imaq_handler__.oct"));
-autoload ("__imaq_handler_s_parm__", which ("__imaq_handler__.oct"));
+autoload ("__imaq_handler_get_frameinterval__", which ("__imaq_handler__.oct"));
+autoload ("__imaq_handler_set_frameinterval__", which ("__imaq_handler__.oct"));
+
 autoload ("__imaq_handler_g_fmt__", which ("__imaq_handler__.oct"));
 autoload ("__imaq_handler_s_fmt__", which ("__imaq_handler__.oct"));
+
 autoload ("__imaq_handler_queryctrl__", which ("__imaq_handler__.oct"));
 autoload ("__imaq_handler_g_ctrl__", which ("__imaq_handler__.oct"));
 autoload ("__imaq_handler_s_ctrl__", which ("__imaq_handler__.oct"));
@@ -112,4 +115,37 @@ __imaq_handler_g_fmt__(x)
 
 #######################################################################################
 
-__imaq_handler_g_parm__(x)
+__imaq_handler_get_frameinterval__ (x)
+__imaq_handler_set_frameinterval__ (x, [1 5])
+
+####################################################
+
+ctrls = __imaq_handler_queryctrl__(x);
+if (isfield(ctrls, "brightness"))
+  min_brightness = ctrls.brightness.min;
+  max_brightness = ctrls.brightness.max;
+  __imaq_handler_s_ctrl__(x, ctrls.brightness.id, min_brightness);
+  assert(__imaq_handler_g_ctrl__(x, ctrls.brightness.id), min_brightness)
+  __imaq_handler_s_ctrl__(x, ctrls.brightness.id, max_brightness);
+  assert(__imaq_handler_g_ctrl__(x, ctrls.brightness.id), max_brightness)
+  v = round(max_brightness/2);
+  __imaq_handler_s_ctrl__(x, ctrls.brightness.id, v);
+  assert(__imaq_handler_g_ctrl__(x, ctrls.brightness.id), v);
+endif
+
+##
+
+__imaq_handler_streamon__ (x, 2)
+[img, seq, timestamp] = __imaq_handler_capture__(x);
+__imaq_handler_streamoff__ (x)
+
+# man müsste img noch in ein RGB Format wandeln
+%! tmp = cat (3, img.Y, kron(img.Cb, [1 1]), kron(img.Cr, [1 1]));
+%! # convert to RGB with octave-forge image function ycbcr2rgb
+%! pkg load image
+%! rgb = ycbcr2rgb (tmp, "709");
+%! image(rgb)
+%! title ("YUYV, Standard 709")
+
+
+

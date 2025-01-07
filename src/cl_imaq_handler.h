@@ -100,11 +100,11 @@ public:
   {
     return Matrix ();  //!< Enumerate frame intervals
   }
-  virtual Matrix g_parm ()
+  virtual Matrix get_frameinterval ()
   {
-    return Matrix ();  //!< Get streaming parameters (like frame interval)
+    return Matrix ();
   }
-  virtual void s_parm (Matrix timeperframe) {}    //!< Set streaming parameters (like frame interval)
+  virtual void set_frameinterval (Matrix timeperframe) {}
 
   virtual octave_value queryctrl ()
   {

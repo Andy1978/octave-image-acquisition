@@ -288,11 +288,11 @@ Return a Nx2 matrix with numerator, denominator.\n\
   return retval;
 }
 
-// PKG_ADD: autoload ("__imaq_handler_g_parm__", which ("__imaq_handler__.oct"));
-// PKG_DEL: autoload ("__imaq_handler_g_parm__", which ("__imaq_handler__.oct"), "remove");
-DEFUN_DLD(__imaq_handler_g_parm__, args, nargout,
+// PKG_ADD: autoload ("__imaq_handler_get_frameinterval__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_handler_get_frameinterval__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_handler_get_frameinterval__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{T} = } __imaq_handler_g_parm__ (@var{h})\n\
+@deftypefn {Loadable Function} {@var{T} = } __imaq_handler_get_frameinterval__ (@var{h})\n\
 Return current frame interval as numerator, denominator.\n\
 @end deftypefn")
 {
@@ -308,16 +308,16 @@ Return current frame interval as numerator, denominator.\n\
   imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
-      retval = octave_value(imgh->g_parm ());
+      retval = octave_value(imgh->get_frameinterval ());
     }
   return retval;
 }
 
-// PKG_ADD: autoload ("__imaq_handler_s_parm__", which ("__imaq_handler__.oct"));
-// PKG_DEL: autoload ("__imaq_handler_s_parm__", which ("__imaq_handler__.oct"), "remove");
-DEFUN_DLD(__imaq_handler_s_parm__, args, nargout,
+// PKG_ADD: autoload ("__imaq_handler_set_frameinterval__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_handler_set_frameinterval__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_handler_set_frameinterval__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{T} = } __imaq_handler_s_parm__ (@var{h}, @var{s})\n\
+@deftypefn {Loadable Function} {@var{T} = } __imaq_handler_set_frameinterval_ (@var{h}, @var{s})\n\
 Set frame interval numerator and denominator.\n\
 @end deftypefn")
 {
@@ -333,7 +333,7 @@ Set frame interval numerator and denominator.\n\
   imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
-      imgh->s_parm(args(1).matrix_value ());
+      imgh->set_frameinterval(args(1).matrix_value ());
     }
   return retval;
 }
@@ -673,5 +673,5 @@ Return preview_window->shown().\n\
  *  This may fail for example with some sn9c20x cameras
 %!test
 %! x = __imaq_handler_open__(__test__device__{:});
-%! r = __imaq_handler_g_parm__(x);
+%! r = __imaq_handler_get_frameinterval__(x);
 */

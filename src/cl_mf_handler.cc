@@ -312,6 +312,18 @@ mf_handler::enum_frameintervals (string pixelformat, uint32_t width, uint32_t he
   return ret;
 }
 
+Matrix
+mf_handler::get_frameinterval ()
+{
+  Matrix ret(1,2);
+  return ret;
+}
+
+void
+mf_handler::set_frameinterval (Matrix timeperframe)
+{
+}
+
 void
 mf_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
 {

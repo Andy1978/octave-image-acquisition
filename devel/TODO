@@ -1,10 +1,5 @@
 * Make fltk optional (currently used for preview window)
 
-* Rename __imaq_handler_g_parm__, __imaq_handler_s_parm__
-  So wie ich das sehe, kann man in v4l2 dadurch nur das frame interval abrufen bzw. setzen
-  https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/vidioc-g-parm.html#c.V4L.v4l2_captureparm
-  Frage wäre, ob man das aufbohrt oder umbenennt in "timeperframe" oder so
-
 * implement lowpass filter for fps in preview window (see title bar)
 
 * After "pkg install" doc-cache doesn't list @videoinput/*.

@@ -78,7 +78,10 @@ public:
   octave_scalar_map g_fmt ();
 
   Matrix enum_framesizes (string pixelformat);                                       //!< Enumerate frame sizes
+
   Matrix enum_frameintervals (string pixelformat, uint32_t width, uint32_t height);  //!< Enumerate frame intervals
+  Matrix get_frameinterval ();
+  void set_frameinterval (Matrix timeperframe);
 
   octave_value queryctrl ();                  //!< Query controls
   int g_ctrl (int id);                        //!< Get control
@@ -87,18 +90,7 @@ public:
   octave_value_list capture (int nargout, int preview);  //!< Retrieve captured image from buffer
 
   /*
-
-    octave_value enum_fmt (enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE); //!< Enumerate image formats
-    Matrix enum_framesizes (string pixelformat);     //!< Enumerate frame sizes
-    octave_scalar_map g_fmt ();                      //!< Get current format
-    void s_fmt (string fmtstr, uint32_t xres, uint32_t yres); //!< Set format
-
-    Matrix enum_frameintervals (string pixelformat, uint32_t width, uint32_t height);     //!< Enumerate frame intervals
-    Matrix g_parm ();                    //!< Get streaming parameters (like frame interval)
-    void s_parm (Matrix timeperframe);   //!< Set streaming parameters (like frame interval)
-
     void capture_to_ppm (const char *fn);       //!< Retrieve captured image from buffer and save it as ppm
-
     void streamon (unsigned int n);             //!< start streaming with n buffers
     void streamoff ();                          //!< stop streaming
   */

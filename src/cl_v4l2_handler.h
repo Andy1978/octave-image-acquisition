@@ -91,8 +91,8 @@ public:
   void s_fmt (string fmtstr, uint32_t xres, uint32_t yres); //!< Set format
 
   Matrix enum_frameintervals (string pixelformat, uint32_t width, uint32_t height);     //!< Enumerate frame intervals
-  Matrix g_parm ();                    //!< Get streaming parameters (like frame interval)
-  void s_parm (Matrix timeperframe);   //!< Set streaming parameters (like frame interval)
+  Matrix get_frameinterval ();
+  void set_frameinterval (Matrix timeperframe);
 
   octave_value queryctrl ();                  //!< Query controls
   int g_ctrl (int id);                        //!< Get control
