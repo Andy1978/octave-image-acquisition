@@ -67,11 +67,18 @@ public:
   int get_input ();                  //!< Query the current video input
   void set_input (int index);        //!< Select video input
 
+  // loops reader->GetNativeMediaType
+  // returns all possible combinations of pixelformat, frame size and frame interval
+  octave_map loop_native_media_types ();
+
   octave_value enum_formats ();      //!< Enumerate image formats
 
-  void s_fmt (string fmtstr, uint32_t xres, uint32_t yres);
-  octave_scalar_map g_fmt (IMFMediaType *pType);
+  void s_fmt (string fmtstr, uint32_t xres, uint32_t yres); //!< Set format
+  octave_scalar_map g_fmt (IMFMediaType *pType);            //!< Get current format
   octave_scalar_map g_fmt ();
+
+  Matrix enum_framesizes (string pixelformat);                                       //!< Enumerate frame sizes
+  Matrix enum_frameintervals (string pixelformat, uint32_t width, uint32_t height);  //!< Enumerate frame intervals
 
   octave_value queryctrl ();                  //!< Query controls
   int g_ctrl (int id);                        //!< Get control
@@ -80,7 +87,6 @@ public:
   octave_value_list capture (int nargout, int preview);  //!< Retrieve captured image from buffer
 
   /*
-    octave_value querycap ();        //!< Query device capabilities
 
     octave_value enum_fmt (enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE); //!< Enumerate image formats
     Matrix enum_framesizes (string pixelformat);     //!< Enumerate frame sizes

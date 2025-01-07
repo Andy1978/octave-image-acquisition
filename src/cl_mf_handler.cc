@@ -21,7 +21,7 @@
 #include "cl_mf_handler.h"
 
 
-#define CHECK(hr) if (!SUCCEEDED(hr)) fprintf (stderr, "failed with %li\n", GetLastError());
+#define CHECK(hr) if (!SUCCEEDED(hr)) fprintf (stderr, "%s:%s:%i failed with %li\n", __FILE__, __FUNCTION__, __LINE__, GetLastError());
 
 mf_handler::mf_handler ()
   : imaq_handler(),
@@ -248,27 +248,68 @@ mf_handler::set_input (int index)
   octave_stdout << "warning: mf_handler::set_input isn't implemented yet, a function call has no effect" << std::endl;
 }
 
-octave_value
-mf_handler::enum_formats ()
+octave_map
+mf_handler::loop_native_media_types ()
 {
   octave_map ret;
   // enumerating output formats from
   // https://learn.microsoft.com/en-us/windows/win32/medfound/processing-media-data-with-the-source-reader
-
-  DWORD dwStreamIndex = MF_SOURCE_READER_FIRST_VIDEO_STREAM;
-  DWORD dwMediaTypeIndex = 0;
-
   // https://stackoverflow.com/questions/7968547/how-to-get-a-list-of-all-microsoft-media-foundation-transforms-mfts-available
+
   HRESULT hr;
   IMFMediaType *pType = NULL;
-  while (SUCCEEDED(hr = reader->GetNativeMediaType(dwStreamIndex, dwMediaTypeIndex, &pType)))
+  DWORD dwMediaTypeIndex = 0;
+  while (SUCCEEDED(hr = reader->GetNativeMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM, dwMediaTypeIndex, &pType)))
     {
       //printf ("dwMediaTypeIndex = %i\n", dwMediaTypeIndex);
       ret.assign(octave_idx_type(dwMediaTypeIndex), g_fmt (pType));
       pType->Release();
       ++dwMediaTypeIndex;
     }
-  return octave_value(ret);
+  return ret;
+}
+
+octave_value
+mf_handler::enum_formats ()
+{
+  octave_map tmp = loop_native_media_types();
+  return octave_value(tmp);
+}
+
+Matrix
+mf_handler::enum_framesizes (string pixelformat)
+{
+  Matrix ret;
+  // ret.resize(frmsize.index+1, 2);
+  // ret(frmsize.index, 0) = frmsize.discrete.width;
+  // ret(frmsize.index, 1) = frmsize.discrete.height;
+
+  printf ("DEBUG: enum_framesizes not yet implemented...\n");
+
+  //~ octave_map tmp = loop_native_media_types();
+  //~ for (int k = 0; k < tmp.numel (); ++k)
+  //~ {
+    //~ if (tmp.contents("fourcc")(k).string_value() == pixelformat)
+    //~ {
+      //~ Matrix frame_size = tmp.contents("size")(k).matrix_value();
+      //~ printf ("%i %f %f\n", k, frame_size(0), frame_size(1));
+    //~ }
+
+  //~ }
+  return ret;
+}
+
+Matrix
+mf_handler::enum_frameintervals (string pixelformat, uint32_t width, uint32_t height)
+{
+  Matrix ret;
+  ret.resize(5, 2);
+  //        ret(frmival.index, 0) = frmival.discrete.numerator;
+  //        ret(frmival.index, 1) = frmival.discrete.denominator;
+
+  printf ("DEBUG: enum_frameintervals not yet implemented...\n");
+
+  return ret;
 }
 
 void
@@ -297,8 +338,11 @@ mf_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
 
       // FIXME: schauen, wie man das geschickter machen kann
 #define MUX_FMT(X) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## X);
+#define MUX_FMT2(X,Y) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## Y);
+
       if MUX_FMT(MJPG)
       else if MUX_FMT(YUY2)
+      else if MUX_FMT2(YUYV, YUY2)
       else if MUX_FMT(NV12)
       else if MUX_FMT(AI44)
       else if MUX_FMT(AYUV)
@@ -374,9 +418,15 @@ octave_scalar_map mf_handler::g_fmt (IMFMediaType *pType)
     assert (unNumerator_min == unNumerator_max);
     assert (unDenominator_min == unDenominator_max);
 
+    // Some items return odd ratios, for example uvcvideo C270
+    // MF_MT_SUBTYPE_CLSID = {32595559-0000-0010-8000-00AA00389B71}
+    // YUY2 1280x720
+    // unNumerator = 10000000, unDenominator = 1333333
+    // where v4l2 return 15/2 as expected...
+
     Matrix s(1,2);
-    s(0) = unNumerator_min;
-    s(1) = unDenominator_min;
+    s(0) = unDenominator_min;
+    s(1) = unNumerator_min;
     ret.assign ("frame_rate", s);
   }
 

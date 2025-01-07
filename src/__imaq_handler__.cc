@@ -232,7 +232,7 @@ Returns a struct with information for all available formats.\n\
 DEFUN_DLD(__imaq_handler_enum_framesizes__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{sizes} = } __imaq_handler_enum_framesizes__ (@var{h}, @var{format})\n\
-Enumerate available frame sizes from imaq_handler @var{h}.\n\
+Enumerate available frame sizes from imaq_handler @var{h} for given pixelformat (FOURCC).\n\
 @end deftypefn")
 {
   octave_value_list retval;

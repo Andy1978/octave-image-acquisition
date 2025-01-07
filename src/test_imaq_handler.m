@@ -30,7 +30,10 @@ elseif (ispc ())
 endif
 x = __imaq_handler_open__(td{:})
 
-# enum_inputs, get_input and set_input isn't implemented on windoze and returns dummy values
+# not yet implemented for mf
+cap = __imaq_handler_querycap__ (x);
+
+# enum_inputs, get_input and set_input isn't implemented for mf and returns dummy values
 assert (numel (__imaq_handler_enum_inputs__(x)), 1);
 assert (__imaq_handler_get_input__(x), 0);
 __imaq_handler_set_input__(x, 0);
@@ -40,12 +43,73 @@ __imaq_handler_set_input__(x, 0);
 # mf   gibt die 3 FOURCC MJPG, NV12 und YUY2
 #      und auch size, frame_rate und alle Kombinationen (daher numel == 312)
 
-fmt = __imaq_handler_enum_formats__(x)
+# TODO: sollte man in die Doku zu __imaq_handler_enum_formats__ packen (ins .cc file)
+#{
+  scalar structure containing the fields:
+
+    size = 640   480
+    frame_rate = 30    1
+    fourcc = YUY2
+    MF_MT_SUBTYPE_CLSID = {32595559-0000-0010-8000-00AA00389B71}
+    flags_compressed = 0
+    flags_emulated = 0
+
+v4l2:
+
+  scalar structure containing the fields:
+
+    type = Video Capture
+    description = YUYV 4:2:2
+    pixelformat = YUYV
+    fourcc = YUYV
+    flags_compressed = 0
+    flags_emulated = 0
+#}
+
+fmt = __imaq_handler_enum_formats__(x);
 unique ({fmt.fourcc})
 
-fps = vertcat (fmt.frame_rate);
-
+#fps = vertcat (fmt.frame_rate);
 # unter windows gibt es krumme Werte für die frame_rate: 10000000/1333333
 # das sollten wohl eher 15/2 sein...
 
+# Es dürften keine doppelten vorkommen, wie kann man das überprüfen?
+#tmp = arrayfun ("jsonencode", fmt, "UniformOutput", false);
+#assert (numel (fmt) == numel (unique (tmp)));
 
+
+#search_fmt = "MJPG";
+search_size = [1280 960];
+
+# nicht implementiert für mf, beides kann über __imaq_handler_enum_formats__ geholt werden
+if (isunix ())
+  search_fmt = "YUYV";
+  frame_sizes = __imaq_handler_enum_framesizes__ (x, search_fmt)
+  frame_intervals = __imaq_handler_enum_frameintervals__ (x, search_size, search_fmt)
+endif
+
+# Eigentlich müsste man für mf ja ein filter + unique machen auf den Daten, die loop_native_media_types () zurück gibt.
+if (ispc ())
+  search_fmt = "YUY2";
+
+  # Nur MJPG, doppelte (wegen frameintervals) raus
+  fmt_mask = strcmpi({fmt.fourcc}, search_fmt);
+  frame_sizes = unique (vertcat(fmt(fmt_mask).size), "rows")
+
+  # wo findet sich die frame size?
+  size_mask = all (vertcat(fmt(fmt_mask).size) == search_size, 2);
+  frame_intervals = vertcat(fmt(fmt_mask)(size_mask).frame_rate)
+endif
+
+# TODO: Das oben müsste man dann vermutlich in cl_mf_handler.cc nachimplementieren...
+
+# Format und Größe setzen
+__imaq_handler_s_fmt__(x, search_fmt, search_size);
+
+# zurücklesen
+__imaq_handler_g_fmt__(x)
+#__imaq_handler_s_fmt__(x, "MJPG", [800 448])
+
+#######################################################################################
+
+__imaq_handler_g_parm__(x)
