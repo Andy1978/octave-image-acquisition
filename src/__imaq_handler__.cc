@@ -549,8 +549,6 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
   return retval;
 }
 
-// CAPTURES
-
 // PKG_ADD: autoload ("__imaq_handler_capture__", which ("__imaq_handler__.oct"));
 // PKG_DEL: autoload ("__imaq_handler_capture__", which ("__imaq_handler__.oct"), "remove");
 DEFUN_DLD(__imaq_handler_capture__, args, nargout,
@@ -603,6 +601,29 @@ Return preview_window->shown().\n\
   if (imgh)
     {
       ret = imgh->preview_window_is_shown ();
+    }
+  return ret;
+}
+
+// PKG_ADD: autoload ("__imaq_handler_YCbCr_to_RGB__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_handler_YCbCr_to_RGB__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_handler_YCbCr_to_RGB__, args, nargout,
+          "-*- texinfo -*-\n\
+@deftypefn {Loadable Function} {@var{rgb} =} __imaq_handler_YCbCr_to_RGB__ (@var{h}, @var{yuv}, @var{standard})\n\
+\n\
+@end deftypefn")
+{
+  octave_value ret;
+  if (args.length () != 3)
+    {
+      print_usage ();
+      return ret;
+    }
+
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
+  if (imgh)
+    {
+      ret = imgh->YCbCr_to_RGB (args(1), args(2).int_value());
     }
   return ret;
 }

@@ -230,6 +230,109 @@ octave_value imaq_handler::get_raw_bytes (void *start, size_t length)
   return octave_value(img);
 }
 
+// YCbCr_to_RGB to RGB24
+// returns a double [height x width x 3] matrix with RGB values in the range 0..1
+// See also ycbcrfunc.m from the image package and ../devel/ycbcr_to_rgb.m
+octave_value imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standard)
+{
+  // prüfen, ob der input ein octave_scalar_map ist
+  if (! in.isstruct ())
+    error ("imaq_handler::YCbCr_to_RGB: IN must be a struct");
+
+  const octave_scalar_map tmp = in.scalar_map_value ();
+
+  // prüfen, ob die Felder Y, Cb, Cr vorhanden sind
+  if (! tmp.contents ("Y").is_defined ())
+    error ("imaq_handler::YCbCr_to_RGB: IN has no field 'Y'");
+
+  if (! tmp.contents ("Cb").is_defined ())
+    error ("imaq_handler::YCbCr_to_RGB: IN has no field 'Cb'");
+
+  if (! tmp.contents ("Cr").is_defined ())
+    error ("imaq_handler::YCbCr_to_RGB: IN has no field 'Cr'");
+
+  Matrix Y  = tmp.contents ("Y").uint8_array_value();
+  Matrix Cb = tmp.contents ("Cb").uint8_array_value();
+  Matrix Cr = tmp.contents ("Cr").uint8_array_value();
+
+  // die Breite und Höhe bestimmen
+  printf ("DEBUG: Y  = %li x %li\n",  Y.dims ()(0),  Y.dims ()(1));
+  printf ("DEBUG: Cb = %li x %li\n", Cb.dims ()(0), Cb.dims ()(1));
+  printf ("DEBUG: Cr = %li x %li\n", Cr.dims ()(0), Cr.dims ()(1));
+
+  if ((Cb.dims ()(0) != Cr.dims ()(0)) || (Cb.dims ()(1) != Cr.dims ()(1)))
+    error ("imaq_handler::YCbCr_to_RGB: this code expects, that Cb and Cr have the same size");
+
+  int v_subs =  Y.dims ()(0) / Cb.dims ()(0);
+  int h_subs =  Y.dims ()(1) / Cb.dims ()(1);
+
+  if (v_subs * Cb.dims ()(0) != Y.dims ()(0))
+    error ("imaq_handler::YCbCr_to_RGB: vertical subsampling is not an integer");
+
+  if (h_subs * Cb.dims ()(1) != Y.dims ()(1))
+    error ("imaq_handler::YCbCr_to_RGB: horizontal subsampling is not an integer");
+
+  printf ("DEBUG: v_subs = %i\n", v_subs);
+  printf ("DEBUG: h_subs = %i\n", h_subs);
+
+  uint32_t width  = Y.dims ()(1);
+  uint32_t height = Y.dims ()(0);
+
+  dim_vector dv (height, width, 3);
+  NDArray img (dv);
+
+  double Kb = 0;
+  double Kr = 0;
+  switch (ITU_standard)
+  {
+    // ITU-R BT.601 (formerly CCIR 601)
+    case 601:
+      Kb = 0.114;
+      Kr = 0.299;
+      break;
+
+    // ITU-R BT.709 standard
+    case 709:
+      Kb = 0.0722;
+      Kr = 0.2116;
+      break;
+    // ITU-R BT.2020 standard
+    case 2020:
+      Kb = 0.0593;
+      Kr = 0.2627;
+      break;
+    default:
+      error ("imaq_handler:YCbCr_to_RGB: unkown ITU_standard %i", ITU_standard);
+  }
+
+  double Kg = 1 - Kb - Kr;
+
+  // Directly based on
+  // https://en.wikipedia.org/wiki/YCbCr
+
+  // Not yet optimized for speed
+  for (octave_idx_type r = 0; r < height; r++)
+    for (octave_idx_type c = 0; c < width; c++)
+      {
+        // step 1: undo footroom/headroom offset and scaling
+
+        // y = nominal 0..1 but 8% overshoot and 6% undershoot due to filtering is possible
+        double y  =  ((Y (r, c) - 16) / 219 );
+
+        // cb+cr = nominal -0.5..0.5 but 6% over- and undershoot possible
+        double cb =  ((Cb (r / v_subs, c / h_subs) - 16) / 224) - 0.5;
+        double cr =  ((Cr (r / v_subs, c / h_subs) - 16) / 224) - 0.5;
+
+        //printf ("DEBUG: y = %.3f, cb = %.3f , cr = %.3f\n", y, cb, cr);
+
+        // step 2: multiply with inverse of color matrix
+        img (r, c, 0) = y + (2 - 2*Kr) * cr;
+        img (r, c, 1) = y - Kb/Kg*(2-2*Kb)*cb - Kr/Kg*(2-2*Kr)*cr;
+        img (r, c, 2) = y + (2-2*Kb)*cb;
+      }
+  return octave_value(img);
+}
+
 imaq_handler*
 get_imaq_handler_from_ov (octave_value ov)
 {

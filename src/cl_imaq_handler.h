@@ -126,13 +126,9 @@ public:
   }
 
   /*
-
     void capture_to_ppm (const char *fn);       //!< Retrieve captured image from buffer and save it as ppm
-
-
     bool is_video_capture () {return _is_video_capture;}
     bool is_meta_capture () {return _is_meta_capture;}
-
   */
 
   bool preview_window_is_shown()
@@ -140,6 +136,8 @@ public:
     Fl::wait(0);
     return (preview_window)? preview_window->shown() : false;
   }
+
+  static octave_value YCbCr_to_RGB (const octave_value& in, int ITU_standard = 601);
 
   void close ();                              //!< close device
 
