@@ -640,7 +640,7 @@ void mf_handler::s_ctrl (int id, int value)
   CHECK(hr)
 }
 
-octave_value_list mf_handler::capture (int nargout, int preview = 0)
+octave_value_list mf_handler::capture (int nargout, bool preview, bool rgb)
 {
   octave_value_list ret;
   HRESULT hr;
@@ -651,6 +651,7 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
   IMFSample* sample;
 
   //printf ("reader = %p\n", reader);
+  printf ("DEBUG  mf_handler::capture (%i, %i, %i)\n", nargout, preview, rgb);
 
   for (;;)
     {
@@ -660,12 +661,12 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
 
       if (flags & MF_SOURCE_READERF_STREAMTICK)
         {
+          printf ("DEBUG: mf_handler::capture: waiting for sample...\n");
           continue;
         }
 
       break;
     }
-
 
   // näher anschauen: IMFTransform
   // https://learn.microsoft.com/en-us/windows/win32/medfound/processing-data-in-the-encoder
@@ -683,28 +684,34 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
     hr = buffer->Lock (&data, NULL, &size);
     CHECK(hr);
 
-    printf ("buffer size = %lu\n", size);
-    for (int k = 0; k < 10; ++k)
-      printf ("%x ", data[k]);
-    printf ("\n");
+    printf ("DEBUG: mf_handler::capture: buffer size = %lu\n", size);
+    //for (int k = 0; k < 10; ++k)
+    //  printf ("%x ", data[k]);
+    //printf ("\n");
 
     // get current format
-    string fmt = current_fmt.contents("pixelformat").string_value ();
-    printf ("DEBUG: fmt = '%s'\n", fmt.c_str());
+    string fmt = current_fmt.contents("fourcc").string_value ();
+    printf ("DEBUG: mf_handler::capture: fmt = '%s'\n", fmt.c_str());
+
     uint32NDArray s = current_fmt.contents("size").uint32_array_value ();
     UINT32 width = s(0);
     UINT32 height = s(1);
-    printf ("DEBUG: size = [%i %i]\n", width, height);
+    printf ("DEBUG: mf_handler::capture: size = [%i %i]\n", width, height);
+
+    // basic, underlying color space
+    bool is_ycbcr = false;
 
     if (fmt == "YUY2")
       // YUYV aka YUV 4:2:2 aka YUY2
       // return struct with fields Y, Cb, Cr
       {
         ret(0) = imaq_handler::get_YUYV (data, size, width, height);
+        is_ycbcr = true;
       }
     else if (fmt == "NV12")
       {
         ret(0) = imaq_handler::get_NV12 (data, size, width, height);
+        is_ycbcr = true;
       }
     else
       {
@@ -716,24 +723,47 @@ octave_value_list mf_handler::capture (int nargout, int preview = 0)
         ret(0) = octave_value(img);
       }
 
-
-    /*
-    		{
-    			HANDLE h = CreateFileA("image.jpg", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    			assert(h != INVALID_HANDLE_VALUE);
-
-    			DWORD written;
-    			BOOL ok = WriteFile(h, data, size, &written, NULL);
-    			assert(ok && written == size);
-
-    			CloseHandle(h);
-    		}
-    */
     buffer->Unlock ();
     buffer->Release ();
-  }
 
+    // check if a conversion to rgb is wanted
+    //printf ("is_ycbcr = %i, is_rgb = %i\n", is_ycbcr, is_rgb);
+    if (rgb)
+      {
+        if (is_ycbcr)
+        {
+          ret(0) = YCbCr_to_RGB (ret(0), 601);
+        }
+        else
+          error ("mf_handler::capture: can't convert '%s' to 'RGB3'", fmt.c_str ());
+      }
+  }
   sample->Release ();
+
+  // Fake other return values, all not yet implemented
+  static int sequence_nr = 0;
+  if (nargout > 1) // sequence
+    ret(1) = octave_value(sequence_nr++);
+
+  if (nargout > 2) // timestamp
+    {
+      octave_scalar_map timestamp;
+      timestamp.assign ("tv_sec", (long int) 0); //(buf.timestamp.tv_sec));
+      timestamp.assign ("tv_usec", (long int) 0); //(buf.timestamp.tv_usec));
+      ret(2) = octave_value(timestamp);
+    }
+
+  if (nargout > 3) // timecode
+    {
+      octave_scalar_map timecode;
+      timecode.assign ("type", 0);
+      timecode.assign ("flags", 0);
+      timecode.assign ("frames", 0);
+      timecode.assign ("seconds", 0);
+      timecode.assign ("minutes", 0);
+      timecode.assign ("hours", 0);
+      ret(3) = octave_value(timecode);
+    }
 
   return ret;
 }

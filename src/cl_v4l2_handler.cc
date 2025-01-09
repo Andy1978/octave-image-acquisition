@@ -736,6 +736,10 @@ v4l2_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
       if (!fmtstr.empty())
         {
           fmt_code = v4l2_format_code(fmtstr.c_str());
+
+          printf ("DEBUG: v4l2_format_code (%s) returned 0x%X = %s\n", fmtstr.c_str(), fmt_code, v4l2_fourcc_name (fmt_code).c_str());
+
+
           fmt.fmt.pix.pixelformat = fmt_code;
         }
       fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
@@ -833,11 +837,12 @@ v4l2_handler::qbuf ()
 
 /*!
  * \param nargout Number of output Parameter [image, sequence, timestamp, timecode]
- * \param preview 0=no preview, 1=show preview win if closed, 2=leave it closed
+ * \param preview
+ * \param rgb convert image to rgb format
  * \return image, sequence, timestamp, [timecode]
  */
 octave_value_list
-v4l2_handler::capture (int nargout, int preview)
+v4l2_handler::capture (int nargout, bool preview, bool rgb)
 {
   octave_value_list ret;
 
@@ -846,6 +851,10 @@ v4l2_handler::capture (int nargout, int preview)
       error("v4l2_handler::capture: Streaming wasn't enabled. Please use 'start(obj)'");
       return octave_value();
     }
+
+  //printf ("v4l2_handler::capture (%i, %i, %i)\n", nargout, preview, rgb);
+
+
   struct v4l2_format fmt;
   CLEAR(fmt);
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -898,17 +907,16 @@ v4l2_handler::capture (int nargout, int preview)
   //octave_stdout << "INFO: width = " << fmt.fmt.pix.width << ", height = " << fmt.fmt.pix.height << endl;
   //octave_stdout << "INFO: Bytes captured = " << buf.bytesused << endl;
 
-  if ((fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_RGB24) && preview)
-    {
-      error("v4l2_handler::capture: Preview is only available if VideoFormat is 'RGB3' aka 'RGB24' (V4L2_PIX_FMT_RGB24)");
-      preview = false;
-    }
+  // basic, underlying color space
+  bool is_rgb = false;
+  bool is_ycbcr = false;
 
   if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_RGB24)
     // RGB3 aka RGB24
     // return [height x width x 3] uint8 matrix
     {
       ret(0) = imaq_handler::get_RGB24 (buffers[buf.index].start,  buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
+      is_rgb = true;
     }
   else if (  fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10
              || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG10
@@ -938,6 +946,7 @@ v4l2_handler::capture (int nargout, int preview)
     // return struct with fields Y, Cb, Cr
     {
       ret(0) = imaq_handler::get_YUYV (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
+      is_ycbcr = true;
     }
   else if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YVU420
               || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUV420)
@@ -945,12 +954,14 @@ v4l2_handler::capture (int nargout, int preview)
     // https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-yuv420.html
     {
       ret(0) = imaq_handler::get_YVU420 (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height, fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUV420);
+      is_ycbcr = true;
     }
   else if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_NV12
               || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_NV21)
     // https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/pixfmt-nv12.html
     {
       ret(0) = imaq_handler::get_NV12 (buffers[buf.index].start, buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
+      is_ycbcr = true;
     }
   else
     // No conversion for this format (perhaps a compressed format like MPEG)
@@ -961,6 +972,21 @@ v4l2_handler::capture (int nargout, int preview)
       //              << v4l2_format_name(fmt.fmt.pix.pixelformat)
       //              << " implemented, returning raw stream..." << endl;
       ret(0) = imaq_handler::get_raw_bytes (buffers[buf.index].start, buf.bytesused);
+    }
+
+  // check if a conversion to rgb is wanted
+  printf ("is_ycbcr = %i, is_rgb = %i\n", is_ycbcr, is_rgb);
+  if (rgb)
+    {
+      if (is_ycbcr)
+      {
+        ret(0) = YCbCr_to_RGB (ret(0), 601);
+        is_rgb = true;
+      }
+      else if (is_rgb)
+        ret(0) = ret(0).array_value () / 255.0;
+      else
+        error ("v4l2_handler::capture: can't convert '%s' to 'RGB3'", v4l2_format_name(fmt.fmt.pix.pixelformat).c_str());
     }
 
   if (nargout > 1)
@@ -998,6 +1024,12 @@ v4l2_handler::capture (int nargout, int preview)
   // use preview window?
   if (preview)
     {
+      // FIXME: Man müsste prüfen, ob eine Wandlung nach RGB gewünscht ist oder preview aktiv ist...
+      if (! is_rgb)
+        {
+          error("v4l2_handler::capture: Preview is only available ....");
+        }
+
       if (!preview_window)
         {
           preview_window = new img_win(10, 10, fmt.fmt.pix.width, fmt.fmt.pix.height);
@@ -1031,6 +1063,7 @@ v4l2_handler::capture (int nargout, int preview)
     }
 
   xioctl(fd, VIDIOC_QBUF, &buf);
+
   return ret;
 }
 
@@ -1040,7 +1073,8 @@ v4l2_handler::capture (int nargout, int preview)
 void
 v4l2_handler::capture_to_ppm (const char *fn)
 {
-  uint8NDArray img = capture (1, 0)(0).uint8_array_value();
+  NDArray rgb = capture (1, 0, 1)(0).array_value();
+  uint8NDArray img = rgb * 255.0;
   Matrix per(3,1);
   per(0) = 2;
   per(1) = 1;

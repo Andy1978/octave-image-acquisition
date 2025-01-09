@@ -24,6 +24,7 @@ autoload ("__imaq_handler_streamoff__", which ("__imaq_handler__.oct"));
 autoload ("__imaq_handler_streamon__", which ("__imaq_handler__.oct"));
 autoload ("__imaq_handler_capture__", which ("__imaq_handler__.oct"));
 autoload ("__imaq_preview_window_is_shown__", which ("__imaq_handler__.oct"));
+autoload ("__imaq_handler_YCbCr_to_RGB__", which ("__imaq_handler__.oct"));
 
 td = __test__device__; # uses imaqhwinfo, which calls __imaq_enum_devices__
 if (isunix ())
@@ -80,11 +81,10 @@ unique ({fmt.fourcc})
 #tmp = arrayfun ("jsonencode", fmt, "UniformOutput", false);
 #assert (numel (fmt) == numel (unique (tmp)));
 
-
 #search_fmt = "MJPG";
 search_size = [1280 960];
 
-# nicht implementiert für mf, beides kann über __imaq_handler_enum_formats__ geholt werden
+# nicht implementiert für mf, beides kann beides über __imaq_handler_enum_formats__ geholt werden
 if (isunix ())
   search_fmt = "YUYV";
   frame_sizes = __imaq_handler_enum_framesizes__ (x, search_fmt)
@@ -92,6 +92,7 @@ if (isunix ())
 endif
 
 # Eigentlich müsste man für mf ja ein filter + unique machen auf den Daten, die loop_native_media_types () zurück gibt.
+# Also so in der Art in cl_mf_handler.cc nachimplementieren_
 if (ispc ())
   search_fmt = "YUY2";
 
@@ -104,7 +105,6 @@ if (ispc ())
   frame_intervals = vertcat(fmt(fmt_mask)(size_mask).frame_rate)
 endif
 
-# TODO: Das oben müsste man dann vermutlich in cl_mf_handler.cc nachimplementieren...
 
 # Format und Größe setzen
 __imaq_handler_s_fmt__(x, search_fmt, search_size);
@@ -113,12 +113,8 @@ __imaq_handler_s_fmt__(x, search_fmt, search_size);
 __imaq_handler_g_fmt__(x)
 #__imaq_handler_s_fmt__(x, "MJPG", [800 448])
 
-#######################################################################################
-
 __imaq_handler_get_frameinterval__ (x)
 __imaq_handler_set_frameinterval__ (x, [1 5])
-
-####################################################
 
 ctrls = __imaq_handler_queryctrl__(x);
 if (isfield(ctrls, "brightness"))
@@ -136,8 +132,8 @@ endif
 ##
 
 __imaq_handler_streamon__ (x, 2)
-[img, seq, timestamp] = __imaq_handler_capture__(x);
-__imaq_handler_streamoff__ (x)
+#[img, seq, timestamp] = __imaq_handler_capture__(x);
+#__imaq_handler_streamoff__ (x)
 
 # man müsste img noch in ein RGB Format wandeln
 %! tmp = cat (3, img.Y, kron(img.Cb, [1 1]), kron(img.Cr, [1 1]));
@@ -148,4 +144,5 @@ __imaq_handler_streamoff__ (x)
 %! title ("YUYV, Standard 709")
 
 
-
+# muss noch getestet werden
+# __imaq_preview_window_is_shown__

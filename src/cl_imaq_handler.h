@@ -120,7 +120,8 @@ public:
   virtual void streamoff () {}                          //!< stop streaming
 
   virtual octave_value_list capture (int nargout,
-                                     int preview=0)
+                                     bool preview,
+                                     bool rgb)
   {
     return octave_value_list (); //!< Retrieve captured image from buffer
   }
