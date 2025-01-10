@@ -29,7 +29,7 @@ n = 50;
 tic ();
 for k = 1:n
   # FIXME: mir scheint das sind aktuell immer 8,2 fps, egal welche frameinterval und framesize ich einstelle
-  [img, seq, timestamp] = __imaq_handler_capture__(x, 0, 0);
+  [img, seq, timestamp] = __imaq_handler_capture__(x, 0, 1);
 endfor
 t = toc ();
 __imaq_handler_streamoff__ (x)

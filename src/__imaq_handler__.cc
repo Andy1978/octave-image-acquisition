@@ -553,14 +553,12 @@ Start streaming with @var{n} buffers. It is recommended to use at least 2 buffer
 // PKG_DEL: autoload ("__imaq_handler_capture__", which ("__imaq_handler__.oct"), "remove");
 DEFUN_DLD(__imaq_handler_capture__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{f} =} __imaq_handler_capture__ (@var{h}, @var{preview}, @var{rgb})\n\
+@deftypefn {Loadable Function} {@var{f} =} __imaq_handler_capture__ (@var{h}, @var{preview}, @var{raw_output})\n\
 Get a snapshot from @var{h}\n\
 @end deftypefn")
 {
   octave_value_list retval;
   int nargin = args.length ();
-
-  printf ("nargin = %i\n", nargin);
 
   if (nargin != 3)
     {
@@ -571,7 +569,6 @@ Get a snapshot from @var{h}\n\
   imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
-      printf ("call\n");
       retval = imgh->capture (nargout, args(1).bool_value (), args(2).bool_value ());
     }
   return retval;

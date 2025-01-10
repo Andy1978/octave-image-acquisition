@@ -838,11 +838,12 @@ v4l2_handler::qbuf ()
 /*!
  * \param nargout Number of output Parameter [image, sequence, timestamp, timecode]
  * \param preview
- * \param rgb convert image to rgb format
+ * \param raw_output return colorspace of image as raw as reasonable.
+ *        YUV formats are unpacked, semiplanar pages are merged but chroma subsampling and colorspace is left unchanged.
  * \return image, sequence, timestamp, [timecode]
  */
 octave_value_list
-v4l2_handler::capture (int nargout, bool preview, bool rgb)
+v4l2_handler::capture (int nargout, bool preview, bool raw_output)
 {
   octave_value_list ret;
 
@@ -852,8 +853,7 @@ v4l2_handler::capture (int nargout, bool preview, bool rgb)
       return octave_value();
     }
 
-  //printf ("v4l2_handler::capture (%i, %i, %i)\n", nargout, preview, rgb);
-
+  //printf ("v4l2_handler::capture (%i, %i, %i)\n", nargout, preview, raw_output);
 
   struct v4l2_format fmt;
   CLEAR(fmt);
@@ -908,7 +908,8 @@ v4l2_handler::capture (int nargout, bool preview, bool rgb)
   //octave_stdout << "INFO: Bytes captured = " << buf.bytesused << endl;
 
   // basic, underlying color space
-  bool is_rgb = false;
+  bool is_rgb3  = false;
+  bool is_mjpg  = false;
   bool is_ycbcr = false;
 
   if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_RGB24)
@@ -916,7 +917,7 @@ v4l2_handler::capture (int nargout, bool preview, bool rgb)
     // return [height x width x 3] uint8 matrix
     {
       ret(0) = imaq_handler::get_RGB24 (buffers[buf.index].start,  buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
-      is_rgb = true;
+      is_rgb3 = true;
     }
   else if (  fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10
              || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG10
@@ -972,26 +973,14 @@ v4l2_handler::capture (int nargout, bool preview, bool rgb)
       //              << v4l2_format_name(fmt.fmt.pix.pixelformat)
       //              << " implemented, returning raw stream..." << endl;
       ret(0) = imaq_handler::get_raw_bytes (buffers[buf.index].start, buf.bytesused);
+      is_mjpg = (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_MPEG) || (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_MJPEG);
     }
 
-  // check if a conversion to rgb is wanted
-  printf ("is_ycbcr = %i, is_rgb = %i\n", is_ycbcr, is_rgb);
-  if (rgb)
-    {
-      if (is_ycbcr)
-        {
-          ret(0) = YCbCr_to_RGB (ret(0), 601);
-          is_rgb = true;
-        }
-      else if (is_rgb)
-        ret(0) = ret(0).array_value () / 255.0;
-      else
-        error ("v4l2_handler::capture: can't convert '%s' to 'RGB3'", v4l2_format_name(fmt.fmt.pix.pixelformat).c_str());
-    }
-
+  // return sequence
   if (nargout > 1)
     ret(1) = octave_value(buf.sequence);
 
+  // return timestamp. Attention, there is also an calculated timestamp above
   if (nargout > 2)
     {
       // add timestamp to frame
@@ -1001,6 +990,7 @@ v4l2_handler::capture (int nargout, bool preview, bool rgb)
       ret(2) = octave_value(timestamp);
     }
 
+  // return timecode
   if (nargout > 3)
     {
       if (buf.flags & V4L2_BUF_FLAG_TIMECODE)
@@ -1021,46 +1011,58 @@ v4l2_handler::capture (int nargout, bool preview, bool rgb)
         }
     }
 
-  // use preview window?
-  if (preview)
+  // Do we need an rgb image?
+  if (! raw_output || preview)
+  {
+    octave_value rgb_img;
+    //printf ("DEBUG: we need a RGB3 image...\n");
+    if (!is_rgb3)
     {
-      // FIXME: Man müsste prüfen, ob eine Wandlung nach RGB gewünscht ist oder preview aktiv ist...
-      if (! is_rgb)
-        {
-          error("v4l2_handler::capture: Preview is only available ....");
-        }
+      //printf ("DEBUG: we need to convert %s to RGB3...\n", v4l2_format_name(fmt.fmt.pix.pixelformat).c_str());
 
-      if (!preview_window)
-        {
-          preview_window = new img_win(10, 10, fmt.fmt.pix.width, fmt.fmt.pix.height);
-          preview_window->show();
-        }
-      if (preview_window)
-        {
-          if(preview == 1 && !preview_window->shown())
+      if (is_ycbcr)
+        rgb_img = YCbCr_to_RGB (ret(0), ITU_standard);
+      else if (is_mjpg)
+        rgb_img = JPG_to_RGB (ret(0));
+      else
+        error ("v4l2_handler::capture: no conversion from '%s' to RGB3 implemented yet", v4l2_format_name(fmt.fmt.pix.pixelformat).c_str());
+    }
+    else
+      //printf ("DEBUG: already an RGB3 image, do nothing...\n");
+
+    if (preview)
+      {
+        if (!preview_window)
+          {
+            preview_window = new img_win(10, 10, fmt.fmt.pix.width, fmt.fmt.pix.height);
             preview_window->show();
+          }
+        if (preview_window)
+          {
+            if(preview == 1 && !preview_window->shown())
+              preview_window->show();
 
-          // We can only use preview for RGB24 aka RGB3
-          if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_RGB24)
-            {
-              // octave_stdout << "Bytes captured = " << buf.bytesused << endl;
-              // sanity checks
-              if (buf.bytesused != (3 *  fmt.fmt.pix.width * fmt.fmt.pix.height))
-                error ("v4l2_handler::capture: Returned size of buffer doesn't match 3 * width * height");
-              else
-                {
-                  preview_window->copy_img(reinterpret_cast<unsigned char*>(buffers[buf.index].start),
-                                           fmt.fmt.pix.width, fmt.fmt.pix.height, 1);
-                  preview_window->custom_label(dev.c_str(), buf.sequence, 1.0/dt);
-                }
-            }
-        }
-    }
-  else if (preview_window)
-    {
-      delete preview_window;
-      preview_window = 0;
-    }
+            uint8NDArray tmp = rgb_img.uint8_array_value();
+            Array<octave_idx_type> perm (dim_vector (3, 1));
+            perm(0) = 2;
+            perm(1) = 1;
+            perm(2) = 0;
+            tmp = tmp.permute (perm);
+            unsigned char *p = reinterpret_cast<unsigned char*>(tmp.fortran_vec());
+
+            preview_window->copy_img(p, fmt.fmt.pix.width, fmt.fmt.pix.height, 1);
+            preview_window->custom_label(dev.c_str(), buf.sequence, 1.0/dt);
+          }
+      }
+    else if (preview_window)
+      {
+        delete preview_window;
+        preview_window = 0;
+      }
+
+    if (! raw_output)
+      ret(0) = rgb_img;
+  }
 
   xioctl(fd, VIDIOC_QBUF, &buf);
 

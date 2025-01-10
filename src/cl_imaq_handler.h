@@ -121,16 +121,12 @@ public:
 
   virtual octave_value_list capture (int nargout,
                                      bool preview,
-                                     bool rgb)
+                                     bool raw_output)   //!< Retrieve captured image from buffer
   {
-    return octave_value_list (); //!< Retrieve captured image from buffer
+    return ovl();
   }
 
-  /*
-    void capture_to_ppm (const char *fn);       //!< Retrieve captured image from buffer and save it as ppm
-    bool is_video_capture () {return _is_video_capture;}
-    bool is_meta_capture () {return _is_meta_capture;}
-  */
+  //virtual void capture_to_ppm (const char *fn);         //!< Retrieve captured image from buffer and save it as ppm
 
   bool preview_window_is_shown()
   {

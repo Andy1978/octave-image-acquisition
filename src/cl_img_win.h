@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2014-2025 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -14,7 +14,6 @@
 // this program; if not, see <http://www.gnu.org/licenses/>.
 
 /*!
-  10.01.2014 Andreas Weber
   fast and simple image viewer based on FLTK.
   Currently RGB24 (8bit red, green, blue) and Grayvalues with 8bit are supported.
 */
