@@ -289,11 +289,11 @@ mf_handler::enum_framesizes (string pixelformat)
   //~ octave_map tmp = loop_native_media_types();
   //~ for (int k = 0; k < tmp.numel (); ++k)
   //~ {
-    //~ if (tmp.contents("fourcc")(k).string_value() == pixelformat)
-    //~ {
-      //~ Matrix frame_size = tmp.contents("size")(k).matrix_value();
-      //~ printf ("%i %f %f\n", k, frame_size(0), frame_size(1));
-    //~ }
+  //~ if (tmp.contents("fourcc")(k).string_value() == pixelformat)
+  //~ {
+  //~ Matrix frame_size = tmp.contents("size")(k).matrix_value();
+  //~ printf ("%i %f %f\n", k, frame_size(0), frame_size(1));
+  //~ }
 
   //~ }
   return ret;
@@ -369,7 +369,7 @@ mf_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
       else if MUX_FMT(YV12)
       else if MUX_FMT(YVYU)
       else
-	error ("unknown type %s", fmtstr.c_str());
+        error ("unknown type %s", fmtstr.c_str());
 
       CHECK(hr);
 
@@ -537,19 +537,19 @@ octave_scalar_map get_ctrl_range (IMFMediaSource* device, long src_obj, long pro
     {
       IAMCameraControlPtr spCameraControl(device);
       if(spCameraControl)
-      {
-        hr = spCameraControl->GetRange(prop, &min, &max, &step, &def, &control);
-        hr2 = spCameraControl->Get(prop, &current_value, &flags);
-      }
+        {
+          hr = spCameraControl->GetRange(prop, &min, &max, &step, &def, &control);
+          hr2 = spCameraControl->Get(prop, &current_value, &flags);
+        }
     }
   else if (src_obj == 1)
     {
       IAMVideoProcAmpPtr spVideo(device);
       if(spVideo)
-      {
-        hr = spVideo->GetRange(prop, &min, &max, &step, &def, &control);
-        hr2 = spVideo->Get(prop, &current_value, &flags);
-      }
+        {
+          hr = spVideo->GetRange(prop, &min, &max, &step, &def, &control);
+          hr2 = spVideo->Get(prop, &current_value, &flags);
+        }
     }
 
   if(SUCCEEDED(hr))
@@ -731,9 +731,9 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool rgb)
     if (rgb)
       {
         if (is_ycbcr)
-        {
-          ret(0) = YCbCr_to_RGB (ret(0), 601);
-        }
+          {
+            ret(0) = YCbCr_to_RGB (ret(0), 601);
+          }
         else
           error ("mf_handler::capture: can't convert '%s' to 'RGB3'", fmt.c_str ());
       }

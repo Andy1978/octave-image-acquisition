@@ -979,10 +979,10 @@ v4l2_handler::capture (int nargout, bool preview, bool rgb)
   if (rgb)
     {
       if (is_ycbcr)
-      {
-        ret(0) = YCbCr_to_RGB (ret(0), 601);
-        is_rgb = true;
-      }
+        {
+          ret(0) = YCbCr_to_RGB (ret(0), 601);
+          is_rgb = true;
+        }
       else if (is_rgb)
         ret(0) = ret(0).array_value () / 255.0;
       else

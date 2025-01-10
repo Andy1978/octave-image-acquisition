@@ -258,9 +258,9 @@ octave_value imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
   Matrix Cr = tmp.contents ("Cr").uint8_array_value();
 
   // die Breite und Höhe bestimmen
-  printf ("DEBUG: Y  = %li x %li\n",  Y.dims ()(0),  Y.dims ()(1));
-  printf ("DEBUG: Cb = %li x %li\n", Cb.dims ()(0), Cb.dims ()(1));
-  printf ("DEBUG: Cr = %li x %li\n", Cr.dims ()(0), Cr.dims ()(1));
+  printf ("DEBUG: Y  = %lli x %lli\n",  Y.dims ()(0),  Y.dims ()(1));
+  printf ("DEBUG: Cb = %lli x %lli\n", Cb.dims ()(0), Cb.dims ()(1));
+  printf ("DEBUG: Cr = %lli x %lli\n", Cr.dims ()(0), Cr.dims ()(1));
 
   if ((Cb.dims ()(0) != Cr.dims ()(0)) || (Cb.dims ()(1) != Cr.dims ()(1)))
     error ("imaq_handler::YCbCr_to_RGB: this code expects, that Cb and Cr have the same size");
@@ -286,7 +286,7 @@ octave_value imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
   double Kb = 0;
   double Kr = 0;
   switch (ITU_standard)
-  {
+    {
     // ITU-R BT.601 (formerly CCIR 601)
     case 601:
       Kb = 0.114;
@@ -305,7 +305,7 @@ octave_value imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
       break;
     default:
       error ("imaq_handler:YCbCr_to_RGB: unkown ITU_standard %i", ITU_standard);
-  }
+    }
 
   double Kg = 1 - Kb - Kr;
 
