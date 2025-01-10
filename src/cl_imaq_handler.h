@@ -138,6 +138,8 @@ public:
     return (preview_window)? preview_window->shown() : false;
   }
 
+  void set_ITU_standard (int standard){ ITU_standard = standard; };
+
   static uint8NDArray YCbCr_to_RGB (const octave_value& in, int ITU_standard = 601);
   static uint8NDArray JPG_to_RGB (const octave_value& in);
 
@@ -146,6 +148,7 @@ public:
 protected:
 
   img_win *preview_window;
+  int ITU_standard;
 
   static octave_value get_RGB24      (void *start, size_t length, uint32_t width, uint32_t height);
   static octave_value get_raw_bayer1 (void *start, size_t length, uint32_t width, uint32_t height);

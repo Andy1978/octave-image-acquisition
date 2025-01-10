@@ -600,6 +600,27 @@ Return preview_window->shown().\n\
   return ret;
 }
 
+// PKG_ADD: autoload ("__imaq_handler_set_ITU_standard__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_handler_set_ITU_standard__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_handler_det_ITU_standard__, args, nargout,
+          "-*- texinfo -*-\n\
+@deftypefn {Loadable Function} {@var{l} =} __imaq_handler_set_ITU_standard__ (@var{h}, @var{standard})\n\
+Internally set the used ITU standard for YCbCr conversions in capture.\n\
+@end deftypefn")
+{
+  octave_value ret;
+  if (args.length () != 2)
+    {
+      print_usage ();
+      return ret;
+    }
+
+  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
+  if (imgh)
+    imgh->set_ITU_standard (args(1).int_value());
+  return ret;
+}
+
 // PKG_ADD: autoload ("__imaq_handler_YCbCr_to_RGB__", which ("__imaq_handler__.oct"));
 // PKG_DEL: autoload ("__imaq_handler_YCbCr_to_RGB__", which ("__imaq_handler__.oct"), "remove");
 DEFUN_DLD(__imaq_handler_YCbCr_to_RGB__, args, nargout,

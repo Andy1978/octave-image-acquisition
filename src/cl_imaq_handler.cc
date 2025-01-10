@@ -23,7 +23,7 @@ DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(imaq_handler, "imaq_handler", "imaq_handler"
 bool imaq_handler::type_loaded = false;
 
 imaq_handler::imaq_handler ()
-  : octave_base_value(), preview_window(0)
+  : octave_base_value(), preview_window(0), ITU_standard (601)
 {
   //octave_stdout << "imaq_handler C'Tor, type_loaded = " << type_loaded << endl;
   if (!type_loaded)
