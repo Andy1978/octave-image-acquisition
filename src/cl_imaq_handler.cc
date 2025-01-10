@@ -233,9 +233,9 @@ octave_value imaq_handler::get_raw_bytes (void *start, size_t length)
 }
 
 // YCbCr_to_RGB to RGB24
-// returns a double [height x width x 3] matrix with RGB values in the range 0..1
-// See also ycbcrfunc.m from the image package and ../devel/ycbcr_to_rgb.m
-octave_value imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standard)
+// returns [HxWx3] uint8 matrix with RGB values in the range 0..255
+// See also ycbcrfunc.m from the image package and ./tests/cap_yuv.m
+uint8NDArray imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standard)
 {
   // prüfen, ob der input ein octave_scalar_map ist
   if (! in.isstruct ())
@@ -258,9 +258,9 @@ octave_value imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
   Matrix Cr = tmp.contents ("Cr").uint8_array_value();
 
   // die Breite und Höhe bestimmen
-  printf ("DEBUG: Y  = %lli x %lli\n",  Y.dims ()(0),  Y.dims ()(1));
-  printf ("DEBUG: Cb = %lli x %lli\n", Cb.dims ()(0), Cb.dims ()(1));
-  printf ("DEBUG: Cr = %lli x %lli\n", Cr.dims ()(0), Cr.dims ()(1));
+  //printf ("DEBUG: Y  = %li x %li\n",  Y.dims ()(0),  Y.dims ()(1));
+  //printf ("DEBUG: Cb = %li x %li\n", Cb.dims ()(0), Cb.dims ()(1));
+  //printf ("DEBUG: Cr = %li x %li\n", Cr.dims ()(0), Cr.dims ()(1));
 
   if ((Cb.dims ()(0) != Cr.dims ()(0)) || (Cb.dims ()(1) != Cr.dims ()(1)))
     error ("imaq_handler::YCbCr_to_RGB: this code expects, that Cb and Cr have the same size");
@@ -274,14 +274,14 @@ octave_value imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
   if (h_subs * Cb.dims ()(1) != Y.dims ()(1))
     error ("imaq_handler::YCbCr_to_RGB: horizontal subsampling is not an integer");
 
-  printf ("DEBUG: v_subs = %i\n", v_subs);
-  printf ("DEBUG: h_subs = %i\n", h_subs);
+  //printf ("DEBUG: v_subs = %i\n", v_subs);
+  //printf ("DEBUG: h_subs = %i\n", h_subs);
 
   uint32_t width  = Y.dims ()(1);
   uint32_t height = Y.dims ()(0);
 
   dim_vector dv (height, width, 3);
-  NDArray img (dv);
+  uint8NDArray img (dv);
 
   double Kb = 0;
   double Kr = 0;
@@ -328,11 +328,11 @@ octave_value imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
         //printf ("DEBUG: y = %.3f, cb = %.3f , cr = %.3f\n", y, cb, cr);
 
         // step 2: multiply with inverse of color matrix
-        img (r, c, 0) = y + (2 - 2*Kr) * cr;
-        img (r, c, 1) = y - Kb/Kg*(2-2*Kb)*cb - Kr/Kg*(2-2*Kr)*cr;
-        img (r, c, 2) = y + (2-2*Kb)*cb;
+        img (r, c, 0) = 255 * (y + (2 - 2*Kr) * cr);
+        img (r, c, 1) = 255 * (y - Kb/Kg*(2-2*Kb)*cb - Kr/Kg*(2-2*Kr)*cr);
+        img (r, c, 2) = 255 * (y + (2-2*Kb)*cb);
       }
-  return octave_value(img);
+  return img;
 }
 
 // returns uint8 RGB image

@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2024 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2014-2025 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -604,23 +604,14 @@ Return preview_window->shown().\n\
 // PKG_DEL: autoload ("__imaq_handler_YCbCr_to_RGB__", which ("__imaq_handler__.oct"), "remove");
 DEFUN_DLD(__imaq_handler_YCbCr_to_RGB__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{rgb} =} __imaq_handler_YCbCr_to_RGB__ (@var{h}, @var{yuv}, @var{standard})\n\
-\n\
+@deftypefn {Loadable Function} {@var{rgb} =} __imaq_handler_YCbCr_to_RGB__ (@var{yuv}, @var{ITU_standard})\n\
+Convert YCbCr image (scalar struct with fields Y, Cb, Cr) into uint8 RGB image.\n\
+Interpolation of chroma subsampling is done internally.\n\
+ITU_standard might be 601, 709 or 2020.\n\
+See also ycbcr2rgb from the image package.\n\
 @end deftypefn")
 {
-  octave_value ret;
-  if (args.length () != 3)
-    {
-      print_usage ();
-      return ret;
-    }
-
-  imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
-  if (imgh)
-    {
-      ret = imgh->YCbCr_to_RGB (args(1), args(2).int_value());
-    }
-  return ret;
+  return ovl(imaq_handler::YCbCr_to_RGB (args(0), args(1).int_value()));
 }
 
 // PKG_ADD: autoload ("__imaq_handler_JPG_to_RGB__", which ("__imaq_handler__.oct"));
@@ -628,7 +619,7 @@ DEFUN_DLD(__imaq_handler_YCbCr_to_RGB__, args, nargout,
 DEFUN_DLD(__imaq_handler_JPG_to_RGB__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} {@var{rgb} =} __imaq_handler_JPG_to_RGB__ (@var{jpg})\n\
-\n\
+Convert raw mjpg stream (as returned from the camera) into uint8 RGB image.\n\
 @end deftypefn")
 {
   return ovl(imaq_handler::JPG_to_RGB (args(0)));

@@ -138,7 +138,7 @@ public:
     return (preview_window)? preview_window->shown() : false;
   }
 
-  static octave_value YCbCr_to_RGB (const octave_value& in, int ITU_standard = 601);
+  static uint8NDArray YCbCr_to_RGB (const octave_value& in, int ITU_standard = 601);
   static uint8NDArray JPG_to_RGB (const octave_value& in);
 
   void close ();                              //!< close device
