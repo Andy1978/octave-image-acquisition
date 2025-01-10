@@ -16,6 +16,8 @@
 #include <cassert>
 #include "cl_imaq_handler.h"
 
+#include <jpeglib.h> // for JPG_to_RGB
+
 DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(imaq_handler, "imaq_handler", "imaq_handler");
 
 bool imaq_handler::type_loaded = false;
@@ -331,6 +333,62 @@ octave_value imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
         img (r, c, 2) = y + (2-2*Kb)*cb;
       }
   return octave_value(img);
+}
+
+// returns uint8 RGB image
+uint8NDArray imaq_handler::JPG_to_RGB (const octave_value& in)
+{
+  // ToDo: Wie prüfen, ob es ein uint8 vector ist? Das müsste bei (M)JPEG der fall sein
+  uint8NDArray img = in.uint8_array_value();
+  int len = img.numel ();
+  //printf ("len = %i\n", len);
+  unsigned char *p = reinterpret_cast<unsigned char*>(img.fortran_vec());
+
+  struct jpeg_decompress_struct cinfo;
+  struct jpeg_error_mgr jerr;
+
+  cinfo.err = jpeg_std_error(&jerr);
+  jpeg_create_decompress(&cinfo);
+  jpeg_mem_src(&cinfo, p, len);
+
+  int r = jpeg_read_header(&cinfo, TRUE);
+  if (r != JPEG_HEADER_OK)
+    fprintf (stderr, "header error r = %i\n", r);
+  //fprintf (stderr, "JPEG_HEADER_TABLES_ONLY = %i\n", JPEG_HEADER_TABLES_ONLY);
+
+  jpeg_start_decompress(&cinfo);
+
+  int width = cinfo.output_width;
+  int height = cinfo.output_height;
+  int pixel_size = cinfo.output_components;
+
+  assert (pixel_size == 3); // FIXME: kann es auch andere geben? Graustufen?
+
+  //printf ("width = %d, height = %d, pixel_size = %d\n", width, height, pixel_size);
+
+  // create uint8 RGB image
+  dim_vector dv (3, width, height);
+  uint8NDArray out_img (dv);
+  unsigned char *p_out = reinterpret_cast<unsigned char*>(out_img.fortran_vec());
+
+  while (cinfo.output_scanline < cinfo.output_height)
+    {
+      unsigned char *buffer_array[1];
+      buffer_array[0] = p_out + (cinfo.output_scanline) * width * pixel_size;
+      jpeg_read_scanlines(&cinfo, buffer_array, 1);
+      //printf ("read line %i\n", cinfo.output_scanline);
+
+    }
+  //printf ("Proc: Done reading scanlines\n");
+
+  jpeg_finish_decompress(&cinfo);
+  jpeg_destroy_decompress(&cinfo);
+
+  Array<octave_idx_type> perm (dim_vector (3, 1));
+  perm(0) = 2;
+  perm(1) = 1;
+  perm(2) = 0;
+  return out_img.permute (perm);
 }
 
 imaq_handler*

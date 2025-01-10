@@ -623,6 +623,17 @@ DEFUN_DLD(__imaq_handler_YCbCr_to_RGB__, args, nargout,
   return ret;
 }
 
+// PKG_ADD: autoload ("__imaq_handler_JPG_to_RGB__", which ("__imaq_handler__.oct"));
+// PKG_DEL: autoload ("__imaq_handler_JPG_to_RGB__", which ("__imaq_handler__.oct"), "remove");
+DEFUN_DLD(__imaq_handler_JPG_to_RGB__, args, nargout,
+          "-*- texinfo -*-\n\
+@deftypefn {Loadable Function} {@var{rgb} =} __imaq_handler_JPG_to_RGB__ (@var{jpg})\n\
+\n\
+@end deftypefn")
+{
+  return ovl(imaq_handler::JPG_to_RGB (args(0)));
+}
+
 /*
 %!demo
 %! disp("open /dev/video0 and show live images with 2 different formats")

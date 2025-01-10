@@ -25,6 +25,7 @@ fi
 
 # Checks for libraries.
 AC_CHECK_LIB(v4l2, v4l2_open, [], [])
+AC_CHECK_LIB(jpeg, jpeg_destroy_compress, [], [])
 AC_CHECK_LIB(mfplat, MFStartup, [
   LIBS="-lmfplat -lmf -lmfreadwrite -lmfuuid -lshlwapi -lole32 -lksguid -lamstrmid $LIBS"], [])
 
@@ -34,6 +35,9 @@ AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/ioctl.h sys/time.h])
 
 # check for v4l2 headers
 AC_CHECK_HEADERS([libv4l2.h linux/videodev2.h],[],[])
+
+# check for jpeg headers
+AC_CHECK_HEADERS([jpeglib.h],[],[])
 
 # check for Media Foundation headers
 AC_CHECK_HEADERS([mfapi.h],[],[])
