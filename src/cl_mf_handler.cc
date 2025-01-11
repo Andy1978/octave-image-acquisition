@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2024-2025 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -640,7 +640,7 @@ void mf_handler::s_ctrl (int id, int value)
   CHECK(hr)
 }
 
-octave_value_list mf_handler::capture (int nargout, bool preview, bool rgb)
+octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_output)
 {
   octave_value_list ret;
   HRESULT hr;
@@ -650,8 +650,7 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool rgb)
   LONGLONG timestamp;
   IMFSample* sample;
 
-  //printf ("reader = %p\n", reader);
-  printf ("DEBUG  mf_handler::capture (%i, %i, %i)\n", nargout, preview, rgb);
+  //printf ("DEBUG  mf_handler::capture (%i, %i, %i)\n", nargout, preview, raw_output);
 
   for (;;)
     {
@@ -661,7 +660,7 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool rgb)
 
       if (flags & MF_SOURCE_READERF_STREAMTICK)
         {
-          printf ("DEBUG: mf_handler::capture: waiting for sample...\n");
+          //printf ("DEBUG: mf_handler::capture: waiting for sample...\n");
           continue;
         }
 
@@ -671,7 +670,6 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool rgb)
   // näher anschauen: IMFTransform
   // https://learn.microsoft.com/en-us/windows/win32/medfound/processing-data-in-the-encoder
   // nach 2 Tagen komme ich zu dem Schluss, das MJPG -> RGB24 mit den mitgelieferten MFTs gar nicht möglich ist
-
   {
     IMFMediaBuffer* buffer;
 
@@ -684,21 +682,22 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool rgb)
     hr = buffer->Lock (&data, NULL, &size);
     CHECK(hr);
 
-    printf ("DEBUG: mf_handler::capture: buffer size = %lu\n", size);
+    //printf ("DEBUG: mf_handler::capture: buffer size = %lu\n", size);
     //for (int k = 0; k < 10; ++k)
     //  printf ("%x ", data[k]);
     //printf ("\n");
 
     // get current format
     string fmt = current_fmt.contents("fourcc").string_value ();
-    printf ("DEBUG: mf_handler::capture: fmt = '%s'\n", fmt.c_str());
+    //printf ("DEBUG: mf_handler::capture: fmt = '%s'\n", fmt.c_str());
 
     uint32NDArray s = current_fmt.contents("size").uint32_array_value ();
     UINT32 width = s(0);
     UINT32 height = s(1);
-    printf ("DEBUG: mf_handler::capture: size = [%i %i]\n", width, height);
+    //printf ("DEBUG: mf_handler::capture: size = [%i %i]\n", width, height);
 
     // basic, underlying color space
+    bool is_mjpg  = false;
     bool is_ycbcr = false;
 
     if (fmt == "YUY2")
@@ -715,6 +714,7 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool rgb)
       }
     else
       {
+        is_mjpg = (fmt == "MJPG");
         // return buffer verbatim
         dim_vector dv (size, 1);
         uint8NDArray img (dv);
@@ -726,45 +726,84 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool rgb)
     buffer->Unlock ();
     buffer->Release ();
 
-    // check if a conversion to rgb is wanted
-    //printf ("is_ycbcr = %i, is_rgb = %i\n", is_ycbcr, is_rgb);
-    if (rgb)
+    // Fake other return values, all not yet implemented
+    // TODO/FIXME: try to implement sequence, timestamp, timecode
+
+    static int sequence_nr = 0;
+    if (nargout > 1) // sequence
+      ret(1) = octave_value(sequence_nr++);
+
+    if (nargout > 2) // timestamp
       {
-        if (is_ycbcr)
-          {
-            ret(0) = YCbCr_to_RGB (ret(0), 601);
-          }
-        else
-          error ("mf_handler::capture: can't convert '%s' to 'RGB3'", fmt.c_str ());
+        octave_scalar_map timestamp;
+        timestamp.assign ("tv_sec", (long int) 0); //(buf.timestamp.tv_sec));
+        timestamp.assign ("tv_usec", (long int) 0); //(buf.timestamp.tv_usec));
+        ret(2) = octave_value(timestamp);
       }
+
+    if (nargout > 3) // timecode
+      {
+        octave_scalar_map timecode;
+        timecode.assign ("type", 0);
+        timecode.assign ("flags", 0);
+        timecode.assign ("frames", 0);
+        timecode.assign ("seconds", 0);
+        timecode.assign ("minutes", 0);
+        timecode.assign ("hours", 0);
+        ret(3) = octave_value(timecode);
+      }
+
+    // Do we need an rgb image?
+    if (! raw_output || preview)
+    {
+      octave_value rgb_img;
+      //printf ("DEBUG: we need to convert %s to RGB3...\n", fmt.c_str());
+
+      if (is_ycbcr)
+        rgb_img = YCbCr_to_RGB (ret(0), ITU_standard);
+      else if (is_mjpg)
+        rgb_img = JPG_to_RGB (ret(0));
+      else
+        error ("v4l2_handler::capture: no conversion from '%s' to RGB3 implemented yet", fmt.c_str());
+
+      if (preview)
+        {
+          if (!preview_window)
+            {
+              preview_window = new img_win(10, 10, width, height);
+              preview_window->show();
+            }
+          if (preview_window)
+            {
+              if(preview == 1 && !preview_window->shown())
+                preview_window->show();
+
+              uint8NDArray tmp = rgb_img.uint8_array_value();
+              Array<octave_idx_type> perm (dim_vector (3, 1));
+              perm(0) = 2;
+              perm(1) = 1;
+              perm(2) = 0;
+              tmp = tmp.permute (perm);
+              unsigned char *p = reinterpret_cast<unsigned char*>(tmp.fortran_vec());
+
+              preview_window->copy_img(p, width, height, 1);
+
+              // FIXME: dt könnte man auch über QueryPerformanceCounter auf windoze machen
+              //preview_window->custom_label(dev.c_str(), sequence_nr, 1.0/dt);
+            }
+        }
+      else if (preview_window)
+        {
+          delete preview_window;
+          preview_window = 0;
+        }
+
+      if (! raw_output)
+        ret(0) = rgb_img;
+    }
+
   }
   sample->Release ();
-
-  // Fake other return values, all not yet implemented
-  static int sequence_nr = 0;
-  if (nargout > 1) // sequence
-    ret(1) = octave_value(sequence_nr++);
-
-  if (nargout > 2) // timestamp
-    {
-      octave_scalar_map timestamp;
-      timestamp.assign ("tv_sec", (long int) 0); //(buf.timestamp.tv_sec));
-      timestamp.assign ("tv_usec", (long int) 0); //(buf.timestamp.tv_usec));
-      ret(2) = octave_value(timestamp);
-    }
-
-  if (nargout > 3) // timecode
-    {
-      octave_scalar_map timecode;
-      timecode.assign ("type", 0);
-      timecode.assign ("flags", 0);
-      timecode.assign ("frames", 0);
-      timecode.assign ("seconds", 0);
-      timecode.assign ("minutes", 0);
-      timecode.assign ("hours", 0);
-      ret(3) = octave_value(timecode);
-    }
-
   return ret;
 }
 

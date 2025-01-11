@@ -87,7 +87,7 @@ public:
   int g_ctrl (int id);                        //!< Get control
   void s_ctrl (int id, int value);            //!< Set control
 
-  octave_value_list capture (int nargout, bool preview, bool rgb);  //!< Retrieve captured image from buffer
+  octave_value_list capture (int nargout, bool preview, bool raw_output);  //!< Retrieve captured image from buffer
 
   /*
     void capture_to_ppm (const char *fn);       //!< Retrieve captured image from buffer and save it as ppm
