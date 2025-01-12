@@ -93,7 +93,7 @@ function val = get (vi, prop)
       case "VideoResolution"
         val = __imaq_handler_g_fmt__(vi.imaqh).size;
       case "VideoFormat"
-        val = __imaq_handler_g_fmt__(vi.imaqh).pixelformat;
+        val = __imaq_handler_g_fmt__(vi.imaqh).fourcc;
       otherwise
         # get controls
         ctrls = __imaq_handler_queryctrl__(vi.imaqh);

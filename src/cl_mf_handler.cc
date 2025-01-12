@@ -219,7 +219,7 @@ mf_handler::querycap ()
 octave_value
 mf_handler::enum_inputs ()
 {
-  octave_stdout << "warning: mf_handler::enum_inputs isn't implemented yet, it always returns one dummy entry" << std::endl;
+  //octave_stdout << "warning: mf_handler::enum_inputs isn't implemented yet, it always returns one dummy entry" << std::endl;
 
   octave_map ret;
   octave_scalar_map st;
@@ -238,14 +238,14 @@ mf_handler::enum_inputs ()
 int
 mf_handler::get_input ()
 {
-  octave_stdout << "warning: mf_handler::get_input isn't implemented yet, it always returns 0" << std::endl;
+  //octave_stdout << "warning: mf_handler::get_input isn't implemented yet, it always returns 0" << std::endl;
   return 0;
 }
 
 void
 mf_handler::set_input (int index)
 {
-  octave_stdout << "warning: mf_handler::set_input isn't implemented yet, a function call has no effect" << std::endl;
+  //octave_stdout << "warning: mf_handler::set_input isn't implemented yet, a function call has no effect" << std::endl;
 }
 
 octave_map
@@ -272,43 +272,77 @@ mf_handler::loop_native_media_types ()
 octave_value
 mf_handler::enum_formats ()
 {
-  octave_map tmp = loop_native_media_types();
-  return octave_value(tmp);
+  Cell tmp = loop_native_media_types().contents("fourcc");
+  string_vector sv = tmp.string_vector_value ();
+  return octave_value (sv.sort (true));
 }
 
 Matrix
 mf_handler::enum_framesizes (string pixelformat)
 {
-  Matrix ret;
-  // ret.resize(frmsize.index+1, 2);
-  // ret(frmsize.index, 0) = frmsize.discrete.width;
-  // ret(frmsize.index, 1) = frmsize.discrete.height;
+  octave_map tmp = loop_native_media_types();
+  dim_vector dv (tmp.numel (), 2);
+  Matrix ret(dv);
 
-  printf ("DEBUG: enum_framesizes not yet implemented...\n");
+  int n = 0;
+  for (int k = 0; k < tmp.numel (); ++k)
+  {
+    if (tmp.contents("fourcc")(k).string_value() == pixelformat)
+    {
+      Matrix frame_size = tmp.contents("size")(k).matrix_value();
+      //printf ("%i %f %f\n", k, frame_size(0), frame_size(1));
+      ret(n, 0) = frame_size(0);
+      ret(n++, 1) = frame_size(1);
+    }
+  }
 
-  //~ octave_map tmp = loop_native_media_types();
-  //~ for (int k = 0; k < tmp.numel (); ++k)
-  //~ {
-  //~ if (tmp.contents("fourcc")(k).string_value() == pixelformat)
-  //~ {
-  //~ Matrix frame_size = tmp.contents("size")(k).matrix_value();
-  //~ printf ("%i %f %f\n", k, frame_size(0), frame_size(1));
-  //~ }
+  ret.resize(n, 2);
 
-  //~ }
+  Array<octave_idx_type> ridx = ret.sort_rows_idx (ASCENDING);
+  ret = ret.index (ridx, octave::idx_vector::colon);
+
+  // unique
+  for (int k = ret.rows() - 1; k > 0; k--)
+  {
+    if (ret(k, 0) == ret (k-1, 0) && ret(k, 1) == ret (k-1, 1))
+      ret.delete_elements(0, k);
+  }
   return ret;
 }
 
 Matrix
 mf_handler::enum_frameintervals (string pixelformat, uint32_t width, uint32_t height)
 {
-  Matrix ret;
-  ret.resize(5, 2);
-  //        ret(frmival.index, 0) = frmival.discrete.numerator;
-  //        ret(frmival.index, 1) = frmival.discrete.denominator;
+  octave_map tmp = loop_native_media_types();
+  dim_vector dv (tmp.numel (), 2);
+  Matrix ret(dv);
+  int n = 0;
+  for (int k = 0; k < tmp.numel (); ++k)
+  {
+    if (tmp.contents("fourcc")(k).string_value() == pixelformat)
+    {
+       Matrix frame_size = tmp.contents("size")(k).matrix_value();
+       //printf ("%i %f %f\n", k, frame_size(0), frame_size(1));
+       if (frame_size (0) == width && frame_size(1) == height)
+       {
+         Matrix frame_interval = tmp.contents("frame_rate")(k).matrix_value();
+         //printf ("%i %f %f\n", k, frame_interval(0), frame_interval(1));
+         ret(n, 0) = frame_interval(0);
+         ret(n++, 1) = frame_interval(1);
+       }
+    }
+  }
+  ret.resize(n, 2);
 
-  printf ("DEBUG: enum_frameintervals not yet implemented...\n");
+  Array<octave_idx_type> ridx = ret.sort_rows_idx (ASCENDING);
+  ret = ret.index (ridx, octave::idx_vector::colon);
 
+  // unique
+  for (int k = ret.rows() - 1; k > 0; k--)
+  {
+    if (ret(k, 0) == ret (k-1, 0) && ret(k, 1) == ret (k-1, 1))
+      ret.delete_elements(0, k);
+  }
   return ret;
 }
 

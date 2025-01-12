@@ -135,15 +135,15 @@ function ret = __list_range__ (vi, prop)
           ret = __imaq_handler_enum_inputs__ (vi.imaqh);
         case 'VideoResolution'
           # enumerate possible framerates
-          fmt = __imaq_handler_g_fmt__(vi.imaqh).pixelformat;
+          fmt = __imaq_handler_g_fmt__(vi.imaqh).fourcc;
           ret = __imaq_handler_enum_framesizes__ (vi.imaqh, fmt);
         case 'VideoFrameInterval'
           # return possible frameintervals for currently selected framesize
-          fmt = __imaq_handler_g_fmt__(vi.imaqh).pixelformat;
+          fmt = __imaq_handler_g_fmt__(vi.imaqh).fourcc;
           current_frame_size = __imaq_handler_g_fmt__ (vi.imaqh).size;
           ret = __imaq_handler_enum_frameintervals__ (vi.imaqh, current_frame_size, fmt);
         case 'VideoFormat'
-          ret = __imaq_handler_enum_formats__ (vi.imaqh);
+          ret = unique ({__imaq_handler_enum_formats__(vi.imaqh).fourcc});
         otherwise ## perhaps a v4l2 control?
           ctrls = __imaq_handler_queryctrl__(vi.imaqh);
           if (isfield(ctrls, prop))
@@ -192,7 +192,7 @@ endfunction
 %!test
 %! obj = videoinput (__test__device__{:});
 %! fmts = set (obj, 'VideoFormat');
-%! set (obj, 'VideoFormat', fmts(end).pixelformat);
+%! set (obj, 'VideoFormat', fmts(end).fourcc);
 %! set (obj, 'VideoFormat', 'RGB24');
 
 %!test
