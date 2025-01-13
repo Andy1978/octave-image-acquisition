@@ -28,13 +28,14 @@ img_win::img_win (int x, int y, int w, int h)
   :Fl_Double_Window (x, y, w, h, "img_win"), pixel(NULL), is_RGB(0)
 {
   Fl::visual(FL_RGB);
-  //cout << "img_win::img_win C'Tor" << endl;
+  //cout << "img_win::img_win C'Tor w = " << w << ", h = " << h << endl;
   // create test image
-  uchar tmp[w*h];
+  uchar *tmp = (uchar *) malloc (w*h);
   for(int x=0; x<w; ++x)
     for(int y=0; y<h; ++y)
       tmp[x+y*w]=(x/10+y/10)%2 * 255;
-  copy_img(tmp, w, h, is_RGB);
+  copy_img(tmp, w, h, 0);
+  free (tmp);
 }
 
 img_win::~img_win ()
@@ -56,6 +57,7 @@ img_win::draw ()
 void
 img_win::copy_img (const unsigned char* p, unsigned int w, unsigned int h, bool rgb)
 {
+  //printf ("img_win::copy_img %p %u %u %i...\n", p, w, h, rgb); fflush (stdout);
   int len = w * h * ((rgb)? 3:1);
   if (len != pixel_len())
     {
