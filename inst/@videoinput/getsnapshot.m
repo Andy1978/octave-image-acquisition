@@ -69,15 +69,15 @@
 ## @seealso {@@videoinput/start, @@videoinput/preview}
 ## @end deftypefn
 
-function [img, seq, timestamp, timecode] = getsnapshot (vi, pv=0)
+function [img, seq, timestamp, timecode] = getsnapshot (vi, pv=0, raw=0)
 
-  if (nargin < 1 || nargin>2)
+  if (nargin < 1 || nargin > 3)
     print_usage();
   endif
   if (nargout <= 3)
-    [img, seq, timestamp] = __imaq_handler_capture__(vi.imaqh, pv);
+    [img, seq, timestamp] = __imaq_handler_capture__(vi.imaqh, pv, raw);
   else
-    [img, seq, timestamp, timecode] = __imaq_handler_capture__(vi.imaqh, pv);
+    [img, seq, timestamp, timecode] = __imaq_handler_capture__(vi.imaqh, pv, raw);
   endif
   #fmt = __imaq_handler_g_fmt__(vi.imaqh).pixelformat;
   #printf ("pixelformat = -%s-\n", fmt);
@@ -89,7 +89,7 @@ endfunction
 %! oldval = get(obj, "VideoResolution");
 %! default_size = set (obj, "VideoResolution")(1,:);
 %! set (obj, "VideoResolution", default_size);
-%! set (obj, 'VideoFormat', 'RGB24');
+%! set (obj, 'VideoFormat', 'YUYV');
 %! start (obj, 2)
 %! img = getsnapshot (obj);
 %! do_preview = !isempty(getenv("DISPLAY")); # only if there is a display
@@ -105,38 +105,34 @@ endfunction
 %! set (obj, "VideoResolution", oldval);
 
 %!test
-%! obj = videoinput(__test__device__{:});
-%! set (obj, "VideoFormat", "RGB3")
-%! start (obj)
-%! img = getsnapshot (obj);
-%! stop (obj)
+%! obj = videoinput (__test__device__{:});
+%! fmts = {set(obj,"VideoFormat").fourcc};
+%! for k = 1:numel (fmts)
+%!   set (obj, "VideoFormat", fmts{k})
+%!   s = get (obj, "VideoResolution");
+%!   start (obj)
+%!   img = getsnapshot (obj);
+%!   assert (size (img), [fliplr(s) 3]);
+%!   stop (obj)
+%! endfor
 
 %!test
 %! obj = videoinput (__test__device__{:});
-%! # see https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-packed-yuv.html
-%! set (obj, "VideoFormat", "YUYV")
-%! start (obj)
-%! img = getsnapshot (obj);
-%! stop (obj)
-
-%!test
-%! obj = videoinput (__test__device__{:});
-%! # see https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-yuv-planar.html
-%! set (obj, "VideoFormat", "YU12")
-%! start (obj)
-%! img = getsnapshot(obj);
-%! stop (obj)
+%! fmts = {set(obj,"VideoFormat").fourcc};
+%! for k = 1:numel (fmts)
+%!   set (obj, "VideoFormat", fmts{k})
+%!   s = get (obj, "VideoResolution");
+%!   start (obj)
+%!   img = getsnapshot (obj, 0, 1);
+%!   stop (obj)
+%! endfor
 
 %!demo
 %! obj = videoinput (__test__device__{:});
-%! # see https://www.kernel.org/doc/html/v6.1/userspace-api/media/v4l/pixfmt-packed-yuv.html
-%! set(obj,"VideoFormat","YUYV")
-%! start(obj)
-%! img = getsnapshot(obj);
-%! tmp = cat (3, img.Y, kron(img.Cb, [1 1]), kron(img.Cr, [1 1]));
-%! # convert to RGB with octave-forge image function ycbcr2rgb
-%! pkg load image
-%! rgb = ycbcr2rgb (tmp, "709");
-%! image(rgb)
-%! title ("YUYV, Standard 709")
-%! stop(obj)
+%! fmts = {set(obj,"VideoFormat").fourcc}
+%! set (obj, "VideoFormat", fmts{1})
+%! start (obj)
+%! img = getsnapshot (obj);
+%! image (img)
+%! title (fmts{1})
+%! stop (obj)
