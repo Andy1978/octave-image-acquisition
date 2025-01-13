@@ -737,9 +737,7 @@ v4l2_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
         {
           fmt_code = v4l2_format_code(fmtstr.c_str());
 
-          printf ("DEBUG: v4l2_format_code (%s) returned 0x%X = %s\n", fmtstr.c_str(), fmt_code, v4l2_fourcc_name (fmt_code).c_str());
-
-
+          //printf ("DEBUG: v4l2_format_code (%s) returned 0x%X = %s\n", fmtstr.c_str(), fmt_code, v4l2_fourcc_name (fmt_code).c_str());
           fmt.fmt.pix.pixelformat = fmt_code;
         }
       fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
@@ -769,7 +767,7 @@ v4l2_handler::g_fmt ()
 
   octave_scalar_map ret;
   ret.assign ("size", s);
-  ret.assign ("pixelformat", std::string(v4l2_format_name(fmt.fmt.pix.pixelformat)));
+  ret.assign ("fourcc", std::string(v4l2_format_name(fmt.fmt.pix.pixelformat)));
   return ret;
 }
 
