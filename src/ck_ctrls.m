@@ -183,3 +183,8 @@ ans =
 
 octave:4> exit
 #}
+
+
+# FIXME: line frequency scheint zu fehlen
+# "Kompensierung bei wenig Licht" ist im ffmpeg dialog aber auch noch nicht im wrapper
+# Möglichkeit schaffen, wieder auf auto zurück zu schalten

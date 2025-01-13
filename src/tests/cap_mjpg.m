@@ -7,11 +7,7 @@ load_imaq
 x = __imaq_handler_open__(__test__device__{:})
 
 # set biggest framesize. FIXME: are we sure the return value is sorted?
-if (isunix ())
-  s = __imaq_handler_enum_framesizes__ (x, "MJPG")(end,:);
-else
-  s = [1280 960];
-endif
+s = __imaq_handler_enum_framesizes__ (x, "MJPG")(end,:);
 __imaq_handler_s_fmt__ (x, "MJPG", s);
 
 # get highest framerate

@@ -79,7 +79,8 @@ function ret = set (vi, varargin)
             error ("Use set (VI, 'VideoFormat', FMT) to specify the returned image format");
           case 'VideoResolution'
             if (isvector (val) && isreal (val) && length (val) == 2)
-              __imaq_handler_s_fmt__(vi.imaqh, "", val);
+              current_fmt = get(vi, "VideoFormat");
+              __imaq_handler_s_fmt__(vi.imaqh, current_fmt, val);
             else
               error ('set VideoResolution: expects a real vector [width height]');
             endif
@@ -143,7 +144,7 @@ function ret = __list_range__ (vi, prop)
           current_frame_size = __imaq_handler_g_fmt__ (vi.imaqh).size;
           ret = __imaq_handler_enum_frameintervals__ (vi.imaqh, current_frame_size, fmt);
         case 'VideoFormat'
-          ret = unique ({__imaq_handler_enum_formats__(vi.imaqh).fourcc});
+          ret = __imaq_handler_enum_formats__(vi.imaqh);
         otherwise ## perhaps a v4l2 control?
           ctrls = __imaq_handler_queryctrl__(vi.imaqh);
           if (isfield(ctrls, prop))
@@ -187,13 +188,9 @@ endfunction
 
 %!test
 %! obj = videoinput (__test__device__{:});
-%! set (obj, 'VideoFormat', 'RGB24');
-
-%!test
-%! obj = videoinput (__test__device__{:});
 %! fmts = set (obj, 'VideoFormat');
+%! set (obj, 'VideoFormat', fmts(1).fourcc);
 %! set (obj, 'VideoFormat', fmts(end).fourcc);
-%! set (obj, 'VideoFormat', 'RGB24');
 
 %!test
 %! obj = videoinput (__test__device__{:});
@@ -204,8 +201,9 @@ endfunction
 %!   set (obj, 'VideoFrameInterval', T(end,:));
 %! endif
 
-%!warning
-%! obj = videoinput (__test__device__{:});
-%! # This shouldn't be supported by any camera and the driver
-%! # clamps this to valid values but a warning should be displayed
-%! set (obj, 'VideoFrameInterval', [1 10000]);
+# FIXME: this only works for v4l2
+#%!warning
+#%! obj = videoinput (__test__device__{:});
+#%! # This shouldn't be supported by any camera and the driver
+#%! # clamps this to valid values but a warning should be displayed
+#%! set (obj, 'VideoFrameInterval', [1 10000]);

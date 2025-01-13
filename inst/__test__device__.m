@@ -15,7 +15,7 @@
 
 ## -*- texinfo -*-
 ## @deftypefn {Function File} {@var{dev} =} __test__device__ ()
-## Return device which should be used in tests, for example "/dev/video0"
+## Return device which should be used in tests.
 ## @end deftypefn
 
 function ret = __test__device__()

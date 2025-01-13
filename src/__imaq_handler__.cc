@@ -645,22 +645,21 @@ Convert raw mjpg stream (as returned from the camera) into uint8 RGB image.\n\
 
 /*
 %!demo
-%! disp("open /dev/video0 and show live images with 2 different formats")
-%! vi = __imaq_handler_open__("v4l2", "/dev/video0");
-%! s = __imaq_handler_enum_framesizes__(vi, "RGB24"); # get available frame sizes
-%! __imaq_handler_s_fmt__(vi, "RGB24", s(1,:));       # use the default framesize
+%! vi = __imaq_handler_open__(__test__device__{:});
+%! s = __imaq_handler_enum_framesizes__(vi, "MJPG");  # get available frame sizes
+%! __imaq_handler_s_fmt__(vi, "MJPG", s(1,:));        # use the default framesize
 %! __imaq_handler_streamon__(vi, 2);                  # enable streaming with 2 buffers
 %! l = 200;
 %! for i=1:l
-%!   __imaq_handler_capture__(vi, 1);                 # capture 200 frames and show preview
+%!   __imaq_handler_capture__(vi, 1, 0);              # capture 200 frames and show preview
 %! endfor
 %! __imaq_handler_streamoff__(vi);                    # diable streaming
-%! __imaq_handler_s_fmt__(vi, "RGB24", s(2,:));       # use smales available format
+%! __imaq_handler_s_fmt__(vi, "MJPG", s(2,:));        # use smales available format
 %! disp("The image size is now")
 %! disp(__imaq_handler_g_fmt__(vi))
 %! __imaq_handler_streamon__(vi, 2);                  # enable streaming with 2 buffers
 %! for i=1:l
-%!   __imaq_handler_capture__(vi, 1);
+%!   __imaq_handler_capture__(vi, 1, 0);
 %! endfor
 %! __imaq_handler_streamoff__(vi);
 */
@@ -676,21 +675,19 @@ Convert raw mjpg stream (as returned from the camera) into uint8 RGB image.\n\
 /*
 %!test
 %! x = __imaq_handler_open__(__test__device__{:});
-%! s = __imaq_handler_enum_framesizes__(x, "RGB24");
-%! default_size = s(1,:);
-%! __imaq_handler_s_fmt__(x, "RGB24", default_size);
-%! t = __imaq_handler_enum_frameintervals__(x, default_size, "RGB24");
-%! #__imaq_handler_enum_fmt__(x).description
+%! s = __imaq_handler_enum_framesizes__(x, "MJPG")(end,:);
+%! __imaq_handler_s_fmt__(x, "MJPG", s);
+%! t = __imaq_handler_enum_frameintervals__(x, s, "MJPG");
 %! __imaq_handler_streamon__(x, 2);
-%! [img, seq, timestamp] = __imaq_handler_capture__(x);
-%! assert(size(img), [default_size(2), default_size(1), 3]);
+%! [img, seq, timestamp] = __imaq_handler_capture__(x, 0, 0);
+%! assert(size(img), [s(2), s(1), 3]);
 */
 
 /*  change controls
 %!test
 %! x = __imaq_handler_open__(__test__device__{:});
-%! s = __imaq_handler_enum_framesizes__(x, "RGB24");
-%! __imaq_handler_s_fmt__(x, "RGB24", s(end,:));
+%! s = __imaq_handler_enum_framesizes__(x, "MJPG");
+%! __imaq_handler_s_fmt__(x, "MJPG", s(end,:));
 %! ctrls = __imaq_handler_queryctrl__(x);
 %!   if (isfield(ctrls, "brightness"))
 %!   min_brightness = ctrls.brightness.min;
