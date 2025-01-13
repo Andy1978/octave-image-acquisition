@@ -273,8 +273,17 @@ octave_value
 mf_handler::enum_formats ()
 {
   Cell tmp = loop_native_media_types().contents("fourcc");
-  string_vector sv = tmp.string_vector_value ();
-  return octave_value (sv.sort (true));
+  string_vector sv = tmp.string_vector_value ().sort (true);
+
+  // make struct array for v4l2 compatibility
+  octave_map ret;
+  for (int k = 0; k < sv.numel (); ++k)
+    {
+      octave_scalar_map sm;
+      sm.assign ("fourcc", sv(k));
+      ret.assign(octave_idx_type(k), sm);
+    }
+  return octave_value(ret);
 }
 
 Matrix
@@ -349,8 +358,9 @@ mf_handler::enum_frameintervals (string pixelformat, uint32_t width, uint32_t he
 Matrix
 mf_handler::get_frameinterval ()
 {
-  Matrix ret(1,2);
-  return ret;
+	octave_scalar_map tmp = g_fmt ();
+  //Matrix ret(1,2);
+  return tmp.contents("frame_rate").matrix_value ();
 }
 
 void
@@ -361,7 +371,7 @@ mf_handler::set_frameinterval (Matrix timeperframe)
 void
 mf_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
 {
-  cout << "mf_handler::s_fmt (" << fmtstr << ", " << xres << ", " << yres << ") called" << endl;
+  //cout << "mf_handler::s_fmt (" << fmtstr << ", " << xres << ", " << yres << ") called" << endl;
 
   // typically webcams provide YUV2 format, you'll need to convert it to
   // RGB yourself or with help of IMFTransform
@@ -383,8 +393,8 @@ mf_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
       CHECK(hr);
 
       // FIXME: schauen, wie man das geschickter machen kann
-#define MUX_FMT(X) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## X);
-#define MUX_FMT2(X,Y) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## Y);
+      #define MUX_FMT(X) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## X);
+      #define MUX_FMT2(X,Y) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## Y);
 
       if MUX_FMT(MJPG)
       else if MUX_FMT(YUY2)
@@ -407,14 +417,20 @@ mf_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
 
       CHECK(hr);
 
-      // set frame size
-      UINT64 tmp = ((UINT64)xres << 32) | yres;
-      hr = type->SetUINT64(MF_MT_FRAME_SIZE, tmp);
-      CHECK(hr);
+      if (xres && yres)
+      {
+        // set frame size
+        UINT64 tmp = ((UINT64)xres << 32) | yres;
+        hr = type->SetUINT64(MF_MT_FRAME_SIZE, tmp);
+        CHECK(hr);
+      }
 
       // finally call SetCurrentMediaType
       hr = reader->SetCurrentMediaType (MF_SOURCE_READER_FIRST_VIDEO_STREAM, NULL, type);
       CHECK(hr);
+
+      if (! SUCCEEDED (hr))
+        error ("mf_handler::s_fmt (%s, %u, %u) SetCurrentMediaType failed", fmtstr.c_str(), xres, yres);
 
       type->Release ();
     }
@@ -646,7 +662,10 @@ octave_value mf_handler::queryctrl ()
 int mf_handler::g_ctrl (int id)
 {
   int src_obj = id >> 16;
-  long prop = id && 0xFFFF;
+  long prop = id & 0xFFFF;
+
+  //printf ("DEBUG: mf_handler::g_ctrl (%i), src_obj = %i, prop = %li\n", id, src_obj, prop);
+
   octave_scalar_map tmp = get_ctrl_range (device, src_obj, prop);
   return tmp.contents ("value").int_value();
 }
@@ -656,7 +675,7 @@ void mf_handler::s_ctrl (int id, int value)
 {
   HRESULT hr = 0;
   int src_obj = id >> 16;
-  long prop = id && 0xFFFF;
+  long prop = id & 0xFFFF;
   long val = value;
 
   if (src_obj == 0)
@@ -804,6 +823,7 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
         {
           if (!preview_window)
             {
+              //printf ("v4l2_handler::capture: create an new preview_window\n");
               preview_window = new img_win(10, 10, width, height);
               preview_window->show();
             }
