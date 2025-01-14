@@ -98,7 +98,7 @@ function val = get (vi, prop)
         # get controls
         ctrls = __imaq_handler_queryctrl__(vi.imaqh);
         if (isfield(ctrls, prop))
-          val = __imaq_handler_get_ctrl__(vi.imaqh, ctrls.(prop).id);
+          val = __imaq_handler_g_ctrl__(vi.imaqh, ctrls.(prop).id);
         else
           error ("videoinput: get: invalid property name '%s'", prop);
         endif
