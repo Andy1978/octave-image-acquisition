@@ -104,13 +104,12 @@ function ret = set (vi, varargin)
             endif
           otherwise
             if (!__is_read_only_property__(prop))
-              # could be a v4l2 control
               ctrls = __imaq_handler_queryctrl__(vi.imaqh);
               if (isfield(ctrls, prop))
                 __imaq_handler_s_ctrl__(vi.imaqh, ctrls.(prop).id, val);
                 v = __imaq_handler_g_ctrl__(vi.imaqh, ctrls.(prop).id);
                 if ( val != v)
-                  warning("v4l2 driver limited set value %d to %d", val, v);
+                  warning("driver limited set value %d to %d", val, v);
                 endif
               else
                 error ('set: invalid property of videoinput class');
