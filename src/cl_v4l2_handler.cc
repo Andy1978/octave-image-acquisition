@@ -910,12 +910,26 @@ v4l2_handler::capture (int nargout, bool preview, bool raw_output)
   bool is_mjpg  = false;
   bool is_ycbcr = false;
 
-  if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_RGB24)
-    // RGB3 aka RGB24
+  if (   fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_RGB24
+      || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_BGR24)
+    // RGB3 aka RGB24 bzw. BGR
     // return [height x width x 3] uint8 matrix
     {
       ret(0) = imaq_handler::get_RGB24 (buffers[buf.index].start,  buf.bytesused, fmt.fmt.pix.width, fmt.fmt.pix.height);
       is_rgb3 = true;
+
+      if (fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_BGR24)
+      {
+         // wtf? There must be a better way to do this...
+         // ret = ret (:,:,[3 2 1])
+         Array<octave::idx_vector> ia (dim_vector (3, 1), octave::idx_vector::colon);
+         Array<octave_idx_type> x (dim_vector (3, 1), 0);
+         x(0) = 2;
+         x(1) = 1;
+         x(2) = 0;
+         ia (2) = x;
+         ret(0) = ret(0).uint8_array_value().index (ia);
+      }
     }
   else if (  fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SBGGR10
              || fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_SGRBG10
@@ -1022,7 +1036,7 @@ v4l2_handler::capture (int nargout, bool preview, bool raw_output)
       else
         error ("v4l2_handler::capture: no conversion from '%s' to RGB3 implemented yet", v4l2_format_name(fmt.fmt.pix.pixelformat).c_str());
     }
-    else
+    //else
       //printf ("DEBUG: already an RGB3 image, do nothing...\n");
 
     if (preview)
@@ -1055,7 +1069,7 @@ v4l2_handler::capture (int nargout, bool preview, bool raw_output)
         preview_window = 0;
       }
 
-    if (! raw_output)
+    if (! raw_output && ! is_rgb3)
       ret(0) = rgb_img;
   }
 
