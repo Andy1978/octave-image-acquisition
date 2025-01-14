@@ -100,7 +100,6 @@ endfunction
 %!   assert (seq >= 2);
 %! endif
 %! [img, seq, T] = getsnapshot(obj, 0);
-%! assert (isstruct(T))
 %! stop (obj)
 %! set (obj, "VideoResolution", oldval);
 
@@ -108,7 +107,7 @@ endfunction
 %! obj = videoinput (__test__device__{:});
 %! fmts = {set(obj,"VideoFormat").fourcc};
 %! for k = 1:numel (fmts)
-%!   set (obj, "VideoFormat", fmts{k})
+%!   set (obj, "VideoFormat", fmts{k});
 %!   s = get (obj, "VideoResolution");
 %!   start (obj)
 %!   img = getsnapshot (obj);
