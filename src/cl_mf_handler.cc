@@ -358,7 +358,7 @@ mf_handler::enum_frameintervals (string pixelformat, uint32_t width, uint32_t he
 Matrix
 mf_handler::get_frameinterval ()
 {
-	octave_scalar_map tmp = g_fmt ();
+  octave_scalar_map tmp = g_fmt ();
   //Matrix ret(1,2);
   return tmp.contents("frame_rate").matrix_value ();
 }
@@ -710,6 +710,8 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
       // this is reading in syncronous blocking mode, MF supports also async calls
       hr = reader->ReadSample (MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &stream, &flags, &timestamp, &sample);
       CHECK(hr);
+      if (! SUCCEEDED (hr))
+        error ("mf_handler::capture IMFSourceReader->ReadSample failed");
 
       if (flags & MF_SOURCE_READERF_STREAMTICK)
         {
@@ -717,6 +719,7 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
           continue;
         }
 
+      //printf ("timestamp = %llu\n", timestamp);
       break;
     }
 
@@ -788,10 +791,10 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
 
     if (nargout > 2) // timestamp
       {
-        octave_scalar_map timestamp;
-        timestamp.assign ("tv_sec", (long int) 0); //(buf.timestamp.tv_sec));
-        timestamp.assign ("tv_usec", (long int) 0); //(buf.timestamp.tv_usec));
-        ret(2) = octave_value(timestamp);
+        // pllTimestamp
+        // Receives the time stamp of the sample, or the time of the stream event indicated in pdwStreamFlags.
+        // The time is given in 100-nanosecond units.
+        ret(2) = octave_value(timestamp / 1e7);
       }
 
     if (nargout > 3) // timecode

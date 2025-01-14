@@ -982,10 +982,7 @@ v4l2_handler::capture (int nargout, bool preview, bool raw_output)
   if (nargout > 2)
     {
       // add timestamp to frame
-      octave_scalar_map timestamp;
-      timestamp.assign ("tv_sec", (long int)(buf.timestamp.tv_sec));
-      timestamp.assign ("tv_usec", (long int)(buf.timestamp.tv_usec));
-      ret(2) = octave_value(timestamp);
+      ret(2) = octave_value(buf.timestamp.tv_sec + buf.timestamp.tv_usec / 1e6);
     }
 
   // return timecode
