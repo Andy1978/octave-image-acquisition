@@ -96,7 +96,7 @@ public:
 
   octave_value queryctrl ();                  //!< Query controls
   int g_ctrl (int id);                        //!< Get control
-  void s_ctrl (int id, int value);            //!< Set control
+  void s_ctrl (int id, octave_value val);     //!< Set control
 
   octave_value_list capture (int nargout,
                              bool preview,

@@ -486,8 +486,7 @@ Use the field id from __imaq_handler_queryctrl__.\n\
   if (imgh)
     {
       unsigned int id = args(1).int_value ();
-      unsigned int value = args(2).int_value ();
-      imgh->s_ctrl (id, value);
+      imgh->s_ctrl (id, args(2));
     }
   return retval;
 }

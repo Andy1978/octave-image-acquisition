@@ -671,24 +671,35 @@ int mf_handler::g_ctrl (int id)
 }
 
 // FIXME/ToDo: how can I enable CameraControl_Flags_Auto once set to Manual?
-void mf_handler::s_ctrl (int id, int value)
+void mf_handler::s_ctrl (int id, octave_value val)
 {
   HRESULT hr = 0;
   int src_obj = id >> 16;
   long prop = id & 0xFFFF;
-  long val = value;
+
+  //printf ("DEBUG: val.isempty () = %i\n", val.isempty());
 
   if (src_obj == 0)
     {
       IAMCameraControlPtr spCameraControl(device);
       if(spCameraControl)
-        hr = spCameraControl->Set(prop, val, CameraControl_Flags_Manual);
+      {
+        if (val.isempty())
+          hr = spCameraControl->Set(prop, 0, CameraControl_Flags_Auto);
+        else
+          hr = spCameraControl->Set(prop, val.int_value(), CameraControl_Flags_Manual);
+      }
     }
   else if (src_obj == 1)
     {
       IAMVideoProcAmpPtr spVideo(device);
       if(spVideo)
-        hr = spVideo->Set(prop, val, CameraControl_Flags_Manual);
+      {
+        if (val.isempty())
+          hr = spVideo->Set(prop, 0, VideoProcAmp_Flags_Auto);
+        else
+          hr = spVideo->Set(prop, val.int_value(), VideoProcAmp_Flags_Manual);
+      }
     }
   CHECK(hr)
 }

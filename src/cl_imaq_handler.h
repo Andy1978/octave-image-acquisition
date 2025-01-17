@@ -114,7 +114,7 @@ public:
   {
     return 0; //!< Get control
   }
-  virtual void s_ctrl (int id, int value) {}                    //!< Set control
+  virtual void s_ctrl (int id, octave_value val) {}     //!< Set control
 
   virtual void streamon (unsigned int n) {}             //!< start streaming with n buffers
   virtual void streamoff () {}                          //!< stop streaming

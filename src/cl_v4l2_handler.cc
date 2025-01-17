@@ -21,7 +21,7 @@
 //#include <sys/types.h>
 #include "cl_v4l2_handler.h"
 
-#define ARRAY_SIZE(a)	(sizeof(a)/sizeof((a)[0]))
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 
 static std::string
 num2s (unsigned num) //taken from v4l2-ctl.cpp
@@ -697,13 +697,18 @@ v4l2_handler::g_ctrl (int id)
  * https://www.kernel.org/doc/html/v6.1/userspace-api/media//vidioc-g-ctrl.html
  */
 void
-v4l2_handler::s_ctrl (int id, int value)
+v4l2_handler::s_ctrl (int id, octave_value val)
 {
   struct v4l2_control control;
   CLEAR(control);
   control.id = id;
-  control.value = value;
-  xioctl(fd, VIDIOC_S_CTRL, &control);
+  if (val.isempty())
+    error ("v4l2_handler::s_ctrl enable auto not yet implemented");
+  else
+  {
+    control.value = val.int_value ();
+    xioctl(fd, VIDIOC_S_CTRL, &control);
+  }
 }
 
 /*!
