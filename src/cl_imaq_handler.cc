@@ -237,6 +237,12 @@ octave_value imaq_handler::get_raw_bytes (void *start, size_t length)
 // See also ycbcrfunc.m from the image package and ./tests/cap_yuv.m
 uint8NDArray imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standard)
 {
+  //LARGE_INTEGER PerformanceFrequency;
+  //LARGE_INTEGER StartingCounts;
+  //LARGE_INTEGER EndCounts;
+  //QueryPerformanceFrequency(&PerformanceFrequency);
+  //QueryPerformanceCounter(&StartingCounts);
+
   // prüfen, ob der input ein octave_scalar_map ist
   if (! in.isstruct ())
     error ("imaq_handler::YCbCr_to_RGB: IN must be a struct");
@@ -253,35 +259,35 @@ uint8NDArray imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
   if (! tmp.contents ("Cr").is_defined ())
     error ("imaq_handler::YCbCr_to_RGB: IN has no field 'Cr'");
 
-  Matrix Y  = tmp.contents ("Y").uint8_array_value();
-  Matrix Cb = tmp.contents ("Cb").uint8_array_value();
-  Matrix Cr = tmp.contents ("Cr").uint8_array_value();
+  uint8NDArray Y  = tmp.contents ("Y").uint8_array_value();
+  uint32_t width  = Y.dims ()(1);
+  uint32_t height = Y.dims ()(0);
 
-  // die Breite und Höhe bestimmen
-  //printf ("DEBUG: Y  = %li x %li\n",  Y.dims ()(0),  Y.dims ()(1));
-  //printf ("DEBUG: Cb = %li x %li\n", Cb.dims ()(0), Cb.dims ()(1));
-  //printf ("DEBUG: Cr = %li x %li\n", Cr.dims ()(0), Cr.dims ()(1));
+  uint8NDArray Cb = tmp.contents ("Cb").uint8_array_value();
+  uint8NDArray Cr = tmp.contents ("Cr").uint8_array_value();
 
   if ((Cb.dims ()(0) != Cr.dims ()(0)) || (Cb.dims ()(1) != Cr.dims ()(1)))
     error ("imaq_handler::YCbCr_to_RGB: this code expects, that Cb and Cr have the same size");
 
-  int v_subs =  Y.dims ()(0) / Cb.dims ()(0);
-  int h_subs =  Y.dims ()(1) / Cb.dims ()(1);
-
-  if (v_subs * Cb.dims ()(0) != Y.dims ()(0))
-    error ("imaq_handler::YCbCr_to_RGB: vertical subsampling is not an integer");
-
-  if (h_subs * Cb.dims ()(1) != Y.dims ()(1))
-    error ("imaq_handler::YCbCr_to_RGB: horizontal subsampling is not an integer");
+  int v_subs =  height / Cb.dims ()(0);
+  int h_subs =  width / Cb.dims ()(1);
 
   //printf ("DEBUG: v_subs = %i\n", v_subs);
   //printf ("DEBUG: h_subs = %i\n", h_subs);
 
-  uint32_t width  = Y.dims ()(1);
-  uint32_t height = Y.dims ()(0);
+  if (v_subs * Cb.dims ()(0) != height)
+    error ("imaq_handler::YCbCr_to_RGB: vertical subsampling is not an integer");
+
+  if (h_subs * Cb.dims ()(1) != width)
+    error ("imaq_handler::YCbCr_to_RGB: horizontal subsampling is not an integer");
+
+  unsigned char *pY = reinterpret_cast<unsigned char*>(Y.fortran_vec());
+  unsigned char *pCb = reinterpret_cast<unsigned char*>(Cb.fortran_vec());
+  unsigned char *pCr = reinterpret_cast<unsigned char*>(Cr.fortran_vec());
 
   dim_vector dv (height, width, 3);
   uint8NDArray img (dv);
+  unsigned char *pImg = reinterpret_cast<unsigned char*>(img.fortran_vec());
 
   double Kb = 0;
   double Kr = 0;
@@ -312,26 +318,40 @@ uint8NDArray imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
   // Directly based on
   // https://en.wikipedia.org/wiki/YCbCr
 
-  // Not yet optimized for speed
+  double f02 = 2 - 2*Kr;
+  double f11 = - Kb/Kg*(2-2*Kb);
+  double f12 = - Kr/Kg*(2-2*Kr);
+  double f21 = 2 - 2*Kb;
+
   for (octave_idx_type r = 0; r < height; r++)
     for (octave_idx_type c = 0; c < width; c++)
       {
         // step 1: undo footroom/headroom offset and scaling
-
         // y = nominal 0..1 but 8% overshoot and 6% undershoot due to filtering is possible
-        double y  =  ((Y (r, c) - 16) / 219 );
-
         // cb+cr = nominal -0.5..0.5 but 6% over- and undershoot possible
-        double cb =  ((Cb (r / v_subs, c / h_subs) - 16) / 224) - 0.5;
-        double cr =  ((Cr (r / v_subs, c / h_subs) - 16) / 224) - 0.5;
 
-        //printf ("DEBUG: y = %.3f, cb = %.3f , cr = %.3f\n", y, cb, cr);
+        double y  = (pY[r + c * height] - 16) / 219.0;
+        int chroma_idx = r/v_subs + (c/h_subs) * (height/v_subs);
+        double cb = (pCb[chroma_idx] - 16) / 224.0 - 0.5;
+        double cr = (pCr[chroma_idx] - 16) / 224.0 - 0.5;
 
-        // step 2: multiply with inverse of color matrix
-        img (r, c, 0) = 255 * (y + (2 - 2*Kr) * cr);
-        img (r, c, 1) = 255 * (y - Kb/Kg*(2-2*Kb)*cb - Kr/Kg*(2-2*Kr)*cr);
-        img (r, c, 2) = 255 * (y + (2-2*Kb)*cb);
+        double rv = 255 * (y + f02 * cr);
+        double gv = 255 * (y + f11*cb + f12*cr);
+        double bv = 255 * (y + f21*cb);
+
+        rv = (rv > 255)? 255 : ((rv < 0)? 0 : rv);
+        gv = (gv > 255)? 255 : ((gv < 0)? 0 : gv);
+        bv = (bv > 255)? 255 : ((bv < 0)? 0 : bv);
+
+        pImg [r + c * height + 0 * width * height] = rv;
+        pImg [r + c * height + 1 * width * height] = gv;
+        pImg [r + c * height + 2 * width * height] = bv;
       }
+
+  //QueryPerformanceCounter(&EndCounts);
+  //double d = (EndCounts.QuadPart - StartingCounts.QuadPart) / double (PerformanceFrequency.QuadPart);
+  //printf ("d = %.3f ms\n", d * 1e3);
+
   return img;
 }
 

@@ -18,6 +18,12 @@ rgb = ycbcr2rgb (tmp, "601");
 figure (1); imshow(rgb)
 
 # nun die C++ Implementation
-r = __imaq_handler_YCbCr_to_RGB__ (img, 601);
+tic
+for k = 1:10
+  r = __imaq_handler_YCbCr_to_RGB__ (img, 601);
+endfor
+100 * toc ()
 figure (2); imshow(r)
-assert (!any (rgb(:)-im2uint8(r)(:)))
+
+d = double (rgb) - double (r);
+assert (! any (abs(d(:))>1))
