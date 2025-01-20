@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2014-2025 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -36,8 +36,6 @@
 #include "cl_imaq_handler.h"
 #include "cl_img_win.h"
 
-using namespace std;
-
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 #define xioctl(n, r, p) xioctl_name(n, r, p, #r, __FILE__, __LINE__)
 
@@ -62,13 +60,13 @@ public:
 
   octave_base_value *clone (void) const // TODO: check if this is okay
   {
-    octave_stdout << "v4l2_handler clone" << endl;
+    octave_stdout << "v4l2_handler clone" << std::endl;
     return new v4l2_handler (*this);
   }
 
   octave_base_value *empty_clone (void) const // TODO: check if this is okay
   {
-    octave_stdout << "v4l2_handler empty_clone" << endl;
+    octave_stdout << "v4l2_handler empty_clone" << std::endl;
     return new v4l2_handler ();
   }
 
@@ -76,7 +74,7 @@ public:
 
   octave_map enum_devices ();
 
-  octave_scalar_map open (string d, bool quiet); //!< open a v4l2 device e.g. /dev/video0
+  octave_scalar_map open (std::string d, bool quiet); //!< open a v4l2 device e.g. /dev/video0
   void print (std::ostream& os, bool pr_as_read_syntax);  //!< print itself on ostream
   octave_value querycap ();          //!< Query device capabilities
 
@@ -86,11 +84,11 @@ public:
 
   octave_value enum_formats ();      //!< Enumerate image formats
 
-  Matrix enum_framesizes (string pixelformat);     //!< Enumerate frame sizes
+  Matrix enum_framesizes (std::string pixelformat);     //!< Enumerate frame sizes
   octave_scalar_map g_fmt ();                      //!< Get current format
-  void s_fmt (string fmtstr, uint32_t xres, uint32_t yres); //!< Set format
+  void s_fmt (std::string fmtstr, uint32_t xres, uint32_t yres); //!< Set format
 
-  Matrix enum_frameintervals (string pixelformat, uint32_t width, uint32_t height);     //!< Enumerate frame intervals
+  Matrix enum_frameintervals (std::string pixelformat, uint32_t width, uint32_t height);     //!< Enumerate frame intervals
   Matrix get_frameinterval ();
   void set_frameinterval (Matrix timeperframe);
 
@@ -108,13 +106,6 @@ public:
   void streamoff ();                          //!< stop streaming
 
   void close ();                              //!< close v4l2 device
-  /*
-    bool preview_window_is_shown()
-    {
-      Fl::wait(0);
-      return (preview_window)? preview_window->shown() : false;
-    }
-  */
 
   bool is_video_capture ()
   {
@@ -133,23 +124,13 @@ private:
   static bool type_loaded;
 
   int fd;
-  string dev;
+  std::string dev;
   unsigned int n_buffer;
   struct buffer *buffers;
   bool streaming;
   //img_win *preview_window;
   bool _is_video_capture;
   bool _is_meta_capture;
-
-  // Properties
-  bool is_constant (void) const
-  {
-    return true;
-  }
-  bool is_defined (void) const
-  {
-    return true;
-  }
 
   void xioctl_name (int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line);
   octave_scalar_map get_osm (struct v4l2_queryctrl queryctrl);
@@ -158,10 +139,6 @@ private:
   void qbuf ();
   void munmap ();
   octave_scalar_map expand_cap (unsigned int cap);
-
-  //DECLARE_OV_TYPEID_FUNCTIONS_AND_DATA
 };
-
-//v4l2_handler* get_v4l2_handler_from_ov (octave_value ov);
 
 #endif

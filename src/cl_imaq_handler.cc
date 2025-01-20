@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2024 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2014-2025 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -23,7 +23,7 @@ DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA(imaq_handler, "imaq_handler", "imaq_handler"
 bool imaq_handler::type_loaded = false;
 
 imaq_handler::imaq_handler ()
-  : octave_base_value(), preview_window(0), ITU_standard (601)
+  : octave_base_dld_value(), preview_window(0), ITU_standard (601)
 {
   //octave_stdout << "imaq_handler C'Tor, type_loaded = " << type_loaded << endl;
   if (!type_loaded)
@@ -42,29 +42,25 @@ imaq_handler::imaq_handler ()
 
 imaq_handler::~imaq_handler ()
 {
-  //octave_stdout << "imaq_handler D'Tor " << endl;
-
+  //octave_stdout << "imaq_handler D'Tor " << std::endl;
   // delete preview_window if active
   if (preview_window)
     {
       delete preview_window;
       preview_window = 0;
     }
-
-  // stop streaming, unmap & free buffers, close v4l2 device
-  close();
 }
 
 void
 imaq_handler::print (std::ostream& os, bool pr_as_read_syntax = false)
 {
-  os << "This is class imaq_handler" << endl;
-  //os << "dev = " << dev << ", fd = " << fd << ", n_buffer = " << n_buffer << ", streaming = " << ((streaming)? "true":"false") << endl;
+  os << "This is class imaq_handler" << std::endl;
+  //os << "dev = " << dev << ", fd = " << fd << ", n_buffer = " << n_buffer << ", streaming = " << ((streaming)? "true":"false") << std::endl;
 }
 
 
 octave_scalar_map
-imaq_handler::open (string d, bool quiet)
+imaq_handler::open (std::string d, bool quiet)
 {
   octave_scalar_map ret;
   octave_stdout << "imaq_handler::open (d = " << d << " called" << std::endl;
@@ -74,10 +70,7 @@ imaq_handler::open (string d, bool quiet)
 void
 imaq_handler::close ()
 {
-  //streamoff();
-  //if (fd >= 0)
-  //  v4l2_close(fd);
-  //fd = -1;
+
 }
 
 // RGB3 aka RGB24

@@ -84,8 +84,11 @@ Creates an instance of imaq_handler for a v4l2 or MF device and opens it.\n\
     error ("unknown interface '%s'", type.c_str());
 
   //octave_stdout << "h = " << h << std::endl;
-  h->open (device.c_str (), false);
-  retval.append (octave_value (h));
+  if (h)
+  {
+    h->open (device.c_str (), false);
+    retval.append (octave_value (h));
+  }
 
   return retval;
 }

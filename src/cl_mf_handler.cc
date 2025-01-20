@@ -42,7 +42,9 @@ mf_handler::mf_handler ()
 }
 
 mf_handler::mf_handler (const mf_handler& m)
-  : imaq_handler()
+  : imaq_handler(),
+    device (0),
+    reader (0)
 {
   octave_stdout << "mf_handler: the copy constructor shouldn't be called" << std::endl;
 }
@@ -50,14 +52,6 @@ mf_handler::mf_handler (const mf_handler& m)
 mf_handler::~mf_handler ()
 {
   //octave_stdout << "mf_handler D'Tor " << endl;
-
-  // delete preview_window if active
-  if (preview_window)
-    {
-      delete preview_window;
-      preview_window = 0;
-    }
-
   // stop streaming, unmap & free buffers, close device
   close();
 
@@ -68,11 +62,17 @@ mf_handler::~mf_handler ()
 void
 mf_handler::print (std::ostream& os, bool pr_as_read_syntax = false)
 {
-  os << "This is class mf_handler" << endl;
+  os << "This is class mf_handler" << std::endl;
+  octave_scalar_map fmt = g_fmt ();
+  std::string fourcc = fmt.contents("fourcc").string_value ();
+  uint32NDArray s = fmt.contents("size").uint32_array_value ();
+
+  os << "  fourcc = " << fourcc << std::endl;
+  os << "  size = " << s(0) << "x" << s(1) << std::endl;
 }
 
 // https://learn.microsoft.com/en-us/archive/msdn-magazine/2016/september/c-unicode-encoding-conversions-with-stl-strings-and-win32-apis
-string wchar_to_utf8 (LPWSTR val)
+std::string wchar_to_utf8 (LPWSTR val)
 {
   int len = WideCharToMultiByte(CP_UTF8, 0, val, -1, 0, 0, 0, 0);
   //printf ("DEBUG: len = %i\n", len);
@@ -83,31 +83,31 @@ string wchar_to_utf8 (LPWSTR val)
   return buf;
 }
 
-string GetAllocatedString (IMFActivate* device, REFGUID guidKey)
+std::string GetAllocatedString (IMFActivate* device, REFGUID guidKey)
 {
   UINT32 length;
   LPWSTR val;
   HRESULT hr = device->GetAllocatedString(guidKey, &val, &length);
   CHECK(hr);
-  string ret = wchar_to_utf8 (val);
+  std::string ret = wchar_to_utf8 (val);
   CoTaskMemFree(val);
   return ret;
 }
 
-wstring utf8_to_wstring (const string &in)
+std::wstring utf8_to_wstring (const std::string &in)
 {
   int len = MultiByteToWideChar(CP_UTF8, 0, in.c_str(), -1, 0, 0);
   if (len == 0)
     {
       fprintf (stderr, "ERROR: in utf8_to_wchar, MultiByteToWideChar returned len = %i\n", len);
-      return wstring();
+      return std::wstring();
     }
   else
     {
-      wstring wide_str (len, 0);
+      std::wstring wide_str (len, 0);
       MultiByteToWideChar(CP_UTF8, 0, in.c_str(), -1, &wide_str[0], len);
 
-      //wcout << L"DEBUG: Converted wide string: " << wide_str << endl;
+      //wcout << L"DEBUG: Converted wide string: " << wide_str << std::endl;
       return wide_str;
     }
 }
@@ -159,7 +159,7 @@ mf_handler::enum_devices ()
 }
 
 octave_scalar_map
-mf_handler::open (string d, bool quiet)
+mf_handler::open (std::string d, bool quiet)
 {
   HRESULT hr;
   octave_scalar_map ret;
@@ -167,7 +167,7 @@ mf_handler::open (string d, bool quiet)
   //octave_stdout << "DEBUG: mf_handler::open (d = '" << d << "') called" << std::endl;
 
   // ToDo: Muss man schauen, welche ID unter windoze Sinn macht. Vorerst symlink weil eindeutig
-  wstring symlink = utf8_to_wstring (d);
+  std::wstring symlink = utf8_to_wstring (d);
 
   // create device from symlink
   {
@@ -287,7 +287,7 @@ mf_handler::enum_formats ()
 }
 
 Matrix
-mf_handler::enum_framesizes (string pixelformat)
+mf_handler::enum_framesizes (std::string pixelformat)
 {
   octave_map tmp = loop_native_media_types();
   dim_vector dv (tmp.numel (), 2);
@@ -320,7 +320,7 @@ mf_handler::enum_framesizes (string pixelformat)
 }
 
 Matrix
-mf_handler::enum_frameintervals (string pixelformat, uint32_t width, uint32_t height)
+mf_handler::enum_frameintervals (std::string pixelformat, uint32_t width, uint32_t height)
 {
   octave_map tmp = loop_native_media_types();
   dim_vector dv (tmp.numel (), 2);
@@ -369,7 +369,7 @@ mf_handler::set_frameinterval (Matrix timeperframe)
 }
 
 void
-mf_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
+mf_handler::s_fmt (std::string fmtstr, uint32_t xres, uint32_t yres)
 {
   //cout << "mf_handler::s_fmt (" << fmtstr << ", " << xres << ", " << yres << ") called" << endl;
 
@@ -566,7 +566,7 @@ octave_scalar_map mf_handler::g_fmt ()
   HRESULT hr = reader->GetCurrentMediaType (MF_SOURCE_READER_FIRST_VIDEO_STREAM, &pType);
   CHECK(hr);
 
-  ret = current_fmt = g_fmt (pType);
+  ret = g_fmt (pType);
 
   pType->Release ();
   return ret;
@@ -754,11 +754,12 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
     //  printf ("%x ", data[k]);
     //printf ("\n");
 
-    // get current format
-    string fmt = current_fmt.contents("fourcc").string_value ();
+    // get current formats
+    octave_scalar_map fmt_map = g_fmt ();
+    std::string fmt = fmt_map.contents("fourcc").string_value ();
     //printf ("DEBUG: mf_handler::capture: fmt = '%s'\n", fmt.c_str());
 
-    uint32NDArray s = current_fmt.contents("size").uint32_array_value ();
+    uint32NDArray s = fmt_map.contents("size").uint32_array_value ();
     UINT32 width = s(0);
     UINT32 height = s(1);
     //printf ("DEBUG: mf_handler::capture: size = [%i %i]\n", width, height);
@@ -831,13 +832,13 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
       else if (is_mjpg)
         rgb_img = JPG_to_RGB (ret(0));
       else
-        error ("v4l2_handler::capture: no conversion from '%s' to RGB3 implemented yet", fmt.c_str());
+        error ("mf_handler::capture: no conversion from '%s' to RGB3 implemented yet", fmt.c_str());
 
       if (preview)
         {
           if (!preview_window)
             {
-              //printf ("v4l2_handler::capture: create an new preview_window\n");
+              //printf ("mf_handler::capture: create an new preview_window\n");
               preview_window = new img_win(10, 10, width, height);
               preview_window->show();
             }

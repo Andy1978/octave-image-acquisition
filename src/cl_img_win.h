@@ -25,8 +25,6 @@
 #include <stdio.h>
 #include <string.h>   //for memcpy
 
-using namespace std;
-
 #ifndef _CIMAGEWINDOW_H_
 #define _CIMAGEWINDOW_H_
 

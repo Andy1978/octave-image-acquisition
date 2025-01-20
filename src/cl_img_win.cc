@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2014-2025 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -66,7 +66,7 @@ img_win::copy_img (const unsigned char* p, unsigned int w, unsigned int h, bool 
       pixel = (uchar*)realloc (pixel, len);
       if (!pixel)
         {
-          cerr << "ERROR: could not allocate memory for internal pixel structure" << endl;
+          std::cerr << "ERROR: could not allocate memory for internal pixel structure" << std::endl;
           exit (EXIT_FAILURE);
         }
       Fl_Double_Window::size (w + 2 * BORDER_PX, h + 2 * BORDER_PX);
@@ -85,7 +85,7 @@ img_win::custom_label (const char *device, unsigned int seq, double fps)
 {
 #define BUF_LEN 80
   static char buf[BUF_LEN];
-  snprintf (buf, BUF_LEN, "%d x %d %s seq=%06d fps=%5.2f %s", img_w(), img_h(), (is_RGB)? "RGB":"gray", seq, fps, device);
+  snprintf (buf, BUF_LEN, "%d x %d %s seq=%06u fps=%5.2f %s", img_w(), img_h(), (is_RGB)? "RGB":"gray", seq, fps, device);
   label (buf);
 }
 #endif

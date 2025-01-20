@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2014-2025 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -122,7 +122,7 @@ static std::string v4l2_fourcc_name(unsigned int fourcc)
       fourcc >>= 8;
     }
   name[4] = '\0';
-  return string(name);
+  return std::string(name);
 }
 
 static std::string v4l2_format_name(unsigned int fourcc)
@@ -130,16 +130,14 @@ static std::string v4l2_format_name(unsigned int fourcc)
   for (unsigned int i = 0; i < ARRAY_SIZE(pixel_formats); ++i)
     {
       if (pixel_formats[i].fourcc == fourcc)
-        return string(pixel_formats[i].name);
+        return std::string(pixel_formats[i].name);
     }
   return v4l2_fourcc_name(fourcc);
 }
 
 static unsigned int v4l2_format_code(const char *name)
 {
-  unsigned int i;
-
-  for (i = 0; i < ARRAY_SIZE(pixel_formats); ++i)
+  for (unsigned int i = 0; i < ARRAY_SIZE(pixel_formats); ++i)
     {
       if (strcasecmp(pixel_formats[i].name, name) == 0)
         return pixel_formats[i].fourcc;
@@ -164,18 +162,13 @@ v4l2_handler::v4l2_handler ()
     fd(-1), n_buffer(0), buffers(0), streaming(0),
     _is_video_capture (0), _is_meta_capture(0)
 {
-  //octave_stdout << "v4l2_handler C'Tor" << endl;
   //octave_stdout << "v4l2_handler C'Tor, type_id() = " << type_id() << std::endl;
-
-  //~ if (!type_loaded)
-  //~ {
-  //~ type_loaded = true;
-  //~ register_type();
-  //~ }
 }
 
 v4l2_handler::v4l2_handler (const v4l2_handler& m)
-  : imaq_handler()
+  : imaq_handler(),
+    fd(-1), n_buffer(0), buffers(0), streaming(0),
+    _is_video_capture (0), _is_meta_capture(0)
 {
   octave_stdout << "v4l2_handler: the copy constructor shouldn't be called" << std::endl;
 }
@@ -183,14 +176,6 @@ v4l2_handler::v4l2_handler (const v4l2_handler& m)
 v4l2_handler::~v4l2_handler ()
 {
   //octave_stdout << "v4l2_handler D'Tor " << endl;
-
-  // delete preview_window if active
-  if (preview_window)
-    {
-      delete preview_window;
-      preview_window = 0;
-    }
-
   // stop streaming, unmap & free buffers, close v4l2 device
   close();
 }
@@ -198,8 +183,8 @@ v4l2_handler::~v4l2_handler ()
 void
 v4l2_handler::print (std::ostream& os, bool pr_as_read_syntax = false)
 {
-  os << "This is class v4l2_handler" << endl;
-  os << "dev = " << dev << ", fd = " << fd << ", n_buffer = " << n_buffer << ", streaming = " << ((streaming)? "true":"false") << endl;
+  os << "This is class v4l2_handler" << std::endl;
+  os << "dev = " << dev << ", fd = " << fd << ", n_buffer = " << n_buffer << ", streaming = " << ((streaming)? "true":"false") << std::endl;
 }
 
 typedef std::vector<std::string> dev_vec;
@@ -276,7 +261,7 @@ v4l2_handler::xioctl_name (int fh, unsigned long int request, void *arg, const c
 }
 
 octave_scalar_map
-v4l2_handler::open (string d, bool quiet)
+v4l2_handler::open (std::string d, bool quiet)
 {
   //octave_stdout << "v4l2_handler::open d = " << d << " called" << std::endl;
 
@@ -481,7 +466,7 @@ v4l2_handler::enum_formats ()
  * \sa enum_frameintervals
  */
 Matrix
-v4l2_handler::enum_framesizes (string pixelformat)
+v4l2_handler::enum_framesizes (std::string pixelformat)
 {
   Matrix ret;
   uint32_t pfcode = v4l2_format_code(pixelformat.c_str());
@@ -514,7 +499,7 @@ v4l2_handler::enum_framesizes (string pixelformat)
  * \sa enum_framesizes
  */
 Matrix
-v4l2_handler::enum_frameintervals (string pixelformat, uint32_t width, uint32_t height)
+v4l2_handler::enum_frameintervals (std::string pixelformat, uint32_t width, uint32_t height)
 {
   Matrix ret;
   uint32_t pfcode = v4l2_format_code(pixelformat.c_str());
@@ -616,7 +601,7 @@ v4l2_handler::get_osm (struct v4l2_queryctrl queryctrl)
     {
       struct v4l2_querymenu querymenu;
       CLEAR(querymenu);
-      stringstream menu_str;
+      std::stringstream menu_str;
 
       querymenu.id = queryctrl.id;
 
@@ -719,7 +704,7 @@ v4l2_handler::s_ctrl (int id, octave_value val)
  * The used libv4l2 pixelformat is set to fmt, V4L2_FIELD_INTERLACED
  */
 void
-v4l2_handler::s_fmt (string fmtstr, uint32_t xres, uint32_t yres)
+v4l2_handler::s_fmt (std::string fmtstr, uint32_t xres, uint32_t yres)
 {
   if (streaming)
     {

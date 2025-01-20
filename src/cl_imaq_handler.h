@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2024 Andreas Weber <andy.weber.aw@gmail.com>
+// Copyright (C) 2014-2025 Andreas Weber <andy.weber.aw@gmail.com>
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -36,9 +36,9 @@
 
 #include "cl_img_win.h"
 
-using namespace std;
-
-class imaq_handler: public octave_base_value
+// See https://savannah.gnu.org/bugs/?61994#comment30
+// jwe: ... any .oct file that introduces a new type should derive from octave_base_dld_value instead of just octave_base_value ...
+class imaq_handler: public octave_base_dld_value
 {
 public:
 
@@ -79,14 +79,14 @@ public:
   }
 
   virtual void print (std::ostream& os, bool pr_as_read_syntax);  //!< print itself on ostream
-  virtual octave_scalar_map open (string d, bool quiet);
+  virtual octave_scalar_map open (std::string d, bool quiet);
 
   virtual octave_value querycap ()
   {
     return octave_value ();  //!< Query device capabilities
   }
 
-  virtual Matrix enum_framesizes (string pixelformat)
+  virtual Matrix enum_framesizes (std::string pixelformat)
   {
     return Matrix ();  //!< Enumerate frame sizes
   }
@@ -94,9 +94,9 @@ public:
   {
     return octave_scalar_map ();  //!< Get current format
   }
-  virtual void s_fmt (string fmtstr, uint32_t xres, uint32_t yres) {}             //!< Set format
+  virtual void s_fmt (std::string fmtstr, uint32_t xres, uint32_t yres) {}             //!< Set format
 
-  virtual Matrix enum_frameintervals (string pixelformat, uint32_t width, uint32_t height)
+  virtual Matrix enum_frameintervals (std::string pixelformat, uint32_t width, uint32_t height)
   {
     return Matrix ();  //!< Enumerate frame intervals
   }
@@ -139,7 +139,21 @@ public:
   static uint8NDArray YCbCr_to_RGB (const octave_value& in, int ITU_standard = 601);
   static uint8NDArray JPG_to_RGB (const octave_value& in);
 
-  void close ();                              //!< close device
+  virtual void close ();                              //!< close device
+
+  // Properties
+
+  bool is_defined (void) const { return true; }
+
+  // Attention/FIXME: some examples show overloading rows + columns, some dims
+  // It looks like Octave 9.3 only uses "dims"
+  //int rows () const { return 1; }
+  //int columns () const { return 1; }
+  dim_vector dims (void) const { static dim_vector dv(1, 1); return dv; }
+
+  bool is_constant (void) const { return true; }
+  bool isobject (void) const { return true;}
+  //bool print_as_scalar () const { return true; }
 
 protected:
 
@@ -157,38 +171,6 @@ protected:
 private:
   imaq_handler (const imaq_handler& m);
   static bool type_loaded;
-
-  /*
-    int fd;
-    string dev;
-    unsigned int n_buffer;
-    struct buffer *buffers;
-    bool streaming;
-    bool _is_video_capture;
-    bool _is_meta_capture;
-  */
-
-
-
-  // Properties
-  bool is_constant (void) const
-  {
-    return true;
-  }
-  bool is_defined (void) const
-  {
-    return true;
-  }
-
-  /*
-    void xioctl_name (int fh, unsigned long int request, void *arg, const char* name, const char* file, const int line);
-    octave_scalar_map get_osm (struct v4l2_queryctrl queryctrl);
-    void reqbufs (unsigned int n);  //!< Initiate Memory Mapping or User Pointer I/O
-    void mmap ();
-    void qbuf ();
-    void munmap ();
-    octave_scalar_map expand_cap (unsigned int cap);
-  */
 
   DECLARE_OV_TYPEID_FUNCTIONS_AND_DATA
 };
