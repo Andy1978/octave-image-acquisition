@@ -17,9 +17,7 @@
 #ifdef HAVE_MFAPI_H
 #include <cassert>
 #include <dirent.h>
-//#include <sys/types.h>
 #include "cl_mf_handler.h"
-
 
 #define CHECK(hr) if (!SUCCEEDED(hr)) fprintf (stderr, "%s:%s:%i failed with %li\n", __FILE__, __FUNCTION__, __LINE__, GetLastError());
 
@@ -63,12 +61,17 @@ void
 mf_handler::print (std::ostream& os, bool pr_as_read_syntax = false)
 {
   os << "This is class mf_handler" << std::endl;
-  octave_scalar_map fmt = g_fmt ();
-  std::string fourcc = fmt.contents("fourcc").string_value ();
-  uint32NDArray s = fmt.contents("size").uint32_array_value ();
+  if (reader)
+  {
+    octave_scalar_map fmt = g_fmt ();
+    std::string fourcc = fmt.contents("fourcc").string_value ();
+    uint32NDArray s = fmt.contents("size").uint32_array_value ();
 
-  os << "  fourcc = " << fourcc << std::endl;
-  os << "  size = " << s(0) << "x" << s(1) << std::endl;
+    os << "  fourcc = " << fourcc << std::endl;
+    os << "  size = " << s(0) << "x" << s(1) << std::endl;
+  }
+  else
+    os << "  closed (reader == NULL)" << std::endl;
 }
 
 // https://learn.microsoft.com/en-us/archive/msdn-magazine/2016/september/c-unicode-encoding-conversions-with-stl-strings-and-win32-apis
@@ -359,13 +362,34 @@ Matrix
 mf_handler::get_frameinterval ()
 {
   octave_scalar_map tmp = g_fmt ();
-  //Matrix ret(1,2);
   return tmp.contents("frame_rate").matrix_value ();
 }
 
+// TODO/FIXME: If the set frame_rate is not within MF_MT_FRAME_RATE_RANGE_MIN and MF_MT_FRAME_RATE_RANGE_MAX,
+// it's silently ignored. (get_frameinterval still returns the set frame_rate)
 void
 mf_handler::set_frameinterval (Matrix timeperframe)
 {
+  IMFMediaType* type;
+
+  HRESULT hr = MFCreateMediaType(&type);
+  CHECK(hr);
+
+  hr = reader->GetCurrentMediaType (MF_SOURCE_READER_FIRST_VIDEO_STREAM, &type);
+  CHECK(hr);
+
+  UINT32 unDenominator = timeperframe(0);
+  UINT32 unNumerator = timeperframe(1);
+  hr = MFSetAttributeRatio(type, MF_MT_FRAME_RATE, unNumerator, unDenominator);
+  CHECK (hr);
+
+  hr = reader->SetCurrentMediaType (MF_SOURCE_READER_FIRST_VIDEO_STREAM, NULL, type);
+  CHECK(hr);
+
+  if (! SUCCEEDED (hr))
+    error ("mf_handler::set_frameinterval (%u, %u) SetCurrentMediaType failed", unNumerator, unDenominator);
+
+  type->Release ();
 }
 
 void
@@ -461,24 +485,32 @@ octave_scalar_map mf_handler::g_fmt (IMFMediaType *pType)
     ret.assign ("size", s);
   }
 
-  // get frame rate
+  // get frame rate range
   {
-    UINT32 unNumerator_min;
-    UINT32 unDenominator_min;
+    UINT32 unNumerator_min = 0;
+    UINT32 unDenominator_min = 0;
     hr = MFGetAttributeRatio(pType, MF_MT_FRAME_RATE_RANGE_MIN, &unNumerator_min, &unDenominator_min);
     CHECK (hr);
-    //printf ("MF_MT_FRAME_RATE_RANGE_MIN = %i/%i\n", unNumerator_min, unNumerator_min);
+    //printf ("MF_MT_FRAME_RATE_RANGE_MIN = %i/%i\n", unNumerator_min, unDenominator_min);
 
-    UINT32 unNumerator_max;
-    UINT32 unDenominator_max;
+    UINT32 unNumerator_max = 0;
+    UINT32 unDenominator_max = 0;
     hr = MFGetAttributeRatio(pType, MF_MT_FRAME_RATE_RANGE_MAX, &unNumerator_max, &unDenominator_max);
     CHECK (hr);
-    //printf ("MF_MT_FRAME_RATE_RANGE_MAX = %i/%i\n", unNumerator_min, unNumerator_min);
+    //printf ("MF_MT_FRAME_RATE_RANGE_MAX = %i/%i\n", unNumerator_max, unDenominator_max);
 
-    // TODO: all of my tests with uvcvideo returned eqal values vor _MIN and _MAX
+    UINT32 unNumerator = 0;
+    UINT32 unDenominator = 0;
+    hr = MFGetAttributeRatio(pType, MF_MT_FRAME_RATE, &unNumerator, &unDenominator);
+    CHECK (hr);
+    //printf ("MF_MT_FRAME_RATE = %i/%i\n", unNumerator, unDenominator);
+
+    // TODO: all of my tests with uvcvideo returned equal values for _MIN and _MAX
     // but can we be sure?
     assert (unNumerator_min == unNumerator_max);
     assert (unDenominator_min == unDenominator_max);
+    assert (unNumerator_min == unNumerator);
+    assert (unDenominator_min == unDenominator);
 
     // Some items return odd ratios, for example uvcvideo C270
     // MF_MT_SUBTYPE_CLSID = {32595559-0000-0010-8000-00AA00389B71}
@@ -486,10 +518,21 @@ octave_scalar_map mf_handler::g_fmt (IMFMediaType *pType)
     // unNumerator = 10000000, unDenominator = 1333333
     // where v4l2 return 15/2 as expected...
 
-    Matrix s(1,2);
-    s(0) = unDenominator_min;
-    s(1) = unNumerator_min;
-    ret.assign ("frame_rate", s);
+    // FIXME: if all three are equal, there is no need to return them all
+    //Matrix fr_min (1, 2);
+    //fr_min(0) = unDenominator_min;
+    //fr_min(1) = unNumerator_min;
+    //ret.assign ("frame_rate_min", fr_min);
+
+    //Matrix fr_max (1, 2);
+    //fr_max(0) = unDenominator_max;
+    //fr_max(1) = unNumerator_max;
+    //ret.assign ("frame_rate_max", fr_max);
+
+    Matrix fr (1, 2);
+    fr(0) = unDenominator;
+    fr(1) = unNumerator;
+    ret.assign ("frame_rate", fr);
   }
 
   // get FOURCC
@@ -794,8 +837,8 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
     buffer->Unlock ();
     buffer->Release ();
 
-    // Fake other return values, all not yet implemented
-    // TODO/FIXME: try to implement sequence, timestamp, timecode
+    // Fake other return values, somme not yet implemented
+    // TODO/FIXME: try to implement timecode
 
     static int sequence_nr = 0;
     if (nargout > 1) // sequence
@@ -806,7 +849,7 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
         // pllTimestamp
         // Receives the time stamp of the sample, or the time of the stream event indicated in pdwStreamFlags.
         // The time is given in 100-nanosecond units.
-        ret(2) = octave_value(timestamp / 1e7);
+        ret(2) = timestamp / 1.0e7;
       }
 
     if (nargout > 3) // timecode

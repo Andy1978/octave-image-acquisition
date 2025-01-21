@@ -58,9 +58,10 @@ public:
   octave_scalar_map open (std::string d, bool quiet);
   void print (std::ostream& os, bool pr_as_read_syntax);  //!< print itself on ostream
 
-  // TODO: enum_inputs, get_input, set_input not yet implemented for media foundation
+  // TODO: querycap not yet implemented for mf
   octave_value querycap (); //!< Query device capabilities
 
+  // TODO: enum_inputs, get_input, set_input not yet implemented for media foundation
   octave_value enum_inputs ();       //!< Enumerate video inputs
   int get_input ();                  //!< Query the current video input
   void set_input (int index);        //!< Select video input
