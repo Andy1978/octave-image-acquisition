@@ -141,7 +141,7 @@ function ret = __list_range__ (vi, prop)
           # return possible frameintervals for currently selected framesize
           fmt = __imaq_handler_g_fmt__(vi.imaqh).fourcc;
           current_frame_size = __imaq_handler_g_fmt__ (vi.imaqh).size;
-          ret = __imaq_handler_enum_frameintervals__ (vi.imaqh, current_frame_size, fmt);
+          ret = __imaq_handler_enum_frameintervals__ (vi.imaqh, fmt, current_frame_size);
         case 'VideoFormat'
           ret = __imaq_handler_enum_formats__(vi.imaqh);
         otherwise ## perhaps a v4l2 control?

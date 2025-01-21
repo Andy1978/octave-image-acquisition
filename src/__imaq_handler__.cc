@@ -260,7 +260,7 @@ Enumerate available frame sizes from imaq_handler @var{h} for given pixelformat 
 // PKG_DEL: autoload ("__imaq_handler_enum_frameintervals__", which ("__imaq_handler__.oct"), "remove");
 DEFUN_DLD(__imaq_handler_enum_frameintervals__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} {@var{T} = } __imaq_handler_enum_frameintervals__ (@var{h}, @var{size}, @var{format})\n\
+@deftypefn {Loadable Function} {@var{T} = } __imaq_handler_enum_frameintervals__ (@var{h}, @var{fmt}, @var{size})\n\
 Enumerate available frame intervals from imaq_handler @var{h}.\n\
 Return a Nx2 matrix with numerator, denominator.\n\
 @end deftypefn")
@@ -277,14 +277,14 @@ Return a Nx2 matrix with numerator, denominator.\n\
   imaq_handler* imgh = get_imaq_handler_from_ov (args(0));
   if (imgh)
     {
-      if (!args (1).is_matrix_type())
+      if (!args (2).is_matrix_type())
         print_usage();
       else
         {
-          Matrix s = args(1).matrix_value ();
+          Matrix s = args(2).matrix_value ();
           unsigned int width = s(0);
           unsigned int height = s(1);
-          string pixel_format = args(2).string_value ();
+          string pixel_format = args(1).string_value ();
           retval = octave_value(imgh->enum_frameintervals (pixel_format, width, height));
         }
     }
@@ -679,7 +679,7 @@ Convert raw mjpg stream (as returned from the camera) into uint8 RGB image.\n\
 %! x = __imaq_handler_open__(__test__device__{:});
 %! s = __imaq_handler_enum_framesizes__(x, "MJPG")(end,:);
 %! __imaq_handler_s_fmt__(x, "MJPG", s);
-%! t = __imaq_handler_enum_frameintervals__(x, s, "MJPG");
+%! t = __imaq_handler_enum_frameintervals__(x, "MJPG", s);
 %! __imaq_handler_streamon__(x, 2);
 %! [img, seq, timestamp] = __imaq_handler_capture__(x, 0, 0);
 %! assert(size(img), [s(2), s(1), 3]);
