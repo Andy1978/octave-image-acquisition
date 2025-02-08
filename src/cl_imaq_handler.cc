@@ -35,7 +35,7 @@ imaq_handler::imaq_handler ()
 }
 
 //~ v4l2_handler::v4l2_handler (const v4l2_handler& m)
-//~ : octave_base_value()
+//~ : octave_base_dld_value()
 //~ {
 //~ octave_stdout << "v4l2_handler: the copy constructor shouldn't be called" << std::endl;
 //~ }

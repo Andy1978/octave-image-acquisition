@@ -39,13 +39,13 @@ public:
 
   mf_handler ();
 
-  octave_base_value *clone (void) const // TODO: check if this is okay
+  octave_base_dld_value *clone (void) const // TODO: check if this is okay
   {
     octave_stdout << "mf_handler clone" << std::endl;
     return new mf_handler (*this);
   }
 
-  octave_base_value *empty_clone (void) const // TODO: check if this is okay
+  octave_base_dld_value *empty_clone (void) const // TODO: check if this is okay
   {
     octave_stdout << "mf_handler empty_clone" << std::endl;
     return new mf_handler ();

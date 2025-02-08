@@ -1182,7 +1182,7 @@ v4l2_handler::close ()
 //~ }
 
 //~ v4l2_handler* imgh = 0;
-//~ const octave_base_value& rep = ov.get_rep();
+//~ const octave_base_dld_value& rep = ov.get_rep();
 //~ imgh = &((v4l2_handler &)rep);
 //~ return imgh;
 //~ }

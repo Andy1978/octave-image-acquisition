@@ -58,13 +58,13 @@ public:
 
   v4l2_handler ();
 
-  octave_base_value *clone (void) const // TODO: check if this is okay
+  octave_base_dld_value *clone (void) const // TODO: check if this is okay
   {
     octave_stdout << "v4l2_handler clone" << std::endl;
     return new v4l2_handler (*this);
   }
 
-  octave_base_value *empty_clone (void) const // TODO: check if this is okay
+  octave_base_dld_value *empty_clone (void) const // TODO: check if this is okay
   {
     octave_stdout << "v4l2_handler empty_clone" << std::endl;
     return new v4l2_handler ();
