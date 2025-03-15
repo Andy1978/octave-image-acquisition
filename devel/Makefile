@@ -8,7 +8,6 @@ check:
 debug:
 	$(MAKE) -C ../src clean
 	$(MAKE) -C ../src $@
-	octave --no-gui --persist run_with_gdb.m
 
 clean:
 	rm -f fntest.log
