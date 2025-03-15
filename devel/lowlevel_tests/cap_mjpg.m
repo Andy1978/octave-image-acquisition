@@ -1,7 +1,6 @@
 # Capture MJPG image
 
 clear all
-addpath ("../../inst") # for __test__device__
 load_imaq
 
 x = __imaq_handler_open__(__test__device__{:})

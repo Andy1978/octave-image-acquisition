@@ -17,7 +17,7 @@ tmp = cat(3, img.Y, kron (img.Cb, [1 1]), kron (img.Cr, [1 1]));
 rgb = ycbcr2rgb (tmp, "601");
 figure (1); imshow(rgb)
 
-# nun die C++ Implementation
+# check the C++ implementation
 tic
 for k = 1:10
   r = __imaq_handler_YCbCr_to_RGB__ (img, 601);

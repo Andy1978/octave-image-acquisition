@@ -713,9 +713,15 @@ int mf_handler::g_ctrl (int id)
   return tmp.contents ("value").int_value();
 }
 
-// FIXME/ToDo: how can I enable CameraControl_Flags_Auto once set to Manual?
 void mf_handler::s_ctrl (int id, octave_value val)
 {
+  // This uses the old dshow API (looks like there is nothin in native media foundation)
+  // See also https://github.com/opencv/opencv/blob/14396b802947d69d3cc44f0e809977b891ef8f4a/modules/videoio/src/cap_dshow.cpp#L1948
+
+  // Attention: after switching back to CameraControl_Flags_Auto
+  // you need to capture some frames to let the param settle (for example auto gain)
+  // See ./devel/check_controls.m
+
   HRESULT hr = 0;
   int src_obj = id >> 16;
   long prop = id & 0xFFFF;
