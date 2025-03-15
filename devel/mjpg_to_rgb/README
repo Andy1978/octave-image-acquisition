@@ -1,0 +1,9 @@
+https://stackoverflow.com/questions/59632172/how-to-decode-an-mjpeg-to-raw-rgb-or-yuv-data
+
+lib srd: https://www.ijg.org/files/jpegsrc.v9f.tar.gz
+
+and playground to debug Logitech C270 MJPG frame.
+libjpeg complains with "Corrupt JPEG data: 8 extraneous bytes before marker 0xd0" in this case
+
+Have a look at the error handler routines,
+cl_imaq_handler.cc_stub was a first try to adress this
