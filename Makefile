@@ -31,7 +31,7 @@ TAR       ?= tar
 
 TOLOWER = $(SED) -e 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/'
 
-.PHONY: help dist html release install all check run debug clean
+.PHONY: help dist html release install all check run debug clean realclean
 
 help:
 	@echo "Targets:"
@@ -47,7 +47,7 @@ help:
 	@echo
 	@echo "   clean   - Remove releases, html documentation, and oct files"
 
-$(RELEASE_DIR):
+$(RELEASE_DIR): src/configure
 	@echo "Creating package version $(VERSION) release ..."
 	rm -rf $@ && mkdir -p $@/src
 	# Explicitly copy only needed files
@@ -93,13 +93,16 @@ install: $(RELEASE_TARBALL)
 	@echo "Installing package locally ..."
 	$(OCTAVE) --silent --eval 'pkg ("install", "${RELEASE_TARBALL}")'
 
-src/Makefile:
+src/configure:
+	cd src/ && ./bootstrap
+
+src/Makefile: src/configure
 	cd src/ && ./configure
 
 all: $(CC_SOURCES) src/Makefile
 	$(MAKE) -C src/
 
-## At least one video input device or v4l2 loopback needed
+## At least one video input device or v4l2 loopback is needed
 check: all
 	$(OCTAVE) --no-window-system --silent \
 	  --eval 'addpath (fullfile ([pwd filesep "inst"]));' \
@@ -126,3 +129,6 @@ clean:
 	rm -f ./devel/fntest.log
 	-test -e src/Makefile && $(MAKE) -C src distclean
 
+realclean:
+	-test -e src/Makefile && $(MAKE) -C src realclean
+	$(MAKE) clean
