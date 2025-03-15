@@ -24,7 +24,7 @@ CC_SOURCES  = $(wildcard src/*.cc)
 OCT_FILES   = $(patsubst %.cc,%.oct,$(CC_SOURCES))
 PKG_ADD     = $(shell grep -Pho '(?<=// PKG_ADD: ).*' $(CC_SOURCES) $(M_SOURCES))
 
-MD5SUM    ?= md5sum
+SHA256    ?= sha256sum
 OCTAVE    ?= octave
 SED       ?= sed
 TAR       ?= tar
@@ -81,9 +81,7 @@ dist: $(RELEASE_TARBALL)
 html: $(HTML_TARBALL)
 
 release: dist html
-	$(MD5SUM) $(RELEASE_TARBALL) $(HTML_TARBALL)
-	@echo "Upload @ https://sourceforge.net/p/octave/package-releases/new/"
-	@echo 'Execute: hg tag "release-${VERSION}"'
+	$(SHA256) $(RELEASE_TARBALL) $(HTML_TARBALL)
 
 ## Note that in development versions this target may fail if we are dependent
 ## on unreleased versions.  This is by design, to force possible developers
