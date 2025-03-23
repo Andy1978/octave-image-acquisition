@@ -20,7 +20,11 @@ function display (vi)
 
   caps = get(vi, "DeviceCapabilities");
   printf("%sdriver               = %s\n", sp, caps.driver);
-  printf("%scard                 = %s\n", sp, caps.card);
+  if (isprop (vi, "PrettyName")) # use pretty name for media foundation
+    printf("%scard                 = %s\n", sp, vi.PrettyName);
+  else
+    printf("%scard                 = %s\n", sp, caps.card);
+  endif
 
   printf("%sVideoInput           = %d\n", sp, get(vi, "VideoInput"));
   s = get(vi, "VideoResolution");
@@ -29,9 +33,7 @@ function display (vi)
   fmt = get(vi, "VideoFormat");
   printf("%sVideoFormat          = %s\n", sp, fmt);
 
-  # not supported by all devices (for example media interfaces subdefs)
-  # FIXME what should we do?
-  # T = get(vi, "VideoFrameInterval");
-  # printf("%sVideoFrameInterval   = %d/%d s (%.1f fps)\n", sp, T(1), T(2), T(2)/T(1));
+  T = get(vi, "VideoFrameInterval");
+  xprintf("%sVideoFrameInterval   = %d/%d s (%.1f fps)\n", sp, T(1), T(2), T(2)/T(1));
 
 endfunction
