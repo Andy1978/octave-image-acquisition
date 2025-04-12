@@ -1,3 +1,8 @@
+ Summary of important changes for image-acquisition 0.3.1 (2025/04/12):
+------------------------------------------------------------------------
+
+ ** videoinput: Use first available device when no adapter given.
+
  Summary of important changes for image-acquisition 0.3.0 (2025/03/15):
 ------------------------------------------------------------------------
 
