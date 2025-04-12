@@ -34,6 +34,6 @@ function display (vi)
   printf("%sVideoFormat          = %s\n", sp, fmt);
 
   T = get(vi, "VideoFrameInterval");
-  xprintf("%sVideoFrameInterval   = %d/%d s (%.1f fps)\n", sp, T(1), T(2), T(2)/T(1));
+  printf("%sVideoFrameInterval   = %d/%d s (%.1f fps)\n", sp, T(1), T(2), T(2)/T(1));
 
 endfunction
