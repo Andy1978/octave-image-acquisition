@@ -29,6 +29,7 @@
 #include <mfreadwrite.h>
 #include <mferror.h>     // for MF_E_NO_MORE_TYPES
 #include <comdef.h>      // for IID_IAMCameraControl, IID_IAMVideoProcAmp
+#include <strmif.h>
 
 _COM_SMARTPTR_TYPEDEF(IAMCameraControl, IID_IAMCameraControl);
 _COM_SMARTPTR_TYPEDEF(IAMVideoProcAmp, IID_IAMVideoProcAmp);
