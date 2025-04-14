@@ -1,3 +1,8 @@
+ Summary of important changes for image-acquisition 0.3.2 (2025/04/14):
+------------------------------------------------------------------------
+
+  ** fix missing header for Media Foundation build
+
  Summary of important changes for image-acquisition 0.3.1 (2025/04/12):
 ------------------------------------------------------------------------
 
