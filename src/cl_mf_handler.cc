@@ -393,6 +393,27 @@ mf_handler::set_frameinterval (Matrix timeperframe)
   type->Release ();
 }
 
+static GUID
+GetMediaTypeGUIDFromFourCC (const std::string& fourCC)
+{
+  if (fourCC.length () != 4)
+    error ("FourCC must have exactly 4 characters.");
+
+  // corresponds to:
+  // #define FCC(ch4) ((((DWORD) (ch4) &0xff) << 24) | (((DWORD) (ch4) &0xff00) << 8) | (((DWORD) (ch4) &0xff0000) >> 8) | (((DWORD) (ch4) &0xff000000) >> 24))
+  DWORD fourCCValue = (DWORD)fourCC[0] |
+                      ((DWORD)fourCC[1] << 8) |
+                      ((DWORD)fourCC[2] << 16) |
+                      ((DWORD)fourCC[3] << 24);
+
+  // corresponds to:
+  // #define DEFINE_GUID(name,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) EXTERN_C const GUID DECLSPEC_SELECTANY name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
+
+  // #define DEFINE_MEDIATYPE_GUID(name, format) DEFINE_GUID (name, format, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+  return {fourCCValue, 0x0000, 0x0010,
+          {0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71}};
+}
+
 void
 mf_handler::s_fmt (std::string fmtstr, uint32_t xres, uint32_t yres)
 {
@@ -417,75 +438,11 @@ mf_handler::s_fmt (std::string fmtstr, uint32_t xres, uint32_t yres)
       hr = type->SetGUID (MF_MT_MAJOR_TYPE, MFMediaType_Video);
       CHECK(hr);
 
-      // make sure to use upper case FOURCC code
-      std::transform(fmtstr.begin(), fmtstr.end(), fmtstr.begin(), ::toupper);
-
-      // FIXME: dirty workaround, is there a better way to map FOURCC to MFVideoFormat_ constant?
-
-      #define MUX_FMT(X) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## X);
-      #define MUX_FMT2(X,Y) (fmtstr == #X) hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_ ## Y);
-
-      // list below generated on base of
-      // $ grep MFVideoFormat_ "GNU Octave/Octave-10.1.0/mingw64/include/mfapi.h"
-
-      if MUX_FMT(MJPG)
-      else if MUX_FMT2(AV01, AV1)
-      else if MUX_FMT2(HEVS, HEVC_ES)
-      else if MUX_FMT2(YUYV, YUY2)
-      else if MUX_FMT(420O)
-      else if MUX_FMT(AI44)
-      else if MUX_FMT(AYUV)
-      else if MUX_FMT(DV25)
-      else if MUX_FMT(DV50)
-      else if MUX_FMT(DVH1)
-      else if MUX_FMT(DVHD)
-      else if MUX_FMT(DVSD)
-      else if MUX_FMT(DVSL)
-      else if MUX_FMT(H263)
-      else if MUX_FMT(H264)
-      else if MUX_FMT(H265)
-      else if MUX_FMT(HEVC)
-      else if MUX_FMT(I420)
-      else if MUX_FMT(IYUV)
-      else if MUX_FMT(M4S2)
-      else if MUX_FMT(MP43)
-      else if MUX_FMT(MP4S)
-      else if MUX_FMT(MP4V)
-      else if MUX_FMT(MPG1)
-      else if MUX_FMT(MSS1)
-      else if MUX_FMT(MSS2)
-      else if MUX_FMT(NV11)
-      else if MUX_FMT(NV12)
-      else if MUX_FMT(NV21)
-      else if MUX_FMT(ORAW)
-      else if MUX_FMT(P010)
-      else if MUX_FMT(P016)
-      else if MUX_FMT(P210)
-      else if MUX_FMT(P216)
-      else if MUX_FMT(UYVY)
-      else if MUX_FMT(v210)
-      else if MUX_FMT(v216)
-      else if MUX_FMT(v410)
-      else if MUX_FMT(VP10);
-      else if MUX_FMT(VP80)
-      else if MUX_FMT(VP90)
-      else if MUX_FMT(WMV1)
-      else if MUX_FMT(WMV2)
-      else if MUX_FMT(WMV3)
-      else if MUX_FMT(WVC1)
-      else if MUX_FMT(Y210)
-      else if MUX_FMT(Y216)
-      else if MUX_FMT(Y410)
-      else if MUX_FMT(Y416)
-      else if MUX_FMT(Y41P)
-      else if MUX_FMT(Y41T)
-      else if MUX_FMT(Y42T)
-      else if MUX_FMT(YUY2)
-      else if MUX_FMT(YV12)
-      else if MUX_FMT(YVU9)
-      else if MUX_FMT(YVYU)
+      // mapping to different FourCC
+      if (fmtstr == "YUYV")
+        hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_YUY2);
       else
-        error ("unknown type %s", fmtstr.c_str());
+        hr = type->SetGUID (MF_MT_SUBTYPE, GetMediaTypeGUIDFromFourCC (fmtstr));
 
       CHECK(hr);
 
