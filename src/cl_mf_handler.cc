@@ -441,6 +441,14 @@ mf_handler::s_fmt (std::string fmtstr, uint32_t xres, uint32_t yres)
       // mapping to different FourCC
       if (fmtstr == "YUYV")
         hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_YUY2);
+      else if (fmtstr == "AV01")
+        hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_AV1);
+      else if (fmtstr == "HEVS")
+        hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_HEVC_ES);
+      else if (fmtstr == "theo")
+        hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_Theora);
+      else if (fmtstr == "dvc ")
+        hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_DVC);
       else
         hr = type->SetGUID (MF_MT_SUBTYPE, GetMediaTypeGUIDFromFourCC (fmtstr));
 
