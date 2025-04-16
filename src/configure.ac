@@ -19,7 +19,7 @@ AC_PATH_PROG([FLTK_CONFIG], [fltk-config], [no])
 if [test $FLTK_CONFIG = "no"]; then
   AC_MSG_ERROR([fltk-config required to install $PACKAGE_NAME])
 else
-  LIBS="`fltk-config --ldflags` $LIBS"
+  LIBS="`$FLTK_CONFIG --ldflags` $LIBS"
 	AC_DEFINE([HAVE_FLTK], [1], [Define to 1 if you have fltk-config])
 fi
 
