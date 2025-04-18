@@ -1,7 +1,7 @@
 image >> Image acquisition
 list devices
  imaqhwinfo
-v4l2 input
+videoinput
  @videoinput/videoinput
  @videoinput/get
  @videoinput/set

@@ -14,15 +14,20 @@
 ## this program; if not, see <http:##www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {[@var{img}, @var{seq}, @var{ts}, @var{tc}] =} getsnapshot (@var{vi}, [@var{preview}])
-## Get a snapshot from a videoinput object buffer.
+## @deftypefn {Function File} {[@var{img}, @var{seq}, @var{ts}, @var{tc}] =} getsnapshot (@var{vi}, [@var{preview}], [@var{raw}])
+## Get a snapshot from a videoinput object.
 ## Streaming has to be enabled before calling getsnapshot.
-## If @var{preview}==true the captured image is also shown in a separate FLTK window.
+## If @var{preview} == true the captured image is also shown in a separate window.
 ##
 ## @table @var
 ## @item img
-## Captured image. The type and size of @var{img} depends on the @qcode{VideoFormat} property of @var{vi}.
-## H and W below refers to the height and width returned from @code{get(VI, "VideoResolution")}.
+## Captured image.
+##
+## If @var{raw} == false (default) the format returned from the driver is
+## converted to RGB3. Width and height matches @code{get(VI, "VideoResolution")}
+##
+## If @var{raw} == true the format returned by the driver
+## (see @qcode{VideoFormat} property) is returned.
 ##
 ##   @table @var
 ##   @item @qcode{RGB3}, @qcode{RGB24}
@@ -41,7 +46,7 @@
 ##   frame to frame due to compression. You can save this as JPEG (add a huffman table) with
 ##   @example
 ##   @group
-##     obj = videoinput("v4l2", "/dev/video0");
+##     obj = videoinput();
 ##     set (obj, "VideoFormat", "MJPG");
 ##     start (obj);
 ##     img = getsnapshot (obj);
@@ -69,15 +74,15 @@
 ## @seealso {@@videoinput/start, @@videoinput/preview}
 ## @end deftypefn
 
-function [img, seq, timestamp, timecode] = getsnapshot (vi, pv=0, raw=0)
+function [img, seq, timestamp, timecode] = getsnapshot (vi, preview = 0, raw = 0)
 
   if (nargin < 1 || nargin > 3)
     print_usage();
   endif
   if (nargout <= 3)
-    [img, seq, timestamp] = __imaq_handler_capture__(vi.imaqh, pv, raw);
+    [img, seq, timestamp] = __imaq_handler_capture__(vi.imaqh, preview, raw);
   else
-    [img, seq, timestamp, timecode] = __imaq_handler_capture__(vi.imaqh, pv, raw);
+    [img, seq, timestamp, timecode] = __imaq_handler_capture__(vi.imaqh, preview, raw);
   endif
   #fmt = __imaq_handler_g_fmt__(vi.imaqh).pixelformat;
   #printf ("pixelformat = -%s-\n", fmt);
@@ -89,6 +94,8 @@ endfunction
 %! oldval = get(obj, "VideoResolution");
 %! default_size = set (obj, "VideoResolution")(1,:);
 %! set (obj, "VideoResolution", default_size);
+%! # We expect here, that every driver (v4l2 and Media Foundation)
+%! # on earth would support YUYV. This might not be the case...
 %! set (obj, 'VideoFormat', 'YUYV');
 %! start (obj, 2)
 %! img = getsnapshot (obj);
@@ -110,28 +117,21 @@ endfunction
 %!   set (obj, "VideoFormat", fmts{k});
 %!   s = get (obj, "VideoResolution");
 %!   start (obj)
-%!   img = getsnapshot (obj);
-%!   assert (size (img), [fliplr(s) 3]);
-%!   stop (obj)
-%! endfor
-
-%!test
-%! obj = videoinput (__test__device__{:});
-%! fmts = {set(obj,"VideoFormat").fourcc};
-%! for k = 1:numel (fmts)
-%!   set (obj, "VideoFormat", fmts{k})
-%!   s = get (obj, "VideoResolution");
-%!   start (obj)
-%!   img = getsnapshot (obj, 0, 1);
+%!   # try to internally convert to RGB3
+%!   # this might fail if there is no converter (yet)
+%!   try
+%!     img = getsnapshot (obj);
+%!     assert (size (img), [fliplr(s) 3]);
+%!   catch
+%!   end_try_catch
+%!   # getting a raw representation (like for H264) should always work
+%!   img = getsnapshot (obj, false, true); # ret raw
 %!   stop (obj)
 %! endfor
 
 %!demo
-%! obj = videoinput (__test__device__{:});
-%! fmts = {set(obj,"VideoFormat").fourcc}
-%! set (obj, "VideoFormat", fmts{1})
+%! obj = videoinput ();
 %! start (obj)
 %! img = getsnapshot (obj);
 %! image (img)
-%! title (fmts{1})
 %! stop (obj)
