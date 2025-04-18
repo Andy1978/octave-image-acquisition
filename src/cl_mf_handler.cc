@@ -860,7 +860,7 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
     buffer->Unlock ();
     buffer->Release ();
 
-    // Fake other return values, somme not yet implemented
+    // Fake other return values, some not yet implemented
     // TODO/FIXME: try to implement timecode
 
     static int sequence_nr = 0;
@@ -898,7 +898,7 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
       else if (is_mjpg)
         rgb_img = JPG_to_RGB (ret(0));
       else
-        error ("mf_handler::capture: no conversion from '%s' to RGB3 implemented yet", fmt.c_str());
+        error ("mf_handler::capture: no conversion from '%s' to RGB3 implemented yet, please try another VideoFormat or use RAW = true.", fmt.c_str());
 
       if (preview)
         {
