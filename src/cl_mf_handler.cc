@@ -438,22 +438,24 @@ mf_handler::s_fmt (std::string fmtstr, uint32_t xres, uint32_t yres)
       hr = type->SetGUID (MF_MT_MAJOR_TYPE, MFMediaType_Video);
       CHECK(hr);
 
-      // mapping to different FourCC
-      if (fmtstr == "YUYV")
+      // first try some mapping if user uses non FourCC code
+
+      if (fmtstr == "YUYV") // GNU/Linux v4l2 compatibility
         hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_YUY2);
 #if WDK_NTDDI_VERSION >= NTDDI_WIN10_RS3
-      else if (fmtstr == "AV01")
+      else if (fmtstr == "AV1")
         hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_AV1);
 #endif
-      else if (fmtstr == "HEVS")
+      else if (fmtstr == "HEVC_ES")
         hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_HEVC_ES);
 #if NTDDI_VERSION >= NTDDI_WIN10_FE
-      else if (fmtstr == "theo")
+      else if (fmtstr == "Theora")
         hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_Theora);
 #endif
-      else if (fmtstr == "dvc ")
+      else if (fmtstr == "DVC")
         hr = type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_DVC);
       else
+        // the standard path: convert FourCC to GUID
         hr = type->SetGUID (MF_MT_SUBTYPE, GetMediaTypeGUIDFromFourCC (fmtstr));
 
       CHECK(hr);
