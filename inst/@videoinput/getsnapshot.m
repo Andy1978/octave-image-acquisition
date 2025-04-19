@@ -122,7 +122,11 @@ endfunction
 %!   try
 %!     img = getsnapshot (obj);
 %!     assert (size (img), [fliplr(s) 3]);
-%!   catch
+%!   catch ME
+%!     if (! strcmp (ME.identifier, 'image-acquisition:getsnapshot:unsupported-video-format'))
+%!       stop (obj);
+%!       rethrow (ME);
+%!     endif
 %!   end_try_catch
 %!   # getting a raw representation (like for H264) should always work
 %!   img = getsnapshot (obj, false, true); # ret raw
