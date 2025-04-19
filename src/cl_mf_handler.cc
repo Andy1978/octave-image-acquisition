@@ -898,7 +898,9 @@ octave_value_list mf_handler::capture (int nargout, bool preview, bool raw_outpu
       else if (is_mjpg)
         rgb_img = JPG_to_RGB (ret(0));
       else
-        error ("mf_handler::capture: no conversion from '%s' to RGB3 implemented yet, please try another VideoFormat or use RAW = true.", fmt.c_str());
+        error_with_id ("image-acquisition:getsnapshot:unsupported-video-format",
+          "mf_handler::capture: no conversion from '%s' to RGB3 implemented yet, please try another VideoFormat or use RAW = true.",
+          fmt.c_str());
 
       if (preview)
         {
