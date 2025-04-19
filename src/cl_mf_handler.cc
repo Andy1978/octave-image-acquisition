@@ -409,9 +409,39 @@ GetMediaTypeGUIDFromFourCC (const std::string& fourCC)
   // corresponds to:
   // #define DEFINE_GUID(name,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) EXTERN_C const GUID DECLSPEC_SELECTANY name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
 
+  // From https://learn.microsoft.com/en-us/windows/win32/medfound/video-subtype-guids:
+  // ...A range of GUIDs is reserved for representing these FOURCC values as subtypes.
+  // These GUIDs have the form XXXXXXXX-0000-0010-8000-00AA00389B71,
+  // where XXXXXXXX is the 4-byte FOURCC code or D3DFORMAT value...
+
   // #define DEFINE_MEDIATYPE_GUID(name, format) DEFINE_GUID (name, format, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
   return {fourCCValue, 0x0000, 0x0010,
           {0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71}};
+}
+
+std::string
+GetFourCCFromMediaTypeGUID (GUID sub)
+{
+  // get FOURCC
+
+  // https://learn.microsoft.com/en-us/windows/win32/medfound/video-subtype-guids
+  // https://learn.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid
+  // Data1: first 8 hexadecimal digits
+  // Data2: first group of 4 hexadecimal digits
+  // Data3: second group of 4 hexadecimal digits
+  // Data4: Array of 8 bytes.
+  //        The first 2 bytes contain the third group of 4 hexadecimal digits.
+  //        The remaining 6 bytes contain the final 12 hexadecimal digits.
+
+  // First 4 bytes are FOURCC
+  char tmp_fourcc[5];
+  tmp_fourcc[0] = int8_t (sub.Data1 & 0xff);
+  tmp_fourcc[1] = int8_t ((sub.Data1 & 0xff00) >> 8);
+  tmp_fourcc[2] = int8_t ((sub.Data1 & 0xff0000) >> 16);
+  tmp_fourcc[3] = int8_t ((sub.Data1 & 0xff000000) >> 24);
+  tmp_fourcc[4] = 0;
+
+  return std::string(tmp_fourcc);
 }
 
 void
@@ -554,64 +584,28 @@ octave_scalar_map mf_handler::g_fmt (IMFMediaType *pType)
     ret.assign ("frame_rate", fr);
   }
 
-  // get FOURCC
+  // get FourCC
+  {
+    GUID sub;
+    hr = pType->GetGUID (MF_MT_SUBTYPE, &sub);
+    CHECK(hr);
+    ret.assign ("fourcc", GetFourCCFromMediaTypeGUID (sub));
 
-  // https://learn.microsoft.com/en-us/windows/win32/medfound/video-subtype-guids
-  // https://learn.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid
-  // Data1: first 8 hexadecimal digits
-  // Data2: first group of 4 hexadecimal digits
-  // Data3: second group of 4 hexadecimal digits
-  // Data4: Array of 8 bytes.
-  //        The first 2 bytes contain the third group of 4 hexadecimal digits.
-  //        The remaining 6 bytes contain the final 12 hexadecimal digits.
-  GUID sub;
+    // get CLSID as string (informational purpose only)
+    OLECHAR* guidString;
+    StringFromCLSID(sub, &guidString);
+    //printf ("DEBUG: guidString = '%S'\n", guidString);
+    ret.assign ("MF_MT_SUBTYPE_CLSID", wchar_to_utf8 (guidString));
+    ::CoTaskMemFree(guidString);
+  }
 
-  hr = pType->GetGUID (MF_MT_SUBTYPE, &sub);
-  CHECK(hr);
-
-  // First 4 bytes are FOURCC
-  char tmp_fourcc[5];
-  tmp_fourcc[0] = int8_t (sub.Data1 & 0xff);
-  tmp_fourcc[1] = int8_t ((sub.Data1 & 0xff00) >> 8);
-  tmp_fourcc[2] = int8_t ((sub.Data1 & 0xff0000) >> 16);
-  tmp_fourcc[3] = int8_t ((sub.Data1 & 0xff000000) >> 24);
-  tmp_fourcc[4] = 0;
-
-  ret.assign ("fourcc", std::string(tmp_fourcc));
-
-  // get CLSID as string (informational purpose only)
-  OLECHAR* guidString;
-  StringFromCLSID(sub, &guidString);
-  //printf ("DEBUG: guidString = '%S'\n", guidString);
-  ret.assign ("MF_MT_SUBTYPE_CLSID", wchar_to_utf8 (guidString));
-  ::CoTaskMemFree(guidString);
-
-  /*
-  // Die Konstanten sind wohl nur die FOURCC
-  #define out(x) printf (#x" %lx\n", x.Data1)
-  out (MFVideoFormat_MJPG);
-  out (MFVideoFormat_YUY2);
-  out (MFVideoFormat_NV12);
-  out (MFVideoFormat_AI44);
-  out (MFVideoFormat_AYUV);
-  out (MFVideoFormat_I420);
-  out (MFVideoFormat_IYUV);
-  out (MFVideoFormat_NV11);
-  out (MFVideoFormat_NV21);
-  out (MFVideoFormat_UYVY);
-  out (MFVideoFormat_Y41P);
-  out (MFVideoFormat_Y41T);
-  out (MFVideoFormat_Y42T);
-  out (MFVideoFormat_YVU9);
-  out (MFVideoFormat_YV12);
-  out (MFVideoFormat_YVYU);
-  */
-
+  // check if it's a compressed format
+  // TODO/FIXME: not tested yet
   {
     int fCompressed = 0;
     hr = pType->IsCompressedFormat (&fCompressed);
     CHECK(hr)
-    ret.assign ("flags_compressed", fCompressed);  // TODO/FIXME: not tested yet
+    ret.assign ("flags_compressed", fCompressed);
 
     // GetNativeMediaType should only return native formats
     ret.assign ("flags_emulated", false);
