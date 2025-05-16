@@ -9,14 +9,14 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 AC_LANG(C++)
 
-AC_CHECK_PROG([HAVE_MKOCTFILE], [mkoctfile], [yes], [no])
-if [test $HAVE_MKOCTFILE = "no"]; then
+AC_CHECK_PROG(MKOCTFILE, mkoctfile, mkoctfile)
+if test -z "$MKOCTFILE"; then
   AC_MSG_ERROR([mkoctfile required to install $PACKAGE_NAME])
 fi
 
 AC_PATH_PROG([FLTK_CONFIG], [fltk-config], [no])
 
-if [test $FLTK_CONFIG = "no"]; then
+if test $FLTK_CONFIG = "no"; then
   AC_MSG_ERROR([fltk-config required to install $PACKAGE_NAME])
 else
   LIBS="`$FLTK_CONFIG --ldflags` $LIBS"
