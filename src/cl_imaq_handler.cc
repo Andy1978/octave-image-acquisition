@@ -303,7 +303,7 @@ uint8NDArray imaq_handler::YCbCr_to_RGB (const octave_value& in, int ITU_standar
       Kr = 0.2627;
       break;
     default:
-      error ("imaq_handler:YCbCr_to_RGB: unkown ITU_standard %i", ITU_standard);
+      error ("imaq_handler:YCbCr_to_RGB: unknown ITU_standard %i", ITU_standard);
     }
 
   double Kg = 1 - Kb - Kr;
